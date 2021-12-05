@@ -1,0 +1,108 @@
+.dex-app-window {
+    height: 100%;
+    width: 100%;
+    border: 1px solid #354251;
+    border-top-width: 30px;
+    border-left: 0px;
+    border-right: 0px;
+    /*transition: all .1s;*/
+    overflow: hidden;
+}
+.dex-app-window-close {
+    width: 15px;
+    height: 15px;
+    margin-top: -23px;
+    float: right;
+    color: #fff;
+    cursor: pointer;
+    right: 0px;
+    margin-right: 17px;
+    position: absolute;
+}
+.dex-app-window-minimize {
+    width: 15px;
+    height: 15px;
+    margin-top: -23px;
+    float: right;
+    color: #fff;
+    cursor: pointer;
+    right: 0px;
+    margin-right: 40px;
+    position: absolute;
+}
+.dex-app-window-title {
+    height: 15px;
+    margin-top: -25px;
+    float: left;
+    color: #fff;
+    margin-left: 10px;
+    font-size: 12px;
+    position: absolute;
+}
+.dex-app-window-info {
+    height: 15px;
+    margin-top: -23px;
+    float: right;
+    color: #fff;
+    cursor: pointer;
+    right: 0px;
+    margin-right: 50px;
+    position: absolute;
+    font-size: 11px;
+}
+.dex-app-window-info span {
+    margin-left: 5px;
+}
+
+.dex-app-window-body {
+    width: calc(100% + 1px);
+    height: calc(100%);
+    margin-left: -1px;
+    background: #fff;
+}
+.dex-table-container {
+    width: 100%;
+}
+.dex-app-window-body table {
+    /*display: block;*/
+    /*margin-top: 500px;*/
+}
+.dex-table-container::-webkit-scrollbar-track {border-radius: 1px;}
+.dex-table-container::-webkit-scrollbar {width: 6px;height: 6px;}
+.dex-table-container::-webkit-scrollbar-thumb {border-radius: 1px;background: #f0f2f5;}
+.dex-table-container:hover::-webkit-scrollbar-thumb {background: #354251;}
+
+.dex-app-window-filter {
+    float: left;
+    left: 0px;
+    margin-left: 200px;
+    position: absolute;
+    margin-top: -30px;
+    height: 30px;
+    width: 450px;
+}
+.dex-app-window .dex-period-container {
+    height: 30;
+    float: left;
+    color: #fff;
+    cursor: pointer;
+    left: 0px;
+    position: absolute;
+    font-size: 11px;
+    background: none;
+}
+.dex-app-window .dex-period-container input {
+   /*position: relative;z-index:1;opacity:0;*/
+   color:  #fff;
+   border: 0px;
+}
+.dex-app-window .dex-period-container input:focus{
+    border: 0px;
+    box-shadow: none;
+}
+.dex-app-window .dex-period-container .form-group {
+    float: left;
+}
+.dex-app-window .dex-period-container .form-control {
+    width:  auto;
+}

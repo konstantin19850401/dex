@@ -1,0 +1,68 @@
+.dex-table-container {
+	margin-top: 3px;
+	font-size: 11px;
+	overflow: auto;
+}
+.dex-table-container thead th {
+	font-weight: 100;
+	font-size: 12px;
+}
+.sort-up:before {
+	content: '\f0de';
+	font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    float: right;
+}
+.sort-down:before {
+	content: '\f0dd';
+	font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    float: right;
+}
+.dex-table-container td {
+	/*line-height:0px;*/
+}
+.dex-table-container .selected-row {
+	background-color: #B0BED9;
+}
+.dex-table-container .selected-row:hover {
+	background-color: #B0BED9;
+}
+.dex-table-container table thead {
+    position: sticky;
+    top: 0px;
+}
+.dex-table-container table {
+    /*border: 1px solid #ced4da;*/
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+
+}
+.dex-table-container table th {
+    border-left: 1px solid #ced4da;
+    padding: 5px;
+    background-color: #354251;
+    color: #fff;
+}
+.dex-table-container table th:first-child {
+    border-left:  none;
+}
+.dex-table-container table td {
+    border-left: 1px solid #ced4da;
+    border-bottom: 1px solid #ced4da;
+    padding: 0px 5px 0px 5px;
+}
+.dex-table-container table tr {
+    background-color: #fff;
+    cursor: default;
+}
+.dex-table-container .dnone {
+    display: none;
+}
+.dex-table-container table tr:hover {
+    background-color: #f3f3f3;
+}
+.dex-table-container table td:first-child {
+    border-left:  none;
+}

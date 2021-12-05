@@ -1,0 +1,285 @@
+.dex-contract {
+    width: 800px;
+    height: 450px;
+    border: 1px solid #354251;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    position: absolute;
+    top: 1em;
+    left: 50%;
+    margin-left: -400px;
+    background: #fff;
+    border-top-width: 40px;
+    box-shadow: 1px 1px 15px 1px;
+    z-index: 10;
+    transition: all 150ms linear;
+    -o-transition: all 150ms linear;
+    -ms-transition: all 150ms linear;
+    -moz-transition: all 150ms linear;
+    -webkit-transition: all 150ms linear;
+    padding-right: 2px;
+}
+.start-fields-block {
+    display: none;
+}
+.start-fields-block label {
+    font-weight: 800;
+}
+.check-sim-data {
+    width: 300px;
+    height: 110px;
+    left: 50%;
+    margin-left: -150px;
+    top: 50%;
+    margin-top: -55px;
+}
+.check-sim-data .start-fields-block {
+    display: block;
+}
+.check-sim-data label {
+    text-indent: 5px;
+    line-height: 2em;
+}
+.check-sim-data .dex-contract-body .row {
+    --bs-gutter-x: 4px;
+     font-size: 11px;
+    padding: 0px 2px;
+}
+.dex-contract-title-new, .dex-contract-title-data {
+    height: 15px;
+    position: relative;
+    top: -29px;
+    float: left;
+    color: #fff;
+    margin-left: 10px;
+    font-size: 13px;
+    font-weight: 700;
+}
+.dex-contract-title-data {
+    display: none;
+}
+
+.check-sim-data .dex-contract-title-data {
+    font-size: 11px;
+    font-weight: 700;
+    display: block;
+}
+
+.check-sim-data .dex-contract-title-new {
+    display: none;
+}
+/*.check-sim-data .dex-contract-close {
+    margin-right: 10px;
+}*/
+
+.dex-contract-close {
+    width: 15px;
+    height: 15px;
+    position: relative;
+    top: -28px;
+    float: right;
+    color: #fff;
+    margin-right: 7px;
+    cursor: pointer;
+    margin-right: 11px;
+}
+.dex-contract-body {
+    width: 100%;
+    margin-right: 2px;
+    margin-left: 2px;
+    margin-top: 2px;
+    height: calc(100% - 20px - 25px) ;
+    overflow-y: auto;
+    /*border: 1px solid #354251;*/
+
+    transition: all 1500ms linear;
+    -o-transition: all 1500ms linear;
+    -ms-transition: all 1500ms linear;
+    -moz-transition: all 1500ms linear;
+    -webkit-transition: all 1500ms linear;
+}
+
+.dex-contract-body::-webkit-scrollbar-track {border-radius: 1px;}
+.dex-contract-body::-webkit-scrollbar {width: 6px;}
+.dex-contract-body::-webkit-scrollbar-thumb {border-radius: 1px;background: #f0f2f5;}
+.dex-contract-body:hover::-webkit-scrollbar-thumb {background: #354251}
+
+.dex-contract-footer {
+    height:  30px;
+    padding: 0px 10px;
+}
+.dex-contract-footer button {
+    float:  right;
+}
+/*.check-sim-data .dex-contract-footer {
+    padding: 0px 10px;
+}*/
+.dex-contract-btn-check, .dex-contract-btn-new {
+    display: inline-block;
+    /* font-family: arial,sans-serif; */
+    font-size: 12px;
+    color: #fff;
+    text-shadow: 0 -1px rgb(46,53,58);
+    text-decoration: none;
+    user-select: none;
+    line-height: 1.3em;
+    margin-top: 4px;
+    padding: 1px 1.2em;
+    outline: none;
+    border: 1px solid rgba(33,43,52,1);
+    /* border-radius: 3px; */
+    background: rgb(81,92,102) linear-gradient(rgb(81,92,102), rgb(69,78,87));
+    box-shadow: inset 0 1px rgba(101,114,126,1),
+   inset 0 0 1px rgba(140,150,170,.8),
+   0 1px rgb(83,94,104),
+   0 0 1px rgb(86,96,106);
+}
+.dex-contract-btn-check:focus:not(:active), .dex-contract-btn-new:focus:not(:active) {
+    border: 1px solid rgb(22,32,43);
+    border-bottom: 1px solid rgb(25,34,45);
+    background: rgb(53,61,71);
+    box-shadow: inset 0 1px 3px rgba(0,10,20,.5),
+   0 1px rgb(83,94,104),
+   0 0 1px rgb(86,96,106);
+    pointer-events: none;
+}
+.dex-contract-btn-check:active, .dex-contract-btn-new:active {
+    box-shadow: inset 0 1px 3px rgba(0,10,20,.5),
+   0 1px rgb(83,94,104),
+   0 0 1px rgb(86,96,106);
+}
+.dex-contract-btn-check {
+    display: none;
+}
+.check-sim-data .dex-contract-btn-check {
+    display: block;
+}
+
+.check-sim-data .dex-contract-btn-new {
+    display: none;
+}
+.check-sim-data .dex-contract-btn-check {
+    font-size: 11px;
+}
+.dex-contract-block {
+    display: block;
+    margin-left: 0px;
+}
+.check-sim-data .dex-contract-block {
+    display: none;
+}
+.dex-contract-fix-block {
+    padding-left: 3px;
+    padding-right: 3px;
+    height: calc(100% - 5px);
+    border: 1px solid #354251;
+    float: left;
+}
+.dex-contract-dynamic-block {
+    /*border: 1px solid #354251;*/
+    padding-left: 1px;
+    padding-right: 1px;
+    height: calc(100% - 5px);
+    /*overflow-y: scroll;*/
+    float: right;
+
+}
+
+.dex-contract-dynamic-block::-webkit-scrollbar-track {border-radius: 1px;}
+.dex-contract-dynamic-block::-webkit-scrollbar {width: 6px;}
+.dex-contract-dynamic-block::-webkit-scrollbar-thumb {border-radius: 1px;background: #f0f2f5;}
+.dex-contract-dynamic-block:hover::-webkit-scrollbar-thumb {background: #354251}
+
+.dex-contract-fix-block-title, .dex-contract-dynamic-block-title {
+    width: 100%;
+    font-size: 11px;
+    text-indent: 5px;
+}
+.dex-contract-block {
+    font-size: 11px;
+}
+.dex-contract .form-group {
+    top: 1em;
+}
+.dex-contract .form-control {
+    box-shadow:  none;
+    height: 25px;
+    padding: 0px 10px;
+}
+/*.dex-contract-dynamic-right input {
+    font-size: 15px;
+    background: none;
+    block-size: 2em;
+    padding: 5px 0px;
+}
+.dex-contract-dynamic-right input:focus {
+     background: none;
+     box-shadow: none;
+
+}
+.dex-contract-dynamic-right .floating-label .dex-label {
+    top: 0em;
+    padding-left: 1em;
+    font-size: 11px;
+}
+.dex-contract-dynamic-right .floating-label .dex-label:focus {
+    font-size: 11px;
+    top: -12px;
+    padding-left: 1em;
+}*/
+/*.dex-contract-dynamic-right .floating-label {
+    padding-top: 20px;
+}
+.dex-label input.form-control.dirty ~ label {
+    top: -20px;
+    font-size: 11px;
+    padding-left: 1em;
+}
+*/
+.dex-contract-dynamic-right .form-group .dex-label {
+    top: -1em;
+}
+.dex-contract-dynamic-right .form-control:focus ~ label:after, .dex-contract-dynamic-right .form-control:focus ~ .form-control-line:after {
+    visibility: visible;
+    width: 88%;
+    left: 12px;
+}
+.dex-contract-dynamic-right .form-control:focus ~ label:after, .dex-contract-dynamic-right .form-control:focus ~ .form-control-line:after {
+    width: 100%;
+    left: 0px;
+}
+.dynamic-block-title {
+    background: #354251;
+    color: #fff;
+    padding: 0.5em 2em;
+    margin-left: -15px;
+    font-size: 10px;
+    margin-top: 2px;
+    cursor: pointer;
+    text-align: center;
+}
+.dynamic-block-title:hover {
+    box-shadow: 2px 2px 2px 2px;
+    transition: all 150ms linear;
+    -o-transition: all 150ms linear;
+    -ms-transition: all 150ms linear;
+    -moz-transition: all 150ms linear;
+    -webkit-transition: all 150ms linear;
+    margin-left: 0px;
+    background: #0aa89e;
+}
+.dex-contract-dynamic-right .form-group {
+    margin-bottom: 15px;
+}
+.dex-contract-dynamic-left {
+    /*border: 1px solid #354251;*/
+    height: 100%;
+    float: left;
+}
+.dex-contract-dynamic-right {
+    /*border: 1px solid #354251;*/
+    height: 100%;
+    float: right;
+    padding-bottom: 30px;
+}

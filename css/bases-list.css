@@ -1,0 +1,103 @@
+.bases-list {
+    width: 250px;
+    /*height: 110px;*/
+    border: 1px solid #354251;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    position: absolute;
+    top: 3em;
+    left: 50%;
+    margin-left: -125px;
+    background: #fff;
+    border-top-width: 30px;
+    box-shadow: 1px 1px 15px 1px;
+    z-index: 10;
+    transition: all 150ms linear;
+    -o-transition: all 150ms linear;
+    -ms-transition: all 150ms linear;
+    -moz-transition: all 150ms linear;
+    -webkit-transition: all 150ms linear;
+    padding-right: 2px;
+}
+.bases-list-close {
+    width: 15px;
+    height: 15px;
+    position: relative;
+    top: -23px;
+    float: right;
+    color: #fff;
+    cursor: pointer;
+    margin-right: 4px;
+}
+.bases-list-title {
+    height: 15px;
+    position: relative;
+    top: -25px;
+    float: left;
+    color: #fff;
+    margin-left: 10px;
+    font-size: 12px;
+}
+.bases-list-body {
+    width: 100%;
+    margin-right: 2px;
+    margin-left: 2px;
+    margin-top: 2px;
+    height: calc(100% - 20px);
+}
+.bases-list-select {
+    height: 2em;
+    width: 48%;
+    font-size: 12px;
+    margin-left: 5px;
+}
+.bases-list-btn {
+    display: inline-block;
+    font-size: 10px;
+    color: #fff;
+    text-shadow: 0 -1px rgb(46,53,58);
+    text-decoration: none;
+    user-select: none;
+    line-height: 1.3em;
+    margin-top: 4px;
+    padding: 1px 1.2em;
+    outline: none;
+    border: 1px solid rgba(33,43,52,1);
+    /* border-radius: 3px; */
+    background: rgb(81,92,102) linear-gradient(rgb(81,92,102), rgb(69,78,87));
+    box-shadow: inset 0 1px rgba(101,114,126,1),
+   inset 0 0 1px rgba(140,150,170,.8),
+   0 1px rgb(83,94,104),
+   0 0 1px rgb(86,96,106);
+    height: 2em;
+    float: right;
+    width: 40%;
+    margin-left: 2%;
+    margin-right: 2%;
+}
+
+.bases-list-btn:focus:not(:active) {
+    border: 1px solid rgb(22,32,43);
+    border-bottom: 1px solid rgb(25,34,45);
+    background: rgb(53,61,71);
+    box-shadow: inset 0 1px 3px rgba(0,10,20,.5),
+   0 1px rgb(83,94,104),
+   0 0 1px rgb(86,96,106);
+    pointer-events: none;
+}
+.bases-list-btn:active {
+    box-shadow: inset 0 1px 3px rgba(0,10,20,.5),
+   0 1px rgb(83,94,104),
+   0 0 1px rgb(86,96,106);
+}
+.bases-list-body .form-check {
+    font-size: 11px;
+    padding-top:  10px;
+    margin-left: 5px;
+}
+.bases-list-error {
+    color: #ff0000;
+    font-size: 11px;
+    padding-left: 5px;
+}

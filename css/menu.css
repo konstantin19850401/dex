@@ -1,0 +1,134 @@
+.dex-menu {
+    width: calc(100% - 20px);
+    margin-left: 10px;
+    margin-right: 10px;
+    height:  25px;
+    padding-top: 5px;
+    /*border: 1px solid #354251;*/
+    background: #354251;
+    padding: .2em 5px .4em;
+    color: #fff;
+    position: absolute;
+    z-index: 1;
+}
+.dex-menu-left {
+    font-size: 11px;
+    /*padding-left: 5px;*/
+    float: left;
+}
+.dex-menu-left button:first-child {
+    margin-left: 0px;
+}
+.dex-menu-right {
+    font-size: 11px;
+    float: right;
+}
+.dex-menu-right button:last-child {
+     margin-right: 0px;
+}
+.dex-menu-right button {
+    margin-right: 0px;
+}
+
+.dex-menu-btn {
+  display: inline-block;
+  /*font-family: arial,sans-serif;*/
+  font-size: 11px;
+  color: #fff;
+  text-shadow: 0 -1px rgb(46,53,58);
+  text-decoration: none;
+  user-select: none;
+  line-height: 1.3em;
+  margin-left: 4px;
+  /*padding: 1px 1.2em;*/
+  outline: none;
+  border: 1px solid rgba(33,43,52,1);
+  /*border-radius: 3px;*/
+  background: rgb(81,92,102) linear-gradient(rgb(81,92,102), rgb(69,78,87));
+  box-shadow:
+   inset 0 1px rgba(101,114,126,1),
+   inset 0 0 1px rgba(140,150,170,.8),
+   0 1px rgb(83,94,104),
+   0 0 1px rgb(86,96,106);
+}
+/*.dex-menu-btn:active {
+  box-shadow:
+   inset 0 1px 3px rgba(0,10,20,.5),
+   0 1px rgb(83,94,104),
+   0 0 1px rgb(86,96,106);
+}
+.dex-menu-btn:focus:not(:active) {
+  border: 1px solid rgb(22,32,43);
+  border-bottom: 1px solid rgb(25,34,45);
+  background: rgb(53,61,71);
+  box-shadow:
+   inset 0 1px 3px rgba(0,10,20,.5),
+   0 1px rgb(83,94,104),
+   0 0 1px rgb(86,96,106);
+  pointer-events: none;
+}*/
+.active-dropdown {
+    border-bottom:  none;
+    box-shadow: inset 0 1px 3px rgb(0 10 20 / 50%), 0 0px rgb(83 94 104), 0 0 5px rgb(86 96 106);
+    border-bottom: 0px;
+    padding-bottom: 6px;
+
+    /*border: 1px solid rgb(22,32,43);*/
+  /*border-bottom: 1px solid rgb(25,34,45);*/
+  background: rgb(53,61,71);
+  box-shadow:
+   inset 0 1px 3px rgba(0,10,20,.5),
+   0 1px rgb(83,94,104),
+   0 10 1px rgb(86,96,106);
+}
+.dex-menu-btn-dropdown {
+    background: #354251;
+    width: 100px;
+    height: 100px;
+    position: absolute;
+    margin-top: 6px;
+    margin-left: -7px;
+    display: none;
+}
+.dex-menu-btn-dropdown-show {
+    display: block;
+}
+
+.dex-dropdown-menu {
+    display: none;
+     /*margin-top: 4px;*/
+    z-index: 1000;
+    border: 1px solid rgb(22,32,43);
+    border-bottom: 1px solid rgb(25,34,45);
+    background: rgb(53,61,71);
+    box-shadow: inset 0 1px 3px rgba(0,10,20,.5),
+   0 1px rgb(83,94,104),
+   0 0 1px rgb(86,96,106);
+    padding-inline-start: 0px;
+}
+.dex-dropdown-menu.show {
+    display: block;
+    position: absolute;
+}
+.active-dropdown .dex-dropdown-menu {
+    box-shadow: inset 0 0px 3px rgba(0,10,20,.5),
+   0 1px rgb(83,94,104),
+   0 0 1px rgb(86,96,106);
+   border-top: none;
+}
+
+.dex-dropdown-menu li {
+    list-style: none;
+    padding: .3em 1.3em;
+    cursor: pointer;
+}
+.dex-dropdown-menu li:hover {
+    background: rgb(83,94,104);
+}
+.dex-dropdown-menu a {
+    color: #fff;
+}
+.dex-dropdown {
+    float: left;
+    margin-left: 5px;
+}

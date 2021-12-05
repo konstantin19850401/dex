@@ -1,0 +1,40 @@
+.dex-period-container {
+    width: 100%;
+    min-width: 120px;
+    border-radius: 3px;
+    font-size: 12px;
+    background: #fff;
+    padding-top: 6px;
+}
+.dex-period-container-input {
+    border-top: none;
+    border-left: none;
+    border-right: none;
+}
+.mcd-menu-span .row {
+    --bs-gutter-x: 0rem;
+}
+.mcd-menu-span .form-group {
+    margin-bottom: 0px;
+}
+
+.dex-period-container .form-control ~ label {
+    margin-top:  -10px;
+}
+.dex-period-container .form-control {
+    background:  none;
+    width: 100px;
+    font-size: 11px;
+    font: small-caption;
+}
+.dex-period-container .form-control {
+    height: 30px;
+    width: 110px;
+}
+.dex-period-container label {
+    /*text-indent: 20px;*/
+}
+.date-splitter {
+    width: 2em;
+    float: left;
+}

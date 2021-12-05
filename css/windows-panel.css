@@ -1,0 +1,37 @@
+.windows-panel {
+    width: calc(100% - 20px);
+    margin-left: 10px;
+    margin-right: 10px;
+    height:  25px;
+    /*border: 1px solid #354251;*/
+    background: #354251;
+    padding: .2em 5px .4em;
+    color: #fff;
+}
+.windows-panel-left {
+    float: left;
+}
+.windows-panel-element {
+    display: inline-block;
+    margin-top: -3px;
+    height: 25px;
+    /* font-family: arial,sans-serif; */
+    font-size: 11px;
+    color: #fff;
+    text-shadow: 0 -1px rgb(46,53,58);
+    text-decoration: none;
+    user-select: none;
+    line-height: 1.3em;
+    margin-left: 4px;
+    /* padding: 1px 1.2em; */
+    outline: none;
+    border: 1px solid rgba(33,43,52,1);
+    /* border-radius: 3px; */
+    background: rgb(81,92,102) linear-gradient(rgb(81,92,102), rgb(69,78,87));
+    box-shadow: inset 0 1px 10px rgb(0 10 20 / 50%), 0 0px rgb(83 94 104), 0 0 0px rgb(86 96 106);
+}
+.windows-panel-element-active {
+    background: #ff9800;
+    margin-top: -6px;
+    height: 30px;
+}
