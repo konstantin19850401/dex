@@ -78,7 +78,6 @@ class DexAppWindow extends Component {
 	}
 	#Resize () {
 		this.#docTable.DomObject.style.height = `calc(${ this.#windowBody.DomObject.clientHeight }px - 5px)`;
-
 	}
 	#ListenResizeWindow () {
 		window.addEventListener( 'resize', event => {
@@ -93,70 +92,72 @@ class DexAppWindow extends Component {
 		} );
 	}
 	#ClearTable () {
-		this.#docTable.Clear();
+		if (typeof this.#docTable !== 'undefined') this.#docTable.Clear();
 	}
 	#DrawTable () {
 		// заголовки
-		let commonDicts = this.Parent.CommonDicts;
-		this.#headers = [];
-		let hiddens = ['id', 'docid'];
-		let reg = new RegExp(`${this.#operator}`, 'g');
-		this.#data.headers.map(( item, index )=> {
-			let ifIsset = commonDicts.docFields.elements.find( df => df.uid == item.id && df.vendor.match( reg ) != null );
-			if ( !ifIsset ) hiddens.push( item.id );
-			this.#headers.push( item.id );
-			let newHeader = new Th().SetAttributes( ).Text( item.name ).AddWatch( ( el )=> {
-				el.DomObject.addEventListener( 'click', ( event ) => {
-					this.#docTable.SortByColIndex( el, index );
-				} )
-			} );
-			if ( hiddens.indexOf( item.id ) != -1 ) newHeader.SetAttributes( {class: 'dnone'} );
-			this.#docTable.AddHead( newHeader );
-		});
-		this.#data.list.map( ( item, index )=> {
-			let row = new Tr().AddWatch( (el)=> {
-				// el.DomObject.addEventListener( 'contextmenu', ( event )=> {
-				// 	this.#ContextMenu( el, event.target, index );
-				// } )
-			} );
-			for ( let i = 0; i < this.#headers.length; i++ ) {
-				if ( typeof item.fields[ this.#headers[i] ] !== 'undefined' ) {
-					row.AddChilds([
-						(() => {
-							let text = this.#CheckText( item.fields[ this.#headers[i] ], this.#headers[i] );
-							let td = new Td().Text( text );
-							if (  hiddens.indexOf( this.#headers[i] ) != -1 ) td.SetAttributes( {class: 'dnone'} );
-							row.AddShadowCopy( this.#headers[i], text );
-							return td;
-						})()
-					]);
-					if ( this.#headers[i] == 'status' ) {
-						// row.AddClass( this.#colors[item.fields[ this.#headers[i] ]] );
+		if ( typeof this.#docTable !== 'undefined') {
+			let commonDicts = this.Parent.CommonDicts;
+			this.#headers = [];
+			let hiddens = ['id', 'docid'];
+			let reg = new RegExp(`${this.#operator}`, 'g');
+			this.#data.headers.map(( item, index )=> {
+				let ifIsset = commonDicts.docFields.elements.find( df => df.uid == item.id && df.vendor.match( reg ) != null );
+				if ( !ifIsset ) hiddens.push( item.id );
+				this.#headers.push( item.id );
+				let newHeader = new Th().SetAttributes( ).Text( item.name ).AddWatch( ( el )=> {
+					el.DomObject.addEventListener( 'click', ( event ) => {
+						this.#docTable.SortByColIndex( el, index );
+					} )
+				} );
+				if ( hiddens.indexOf( item.id ) != -1 ) newHeader.SetAttributes( {class: 'dnone'} );
+				this.#docTable.AddHead( newHeader );
+			});
+			this.#data.list.map( ( item, index )=> {
+				let row = new Tr().AddWatch( (el)=> {
+					// el.DomObject.addEventListener( 'contextmenu', ( event )=> {
+					// 	this.#ContextMenu( el, event.target, index );
+					// } )
+				} );
+				for ( let i = 0; i < this.#headers.length; i++ ) {
+					if ( typeof item.fields[ this.#headers[i] ] !== 'undefined' ) {
+						row.AddChilds([
+							(() => {
+								let text = this.#CheckText( item.fields[ this.#headers[i] ], this.#headers[i] );
+								let td = new Td().Text( text );
+								if (  hiddens.indexOf( this.#headers[i] ) != -1 ) td.SetAttributes( {class: 'dnone'} );
+								row.AddShadowCopy( this.#headers[i], text );
+								return td;
+							})()
+						]);
+						if ( this.#headers[i] == 'status' ) {
+							// row.AddClass( this.#colors[item.fields[ this.#headers[i] ]] );
+						}
+					} else if ( typeof item.datafields[ this.#headers[i] ] !== 'undefined' ) {
+						row.AddChilds([
+							(() => {
+								let text = this.#CheckText( item.datafields[ this.#headers[i] ], this.#headers[i] );
+								let td = new Td().Text( text );
+								if (  hiddens.indexOf( this.#headers[i] ) != -1 ) td.SetAttributes( {class: 'dnone'} );
+								row.AddShadowCopy( this.#headers[i], text );
+								return td;
+							})()
+						]);
+					} else {
+						row.AddChilds([
+							(() => {
+								let td = new Td().Text( '' );
+								if (  hiddens.indexOf( this.#headers[i] ) != -1 ) td.SetAttributes( {class: 'dnone'} );
+								row.AddShadowCopy( this.#headers[i], text );
+								return td;
+							})()
+						]);
 					}
-				} else if ( typeof item.datafields[ this.#headers[i] ] !== 'undefined' ) {
-					row.AddChilds([
-						(() => {
-							let text = this.#CheckText( item.datafields[ this.#headers[i] ], this.#headers[i] );
-							let td = new Td().Text( text );
-							if (  hiddens.indexOf( this.#headers[i] ) != -1 ) td.SetAttributes( {class: 'dnone'} );
-							row.AddShadowCopy( this.#headers[i], text );
-							return td;
-						})()
-					]);
-				} else {
-					row.AddChilds([
-						(() => {
-							let td = new Td().Text( '' );
-							if (  hiddens.indexOf( this.#headers[i] ) != -1 ) td.SetAttributes( {class: 'dnone'} );
-							row.AddShadowCopy( this.#headers[i], text );
-							return td;
-						})()
-					]);
 				}
-			}
-			this.#docTable.AddRow( row );
-		});
-		this.#SetTotalCnt( this.#data.list );
+				this.#docTable.AddRow( row );
+			});
+			this.#SetTotalCnt( this.#data.list );
+		}
 	}
 	#CheckText ( text, fname ) {
 		// if ( typeof this.#fieldToDict[fname] !== 'undefined' ) {
@@ -251,8 +252,8 @@ class DexAppWindow extends Component {
 							case 'list':
 								this.#operator = packet.data.operator;
 								this.#data = packet.data;
-								// this.#ClearTable();
-								// this.#DrawTable();
+								this.#ClearTable();
+								this.#DrawTable();
 							break;
 							case 'getBaseName':
 								if ( packet.data.title != '' && this.#base != packet.data.title ) {

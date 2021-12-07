@@ -20,11 +20,17 @@ class DexContract extends Component {
 		let core = docFields.fields.find(item=>item.type == 'CORE');
 		conf.core = { uid: core.uid, name: core.name, rank: core.rank, description: core.description, parent: core.parent};
 		function parse( obj ) {
+			// console.log("obj=> ", obj);
 			let list = docFields.fields.filter(item => item.parent == obj.uid);
 			if ( list.length > 0 ) {
 				obj.childs = [];
-				list.map(item=> obj.childs.push( {uid: item.uid, name: item.name, type: item.type, dataType: item.data_type, rank: item.rank, description: item.description, parent: item.parent} ));
-				obj.childs.sort((a,b)=>a.rank > b.rank ? 1 : -1);
+				// list.map(item=> obj.childs.push( {uid: item.uid, name: item.name, type: item.type, dataType: item.data_type, rank: item.rank, description: item.description, parent: item.parent} ));
+				list.map(item=> {
+					// console.log("item=>", item );
+					obj.childs.push( {uid: item.uid, name: item.name, data: item} )
+				});
+				// obj.childs.sort((a,b)=>a.rank > b.rank ? 1 : -1);
+				obj.childs.sort((a,b)=>a.data.rank > b.data.rank ? 1 : -1);
 				obj.childs.map(item=> parse(item))
 			}
 		}
@@ -71,7 +77,8 @@ class DexContract extends Component {
 		}
 	}
 	#AddNewField( parent, obj, ignore ) {
-		if ( ignore.indexOf(obj.dataType) == -1 && typeof obj.dataType !== 'undefined') {
+		// console.log("obj=>", obj);
+		if ( typeof obj.data !== 'undefined' && typeof obj.data.data_type !== 'undefined' && ignore.indexOf(obj.data.data_type) == -1 ) {
 			new Div( {parent: parent} ).SetAttributes( {class: 'form-group'} ).AddChilds([
 				new Input().SetAttributes( {class: 'form-floating', name: obj.name, type: 'text'} ).AddWatch(
 					(el) => {
@@ -83,12 +90,12 @@ class DexContract extends Component {
 						if ( el.Value != '' ) { el.DomObject.dispatchEvent(new Event('input')); }
 					}
 				),
-				new Label().SetAttributes( {class: 'dex-label', for: obj.name} ).Text( obj.description )
+				new Label().SetAttributes( {class: 'dex-label', for: obj.name} ).Text( obj.data.description )
 			]);
-		} else if (obj.dataType == 'menu-node') {
-			new Div( {parent: this.#menuFields} ).SetAttributes( {class: 'dynamic-block-title'} ).Text( obj.description );
-		} else if ( obj.dataType == 'node' ) {
-			new H5( {parent: parent} ).SetAttributes( {class: 'form-group'} ).Text( obj.description )
+		} else if (typeof obj.data !== 'undefined' && obj.data.data_type == 'menu-node') {
+			new Div( {parent: this.#menuFields} ).SetAttributes( {class: 'dynamic-block-title'} ).Text( obj.data.description );
+		} else if ( typeof obj.data !== 'undefined' && obj.data.data_type == 'node' ) {
+			new H5( {parent: parent} ).SetAttributes( {class: 'form-group'} ).Text( obj.data.description )
 		}
 		return parent;
 	}
@@ -99,7 +106,8 @@ class DexContract extends Component {
 			let fname = tempName != '' ? `${ tempName }.${ obj.name }` : obj.name;
 			if ( typeof temp[obj.name] === 'undefined' ) {
 				container = that.#AddNewField(container, obj, ignore);
-				temp[obj.name] = {fname: fname, description: obj.description, dataType: obj.dataType, name: obj.name, rank: obj.rank, container: container, uid: obj.uid, parent: obj.parent, childs: {}};
+				// temp[obj.name] = {fname: fname, description: obj.description, dataType: obj.dataType, name: obj.name, rank: obj.rank, container: container, uid: obj.uid, parent: obj.parent, childs: {}};
+				temp[obj.name] = {fname: fname, name: obj.name, container: container, data: obj.data, childs: {}};
 			}
 			if ( obj.childs ) {
 				obj.childs.map(item=>parse(item, temp[obj.name].childs, fname, container));
@@ -107,7 +115,6 @@ class DexContract extends Component {
 		}
 		parse( conf.core, cnf, '', parent );
 		console.log('cnf=> ', cnf);
-
 	}
 	#SetTitleInfo () {
 		let text = typeof this.#data.ICC !== 'undefined' ? ` ICC ${this.#data.ICC}` : '';
