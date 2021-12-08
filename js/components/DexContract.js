@@ -76,14 +76,83 @@ class DexContract extends Component {
 			this.#Draw( ignore, conf, this.#bodyFields );
 		}
 	}
+	#GetShoDataByFullName( fullName ) {
+		let sought;
+		function parse( node ) {
+			console.log( node );
+			if ( node.data && node.data.fname == fullName) sought = node;
+			else {
+				if ( node.childs ) {
+					for (let key in node.childs) {
+						parse( node.childs[key] )
+					}
+				}
+			}
+		}
+		let node = parse(this.#data.DOCUMENT);
+		console.log("sought=> ", sought);
+	}
+	#SetDefaultValues( data ) {
+		console.log("this.data=> ", this.#data);
+		console.log("data=> ", data);
+		let that = this;
+		function parse( defs, name ) {
+			if ( typeof defs == 'object' ) {
+				for (let key in defs) {
+					parse(defs[key], name != '' ? `${ name }.${ key }` : key);
+				}
+			} else {
+				console.log( "name=> ", name, "defs=> ", defs );
+				that.#GetShoDataByFullName( name );
+			}
+		}
+		parse( data, '' );
+	}
+	// #SetDataValueByFullName( fullName, value ) {
+	// 	console.log("==> ", fullName);
+	// 	function parse(node, name) {
+	// 		console.log("name=> ", name);
+	// 		if (typeof node == 'object') {
+	// 			if ( node.childs ) {
+	// 				for (let key in node.childs) {
+	// 					let tmp = name != '' ? `${ name }.${ key }` : key;
+	// 					if (  tmp == fullName ) {
+	// 						console.log("нашли");
+	// 						node.childs[key].data.value = value;
+	// 						return true;
+	// 					} else {
+	// 						if (parse(node[key], name != '' ? `${ name }.${ key }` : key) == true) break;
+	// 					}
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// 	// function parse( data, name ) {
+	// 	// 	if ( typeof data == 'object') {
+	// 	// 		for ( let key in data ) {
+	// 	// 			let tmp = name != '' ? `${ name }.${ key }` : key;
+	// 	// 			if (  tmp == fullName ) {
+	// 	// 				data[key] = value;
+	// 	// 				return true;
+	// 	// 			} else {
+	// 	// 				if (parse(data[key], name != '' ? `${ name }.${ key }` : key) == true) break;
+	// 	// 			}
+	// 	// 		}
+	// 	// 	};
+	// 	// }
+	// 	parse(this.#data, '');
+	// 	console.log("this.#data=> ", this.#data);
+	// }
 	#AddNewField( parent, obj, ignore ) {
-		// console.log("obj=>", obj);
 		if ( typeof obj.data !== 'undefined' && typeof obj.data.data_type !== 'undefined' && ignore.indexOf(obj.data.data_type) == -1 ) {
+			let f;
 			new Div( {parent: parent} ).SetAttributes( {class: 'form-group'} ).AddChilds([
-				new Input().SetAttributes( {class: 'form-floating', name: obj.name, type: 'text'} ).AddWatch(
+				f = new Input().SetAttributes( {class: 'form-floating', name: obj.name, type: 'text'} ).AddWatch(
 					(el) => {
 						el.DomObject.addEventListener( 'input', (event) => {
-							this.#data.DocDate = event.target.value;
+							obj.data.value = event.target.value;
+							console.log("this.data=> ", this.#data);
+							// this.#SetDataValueByFullName( obj.data.fname, event.target.value );
 							if ( event.target.value != "" ) el.SetAttributes( {'class': 'form-control dirty'} )
 							else el.SetAttributes( {'class': 'form-control'} );
 						} );
@@ -92,6 +161,8 @@ class DexContract extends Component {
 				),
 				new Label().SetAttributes( {class: 'dex-label', for: obj.name} ).Text( obj.data.description )
 			]);
+			console.log("obj.data.value=>", obj.data.value);
+			f.Value(obj.data.value);
 		} else if (typeof obj.data !== 'undefined' && obj.data.data_type == 'menu-node') {
 			new Div( {parent: this.#menuFields} ).SetAttributes( {class: 'dynamic-block-title'} ).Text( obj.data.description );
 		} else if ( typeof obj.data !== 'undefined' && obj.data.data_type == 'node' ) {
@@ -105,22 +176,30 @@ class DexContract extends Component {
 		function parse(obj, temp, tempName, container) {
 			let fname = tempName != '' ? `${ tempName }.${ obj.name }` : obj.name;
 			if ( typeof temp[obj.name] === 'undefined' ) {
+				if ( obj.data ) {
+					obj.data.value = '';
+					obj.data.fname = fname;
+				}
 				container = that.#AddNewField(container, obj, ignore);
 				// temp[obj.name] = {fname: fname, description: obj.description, dataType: obj.dataType, name: obj.name, rank: obj.rank, container: container, uid: obj.uid, parent: obj.parent, childs: {}};
 				temp[obj.name] = {fname: fname, name: obj.name, container: container, data: obj.data, childs: {}};
+
+				// теперь бы поставить дефолтное значение для поля, если оно пришло с сервера
+
 			}
 			if ( obj.childs ) {
 				obj.childs.map(item=>parse(item, temp[obj.name].childs, fname, container));
 			}
 		}
 		parse( conf.core, cnf, '', parent );
+		this.#data = cnf;
 		console.log('cnf=> ', cnf);
 	}
 	#SetTitleInfo () {
-		let text = typeof this.#data.ICC !== 'undefined' ? ` ICC ${this.#data.ICC}` : '';
-		text += typeof this.#data.MSISDN !== 'undefined' ? ` Номер ${this.#data.MSISDN}` : '';
-		let unit = typeof this.#data.unitid !== 'undefined' ? `Отделение [ ${ this.#data.unitid } ]` : '';
-		this.#titleInfo.Text( `Тип [ Новый договор ] SIM [ ${ text } ] ${ unit }` );
+		// let text = typeof this.#data.DOCUMENT.ICC !== 'undefined' ? ` ICC ${this.#data.ICC}` : '';
+		// text += typeof this.#data.MSISDN !== 'undefined' ? ` Номер ${this.#data.MSISDN}` : '';
+		// let unit = typeof this.#data.unitid !== 'undefined' ? `Отделение [ ${ this.#data.unitid } ]` : '';
+		// this.#titleInfo.Text( `Тип [ Новый договор ] SIM [ ${ text } ] ${ unit }` );
 	}
 	#ShowDocumentForm ( data ) {
 		console.log("покажем форму");
@@ -128,7 +207,8 @@ class DexContract extends Component {
 		this.#menuFields.DomObject.hidden = !this.#menuFields.DomObject.hidden;
 		this.#bodyFields.DomObject.hidden = !this.#bodyFields.DomObject.hidden;
 		this.Container.RemoveClass( 'check-sim-data' );
-		this.#data.unitid = data.contract.CONTRACT_INFORMATION.UNIT;
+		// this.#data.unitid = data.contract.CONTRACT_INFORMATION.UNIT;
+		this.#SetDefaultValues(data);
 		this.#SetTitleInfo();
 	}
 	#CheckStartFields () {
@@ -137,6 +217,7 @@ class DexContract extends Component {
 		for ( let key in this.#data ) {
 			data[ key ] = this.#data[ key ];
 		}
+		data.ICC = '0204785615';
 		console.log('data=>' ,data);
 		transport.Get( {com: 'skyline.apps.adapters', subcom: 'appApi', data: data, hash: this.Hash} );
 	};
@@ -174,7 +255,9 @@ class DexContract extends Component {
 							case 'checkStartFields':
 								if ( packet.data.status == 200 ) {
 									if ( typeof packet.data.err === 'undefined' ) {
-										this.#ShowDocumentForm( packet.data );
+										// this.#data.DOCUMENT = packet.data.contract;
+										this.#ShowDocumentForm( packet.data.contract );
+
 									} else {
 										new this.Application.Components.AlertMessage( packet.data.err.join('<br>') );
 									}
