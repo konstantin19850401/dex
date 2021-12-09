@@ -60,7 +60,7 @@ class ComboBox {
 				}
 			} );
 		} );
-		this.#selected = new Div( {parent: this.#comboBox} ).SetAttributes( {class: 'simple-combo-selected'} ).Text( 'Выберите базу...' )
+		this.#selected = new Div( {parent: this.#comboBox} ).SetAttributes( {class: 'simple-combo-selected'} ).Text( 'Выберите значение...' )
 		this.#list = new Div( {parent: this.#comboBox} ).SetAttributes( {class: 'simple-combo-options simple-combo-dnone'} );
 		for ( let i = 0; i < this.#data.length; i++) {
 			this.#AddOption( this.#data[i] );

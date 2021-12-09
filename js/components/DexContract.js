@@ -31,7 +31,8 @@ class DexContract extends Component {
 		}
 		parse( conf.core );
 		console.log( "conf=> ", conf );
-		this.Container = new Div( {parent: this.Parent.Container} ).SetAttributes( {class: 'dex-contract check-sim-data'} ).AddChilds([
+		// this.Container = new Div( {parent: this.Parent.Container} ).SetAttributes( {class: 'dex-contract check-sim-data'} ).AddChilds([
+		this.Container = new Div( {parent: this.Parent.Container} ).SetAttributes( {class: 'dex-contract'} ).AddChilds([
 			new I().SetAttributes( {class: 'dex-contract-close fas fa-window-close'} ).AddWatch( sho=> {
 				sho.DomObject.addEventListener( 'click', event=> this.#Close())
 			}),
@@ -51,8 +52,8 @@ class DexContract extends Component {
 				}),
 			])
 		]);
-		this.#menuFields.DomObject.hidden = true;
-		this.#bodyFields.DomObject.hidden = true;
+		// this.#menuFields.DomObject.hidden = true;
+		// this.#bodyFields.DomObject.hidden = true;
 		if ( typeof data !== 'undefined' ) {
 			data.list.find(item=> item.name == 'startFields').fields.map(item=> {
 				// this.#data[ item.value ] = '';
@@ -106,7 +107,9 @@ class DexContract extends Component {
 	#AddNewField( parent, obj, ignore ) {
 		let dataContainer;let blockContainer;
 		if ( typeof obj.data !== 'undefined' && typeof obj.data.data_type !== 'undefined' && ignore.indexOf(obj.data.data_type) == -1 ) {
-			blockContainer = new Div( {parent: parent} ).SetAttributes( {class: 'form-group'} ).AddChilds([
+			// сформируем поле для отображения
+			let dataContainer;
+			if ( obj.data.data_type == 'text' ) {
 				dataContainer = new Input().SetAttributes( {class: 'form-floating', name: obj.name, type: 'text'} ).AddWatch(
 					(el) => {
 						el.DomObject.addEventListener( 'input', (event) => {
@@ -116,7 +119,32 @@ class DexContract extends Component {
 						} );
 						if ( el.Value != '' ) { el.DomObject.dispatchEvent(new Event('input')); }
 					}
-				),
+				)
+			} else if ( obj.data.data_type == 'dict' ) {
+				let dict = this.#dicts.get( obj.data.dict_name );
+				dataContainer = new ComboBox(  this.Application, { data: dict } );
+				// dataContainer = new ComboBox(  this.Application, { data: dict } ).AddWatcher( ( el ) => {
+				// 	this.#params.base = el.Value;
+				// 	this.#GetData( );
+				// } )
+				console.log( 'dict=> ', dict );
+			}
+
+
+			// dataContainer = new Input().SetAttributes( {class: 'form-floating', name: obj.name, type: 'text'} ).AddWatch(
+			// 	(el) => {
+			// 		el.DomObject.addEventListener( 'input', (event) => {
+			// 			obj.data.value = event.target.value;
+			// 			if ( event.target.value != "" ) el.SetAttributes( {'class': 'form-control dirty'} )
+			// 			else el.SetAttributes( {'class': 'form-control'} );
+			// 		} );
+			// 		if ( el.Value != '' ) { el.DomObject.dispatchEvent(new Event('input')); }
+			// 	}
+			// )
+
+
+			blockContainer = new Div( {parent: parent} ).SetAttributes( {class: 'form-group'} ).AddChilds([
+				dataContainer,
 				new Label().SetAttributes( {class: 'dex-label', for: obj.name} ).Text( obj.data.description )
 			]); 
 			// если поле заморожено, то закроем для изменения
@@ -128,7 +156,7 @@ class DexContract extends Component {
 		if ( obj.data && obj.data.fname == 'DOCUMENT.CONTRACT_INFORMATION.SIM.ICC' ) {	
 			// obj.data.value = "";
 			console.log( "dataContainer=> ", dataContainer );
-			dataContainer.Value( "0204785615" );
+			// dataContainer.Value( "0204785615" );
 
 		}
 		return { parent: parent, dataContainer: dataContainer, blockContainer: blockContainer};
