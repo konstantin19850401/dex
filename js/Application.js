@@ -51,7 +51,7 @@ class Application {
 		document.body.addEventListener( 'click', ( event ) => {
 			this.#complexElements.map( ( item )=> {
 				if ( (item.element.ComplexType == 'comboBox' && event.target != item.element.DomEvents) && (item.element.ComplexType == 'comboBox' && event.target != item.element.DomObject)) {
-					item.element.CloseCombo();
+					item.element.Close();
 				} else {
 					item.element.Close();
 				}

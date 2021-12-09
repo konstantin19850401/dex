@@ -31,8 +31,8 @@ class DexContract extends Component {
 		}
 		parse( conf.core );
 		console.log( "conf=> ", conf );
-		// this.Container = new Div( {parent: this.Parent.Container} ).SetAttributes( {class: 'dex-contract check-sim-data'} ).AddChilds([
-		this.Container = new Div( {parent: this.Parent.Container} ).SetAttributes( {class: 'dex-contract'} ).AddChilds([
+		this.Container = new Div( {parent: this.Parent.Container} ).SetAttributes( {class: 'dex-contract check-sim-data'} ).AddChilds([
+		// this.Container = new Div( {parent: this.Parent.Container} ).SetAttributes( {class: 'dex-contract'} ).AddChilds([
 			new I().SetAttributes( {class: 'dex-contract-close fas fa-window-close'} ).AddWatch( sho=> {
 				sho.DomObject.addEventListener( 'click', event=> this.#Close())
 			}),
@@ -52,8 +52,8 @@ class DexContract extends Component {
 				}),
 			])
 		]);
-		// this.#menuFields.DomObject.hidden = true;
-		// this.#bodyFields.DomObject.hidden = true;
+		this.#menuFields.DomObject.hidden = true;
+		this.#bodyFields.DomObject.hidden = true;
 		if ( typeof data !== 'undefined' ) {
 			data.list.find(item=> item.name == 'startFields').fields.map(item=> {
 				// this.#data[ item.value ] = '';
@@ -70,6 +70,8 @@ class DexContract extends Component {
 			let ignore = ['node', 'menu-node'];
 			this.#Draw( ignore, conf, this.#bodyFields );
 		}
+
+		console.log("this.dicts=> ", this.#dicts);
 	}
 	#GetShoDataByFullName( fullName ) {
 		let sought;
@@ -85,6 +87,7 @@ class DexContract extends Component {
 		return sought;
 	}
 	#SetDefaultValues( data ) {
+		// console.log("установим значения по умолчанию");
 		let that = this;
 		function parse( defs, name ) {
 			if ( typeof defs == 'object' ) {
@@ -93,7 +96,9 @@ class DexContract extends Component {
 				}
 			} else {
 				let sought = that.#GetShoDataByFullName( name );
+				// console.log( "sought=> ", sought );
 				if (sought) { 
+					// console.log("sought.dataContainer=> ", sought.dataContainer);
 					sought.dataContainer.Value( defs );
 					if ( that.#fixedData.indexOf( sought.fname ) != -1) { 
 						sought.blockContainer.DomObject.hidden = true;
@@ -108,7 +113,6 @@ class DexContract extends Component {
 		let dataContainer;let blockContainer;
 		if ( typeof obj.data !== 'undefined' && typeof obj.data.data_type !== 'undefined' && ignore.indexOf(obj.data.data_type) == -1 ) {
 			// сформируем поле для отображения
-			let dataContainer;
 			if ( obj.data.data_type == 'text' ) {
 				dataContainer = new Input().SetAttributes( {class: 'form-floating', name: obj.name, type: 'text'} ).AddWatch(
 					(el) => {
@@ -120,6 +124,10 @@ class DexContract extends Component {
 						if ( el.Value != '' ) { el.DomObject.dispatchEvent(new Event('input')); }
 					}
 				)
+				blockContainer = new Div( {parent: parent} ).SetAttributes( {class: 'form-group'} ).AddChilds([
+					dataContainer,
+					new Label().SetAttributes( {class: 'dex-label', for: obj.name} ).Text( obj.data.description )
+				]);
 			} else if ( obj.data.data_type == 'dict' ) {
 				let dict = this.#dicts.get( obj.data.dict_name );
 				dataContainer = new ComboBox(  this.Application, { data: dict } );
@@ -127,7 +135,11 @@ class DexContract extends Component {
 				// 	this.#params.base = el.Value;
 				// 	this.#GetData( );
 				// } )
-				console.log( 'dict=> ', dict );
+				// console.log( 'dict=> ', dict );
+				blockContainer = new Div( {parent: parent} ).SetAttributes( {class: 'form-group'} ).AddChilds([
+					dataContainer,
+					new Label().SetAttributes( {class: 'dex-label', for: obj.name} ).Text( obj.data.description )
+				]);
 			}
 
 
@@ -143,10 +155,7 @@ class DexContract extends Component {
 			// )
 
 
-			blockContainer = new Div( {parent: parent} ).SetAttributes( {class: 'form-group'} ).AddChilds([
-				dataContainer,
-				new Label().SetAttributes( {class: 'dex-label', for: obj.name} ).Text( obj.data.description )
-			]); 
+
 			// если поле заморожено, то закроем для изменения
 		} else if (typeof obj.data !== 'undefined' && obj.data.data_type == 'menu-node') {
 			new Div( {parent: this.#menuFields} ).SetAttributes( {class: 'dynamic-block-title'} ).Text( obj.data.description );
@@ -155,7 +164,7 @@ class DexContract extends Component {
 		}
 		if ( obj.data && obj.data.fname == 'DOCUMENT.CONTRACT_INFORMATION.SIM.ICC' ) {	
 			// obj.data.value = "";
-			console.log( "dataContainer=> ", dataContainer );
+			// console.log( "dataContainer=> ", dataContainer );
 			// dataContainer.Value( "0204785615" );
 
 		}
@@ -220,7 +229,7 @@ class DexContract extends Component {
 	}
 	// ПУБЛИЧНЫЕ МЕТОДЫ
 	Commands ( packet ) {
-		// console.log( packet );
+		console.log( packet );
 		switch ( packet.com ) {
 			case 'skyline.apps.adapters':
 				switch ( packet.subcom ) {
@@ -230,13 +239,14 @@ class DexContract extends Component {
 								console.log( 'пришли стартовые поля' );
 								if ( packet.data.status == 200 ) {
 									// this.#checkFields = packet.data.list.find(item=> item.name == 'startFields');;
-									// console.log( "checkFields=> ", this.#checkFields );
+									// console.log( "startFields=> ", packet.data );
 									// let data = {};
 									// data.list = packet.data.list;
 									// this.#GetMenuItems( data );
 								}
 							break;
 							case 'checkStartFields':
+								// console.log("checkStartFields=> ", packet.data);
 								if ( packet.data.status == 200 ) {
 									if ( typeof packet.data.err === 'undefined' ) {
 										// this.#data.DOCUMENT = packet.data.contract;

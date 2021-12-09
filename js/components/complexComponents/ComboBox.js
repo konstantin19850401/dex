@@ -9,6 +9,7 @@ class ComboBox {
 	#type='cho';// complex html object
 	#typeCho = 'comboBox';
 	#watcher;
+	#selectedColor = '#ffc107';#defaultColor = '#fff';
 	// constructor(data, parent) {
 	constructor( application, params ) {
 		if ( typeof params !== 'undefined' ) {
@@ -20,7 +21,7 @@ class ComboBox {
 		if (typeof params === 'undefined') {
 			return this;
 		}
-		this.#application.AddComplexElement( this );
+		// this.#application.AddComplexElement( this );
 	}
 	// ГЕТТЕРЫ
 	get Value () {
@@ -37,46 +38,51 @@ class ComboBox {
 	get Text () { return this.#text; };
 	get Hash () { return this.#hash; };
 	// СЕТТЕРЫ
-	set Value ( value ) {
+	Value ( value ) {
 		try {
-			let item = this.#data.find( (item)=> item.value == value );
+			let item = this.#data.find( (item)=> item.uid == value );
 			if ( typeof item !== 'undefined' ) {
-				this.#value = item.value;
-				this.#text = item.text;
+				this.#data.map( block=> block.container.DomObject.style.background = this.#defaultColor );
+				// console.log( "значение найдено, установим ", item );
+				this.#value = item.uid;
+				this.#text = item.title;
 				this.#selected.Text( this.#text );
+				item.container.DomObject.style.background = this.#selectedColor;
 			}
-		} catch ( e ) {  }
+		} catch ( e ) { console.log("ошибка ", e); }
 	}
 
 	// ПРИВАТНЫЕ МЕТОДЫ
 	#Init () {
 		this.#hash = this.#application.Toolbox.GenerateHash;
-		this.#comboBox = new Div().SetAttributes( {class: 'simple-combo simple-combo-close'} ).AddWatch( ( el ) => {
-			el.DomObject.addEventListener( 'click', (event) => {
-				// console.log( 'event.target ,=> ', event.target , '  this.#comboBox.DomObject=>',  this.#comboBox.DomObject);
+		this.#comboBox = new Div().SetAttributes( {class: 'simple-combo simple-combo-close'} ).AddWatch( sho => {
+			sho.DomObject.addEventListener( 'click', event => {
 				if (event.target == this.#selected.DomObject || event.target == this.#comboBox.DomObject ) {
-					if ( this.#open ) this.CloseCombo();
-					else this.OpenCombo();
+					if ( this.#open ) this.Close();
+					else this.Open();
 				}
 			} );
 		} );
 		this.#selected = new Div( {parent: this.#comboBox} ).SetAttributes( {class: 'simple-combo-selected'} ).Text( 'Выберите значение...' )
 		this.#list = new Div( {parent: this.#comboBox} ).SetAttributes( {class: 'simple-combo-options simple-combo-dnone'} );
-		for ( let i = 0; i < this.#data.length; i++) {
-			this.#AddOption( this.#data[i] );
-		}
-		this.#application.AddItemWatch( {hash: this.#hash, element: this} );
+		// console.log("для разбора ", this.#data);
+		for ( let i = 0; i < this.#data.length; i++) this.#AddOption( this.#data[i] );
+		// console.log( "this.#data=> ", this.#data );
+		// this.#application.AddItemWatch( {hash: this.#hash, element: this} );
 	}
 	#AddOption ( option ) {
-		new Div( {parent: this.#list} ).SetAttributes( {value: option.value} ).Text( option.text ).AddWatch( ( el ) => {
-			el.DomObject.addEventListener( 'click', (event) => {
-				this.#value = option.value;
-				this.#text = option.text;
+		let optionContainer = new Div( {parent: this.#list} ).SetAttributes( {value: option.uid} ).Text( option.title ).AddWatch( sho => {
+			sho.DomObject.addEventListener( 'click', event => {
+				this.#data.map( block=> block.container.DomObject.style.background = this.#defaultColor );
+				this.#value = option.uid;
+				this.#text = option.title;
 				this.#selected.Text( this.#text );
-				if ( typeof this.#watcher !== 'undefined' ) this.#watcher( this );
-				this.CloseCombo();
+				// if ( typeof this.#watcher !== 'undefined' ) this.#watcher( this );
+				optionContainer.DomObject.style.background = this.#selectedColor;
+				this.Close();
 			})
 		} );
+		option.container = optionContainer;
 	}
 	// ПУБЛИЧНЫЕ МЕТОДЫ
 
@@ -97,36 +103,41 @@ class ComboBox {
 	};
 	AddChilds ( newChilds ) {
 		this.#data = this.#data.concat( newChilds );
-		newChilds.map( () => {
+		// newChilds.map( () => {
 
-		} );
-		console.log( this.#data );
+		// } );
+		// console.log( this.#data );
 		return this;
 	};
-	CloseCombo () {
+	Close () {
+		// console.log("требование закрыть ", this.#open);
 		if ( this.#open ) {
-			this.#open = false;
+			// console.log("зашли для закрытия");
+			this.#open = !this.#open;
 
 			this.#comboBox.DomObject.classList.remove( 'simple-combo-open' );
-			this.#comboBox.DomObject.classList.toggle( 'simple-combo-close' );
+			this.#comboBox.DomObject.classList.add( 'simple-combo-close' );
 
 			this.#list.DomObject.classList.remove( 'simple-combo-dblock' );
-			this.#list.DomObject.classList.toggle( 'simple-combo-dnone' );
+			this.#list.DomObject.classList.add( 'simple-combo-dnone' );
+
+
 		}
 	};
-	OpenCombo () {
+	Open () {
 		if ( !this.#open ) {
-			this.#open = true;
+			// console.log("зашли для открытия");
+			this.#open = !this.#open;
 
 			this.#comboBox.DomObject.classList.remove( 'simple-combo-close' );
-			this.#comboBox.DomObject.classList.toggle( 'simple-combo-open' );
+			this.#comboBox.DomObject.classList.add( 'simple-combo-open' );
 
 			this.#list.DomObject.classList.remove( 'simple-combo-dnone' );
-			this.#list.DomObject.classList.toggle( 'simple-combo-dblock' );
+			this.#list.DomObject.classList.add( 'simple-combo-dblock' );
 		}
 	};
-	AddWatcher ( watcher ) {
-		this.#watcher = watcher;
-		return this;
-	}
+	// AddWatcher ( watcher ) {
+	// 	this.#watcher = watcher;
+	// 	return this;
+	// }
 }

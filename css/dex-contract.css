@@ -200,12 +200,18 @@
     font-size: 11px;
 }
 .dex-contract .form-group {
-    top: 1em;
+    top: 0em;
+}
+.dex-contract .form-group .dex-label {
+    top: -1.6em !important;
 }
 .dex-contract .form-control {
     box-shadow:  none;
-    height: 25px;
-    padding: 0px 10px;
+    height: 35px;
+    padding: 0px 0px 0px 17px;
+    font-size: 14px;
+    border: 1px solid #b8af92;
+    border-radius: 0;
 }
 /*.dex-contract-dynamic-right input {
     font-size: 15px;
@@ -270,7 +276,7 @@
     background: #0aa89e;
 }
 .dex-contract-dynamic-right .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 25px;
 }
 .dex-contract-dynamic-left {
     /*border: 1px solid #354251;*/
@@ -279,7 +285,7 @@
 }
 .dex-contract-dynamic-right {
     /*border: 1px solid #354251;*/
-    height: 100%;
+    /*height: 100%;*/
     float: right;
     padding-bottom: 30px;
 }
