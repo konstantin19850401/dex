@@ -87,19 +87,21 @@ class DexContract extends Component {
 		return sought;
 	}
 	#SetDefaultValues( data ) {
-		// console.log("установим значения по умолчанию");
+		// console.log("установим значения по умолчанию", data);
 		let that = this;
 		function parse( defs, name ) {
-			if ( typeof defs == 'object' ) {
+			if ( typeof defs == 'object' && defs != null ) {
 				for (let key in defs) {
+					// console.log( "key => ", key, " name=> ", name, ' defs=> ', defs );
 					parse(defs[key], name != '' ? `${ name }.${ key }` : key);
 				}
 			} else {
+				// console.log( "name=> ", name );
 				let sought = that.#GetShoDataByFullName( name );
-				// console.log( "sought=> ", sought );
+				// console.log( "sought=> ", sought, ' name=> ', name );
 				if (sought) { 
 					// console.log("sought.dataContainer=> ", sought.dataContainer);
-					sought.dataContainer.Value( defs );
+					if ( typeof sought.dataContainer !== 'undefined' ) sought.dataContainer.Value( defs );
 					if ( that.#fixedData.indexOf( sought.fname ) != -1) { 
 						sought.blockContainer.DomObject.hidden = true;
 						sought.dataContainer.DomObject.readOnly = true;
@@ -138,7 +140,7 @@ class DexContract extends Component {
 				// console.log( 'dict=> ', dict );
 				blockContainer = new Div( {parent: parent} ).SetAttributes( {class: 'form-group'} ).AddChilds([
 					dataContainer,
-					new Label().SetAttributes( {class: 'dex-label', for: obj.name} ).Text( obj.data.description )
+					new Label().SetAttributes( {class: 'dex-label-combo', for: obj.name} ).Text( obj.data.description )
 				]);
 			}
 
@@ -160,7 +162,7 @@ class DexContract extends Component {
 		} else if (typeof obj.data !== 'undefined' && obj.data.data_type == 'menu-node') {
 			new Div( {parent: this.#menuFields} ).SetAttributes( {class: 'dynamic-block-title'} ).Text( obj.data.description );
 		} else if ( typeof obj.data !== 'undefined' && obj.data.data_type == 'node' ) {
-			new H5( {parent: parent} ).SetAttributes( {class: 'form-group'} ).Text( obj.data.description )
+			// new H5( {parent: parent} ).SetAttributes( {class: 'form-group'} ).Text( obj.data.description )
 		}
 		if ( obj.data && obj.data.fname == 'DOCUMENT.CONTRACT_INFORMATION.SIM.ICC' ) {	
 			// obj.data.value = "";

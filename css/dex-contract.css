@@ -59,7 +59,14 @@
 .dex-contract-title-data {
     display: none;
 }
-
+.dex-label-combo {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    pointer-events: none;
+    top: -1.6em !important;
+}
 .check-sim-data .dex-contract-title-data {
     font-size: 11px;
     font-weight: 700;
@@ -288,4 +295,5 @@
     /*height: 100%;*/
     float: right;
     padding-bottom: 30px;
+    padding-top: 1em;
 }
