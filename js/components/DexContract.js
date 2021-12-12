@@ -102,9 +102,10 @@ class DexContract extends Component {
 				if (sought) { 
 					// console.log("sought.dataContainer=> ", sought.dataContainer);
 					if ( typeof sought.dataContainer !== 'undefined' ) sought.dataContainer.Value( defs );
-					if ( that.#fixedData.indexOf( sought.fname ) != -1) { 
-						sought.blockContainer.DomObject.hidden = true;
-						sought.dataContainer.DomObject.readOnly = true;
+					if ( sought && sought.fname && that.#fixedData.indexOf( sought.fname ) != -1) { 
+						// console.log("sought.blockContainer-=> ", sought);
+						if (sought.blockContainer) sought.blockContainer.DomObject.hidden = true;
+						if (sought.dataContainer) sought.dataContainer.DomObject.readOnly = true;
 					}
 				}
 			}
@@ -115,8 +116,9 @@ class DexContract extends Component {
 		let dataContainer;let blockContainer;
 		if ( typeof obj.data !== 'undefined' && typeof obj.data.data_type !== 'undefined' && ignore.indexOf(obj.data.data_type) == -1 ) {
 			// сформируем поле для отображения
-			if ( obj.data.data_type == 'text' ) {
-				dataContainer = new Input().SetAttributes( {class: 'form-floating', name: obj.name, type: 'text'} ).AddWatch(
+			if ( obj.data.data_type == 'text' || obj.data.data_type == 'date' ) {
+				let type = obj.data.data_type == 'date' ? 'date' : 'text';
+				dataContainer = new Input().SetAttributes( {class: 'form-floating', name: obj.name, type: type} ).AddWatch(
 					(el) => {
 						el.DomObject.addEventListener( 'input', (event) => {
 							obj.data.value = event.target.value;
@@ -133,6 +135,8 @@ class DexContract extends Component {
 			} else if ( obj.data.data_type == 'dict' ) {
 				let dict = this.#dicts.get( obj.data.dict_name );
 				dataContainer = new ComboBox(  this.Application, { data: dict } );
+				let defField = dict.find(item=> item.uid == 0);
+				if ( typeof defField != 'undefined' )  dataContainer.Value(defField.uid);
 				// dataContainer = new ComboBox(  this.Application, { data: dict } ).AddWatcher( ( el ) => {
 				// 	this.#params.base = el.Value;
 				// 	this.#GetData( );
