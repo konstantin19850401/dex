@@ -8,7 +8,7 @@ class DexContract extends Component {
 		this.#base = base;
 		this.#dicts = dicts;
 		this.#GetStartFields();
-	}
+	};
 	// ГЕТТЕРЫ
 
 	// СЕТТЕРЫ
@@ -72,7 +72,7 @@ class DexContract extends Component {
 		}
 
 		console.log("this.dicts=> ", this.#dicts);
-	}
+	};
 	#GetShoDataByFullName( fullName ) {
 		let sought;
 		function parse( node ) {
@@ -85,7 +85,7 @@ class DexContract extends Component {
 		}
 		let node = parse(this.#data.DOCUMENT);
 		return sought;
-	}
+	};
 	#SetDefaultValues( data ) {
 		// console.log("установим значения по умолчанию", data);
 		let that = this;
@@ -111,7 +111,7 @@ class DexContract extends Component {
 			}
 		}
 		parse( data, '' );
-	}
+	};
 	#AddNewField( parent, obj, ignore ) {
 		let dataContainer;let blockContainer;
 		if ( typeof obj.data !== 'undefined' && typeof obj.data.data_type !== 'undefined' && ignore.indexOf(obj.data.data_type) == -1 ) {
@@ -175,7 +175,7 @@ class DexContract extends Component {
 
 		}
 		return { parent: parent, dataContainer: dataContainer, blockContainer: blockContainer};
-	}
+	};
 	#Draw( ignore, conf, parent ) {
 		let that = this;
 		let cnf = {};
@@ -196,13 +196,13 @@ class DexContract extends Component {
 		parse( conf.core, cnf, '', parent );
 		this.#data = cnf;
 		console.log('cnf=> ', cnf);
-	}
+	};
 	#SetTitleInfo (contract) {
 		let text = typeof contract.DOCUMENT.CONTRACT_INFORMATION.SIM.ICC !== 'undefined' ? ` ICC ${ contract.DOCUMENT.CONTRACT_INFORMATION.SIM.ICC }` : '';
 		text += typeof contract.DOCUMENT.CONTRACT_INFORMATION.SIM.MSISDN !== 'undefined' && contract.DOCUMENT.CONTRACT_INFORMATION.SIM.MSISDN != null ? ` Номер ${ contract.DOCUMENT.CONTRACT_INFORMATION.SIM.MSISDN }` : '';
 		let unit = typeof contract.DOCUMENT.CONTRACT_INFORMATION.UNIT !== 'undefined' ? `Отделение [ ${ contract.DOCUMENT.CONTRACT_INFORMATION.UNIT } ]` : '';
 		this.#titleInfo.Text( `Тип [ Новый договор ] SIM [ ${ text } ] ${ unit }` );
-	}
+	};
 	#ShowDocumentForm ( data ) {
 		this.#fixedData = data.fixed;
 		this.#SetDefaultValues(data.contract);
@@ -211,7 +211,7 @@ class DexContract extends Component {
 		this.#menuFields.DomObject.hidden = !this.#menuFields.DomObject.hidden;
 		this.#bodyFields.DomObject.hidden = !this.#bodyFields.DomObject.hidden;
 		this.Container.RemoveClass( 'check-sim-data' );		
-	}
+	};
 	#CheckStartFields () {
 		let transport = this.Application.Transport;
 		let data = {base: this.#base, action: 'checkStartFields', };
@@ -226,13 +226,14 @@ class DexContract extends Component {
 		let transport = this.Application.Transport;
 		transport.Get( {com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getInitialValues', list: [
 			'startFields',
-			'dexDocumentConfiguration'
+			'dexDocumentConfiguration',
+			'fieldRules'
 		], base: this.#base}, hash: this.Hash} );
-	}
+	};
 	#GetMenuItems ( data ) {
 		let transport = this.Application.Transport;
 		transport.Get( {com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDexContractConfiguration', base: this.#base}, hash: this.Hash} );
-	}
+	};
 	// ПУБЛИЧНЫЕ МЕТОДЫ
 	Commands ( packet ) {
 		console.log( packet );
@@ -276,6 +277,6 @@ class DexContract extends Component {
 				}
 			break;
 		}
-	}
+	};
 }
 

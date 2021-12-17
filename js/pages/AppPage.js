@@ -112,7 +112,6 @@ class AppPage extends Page {
 									appWindow.MakeActive();
 									appWindow.Maximize();
 								}
-
 							break;
 							case 'getGlobalAppDicts':
 								console.log( 'Пришли справочники', packet );

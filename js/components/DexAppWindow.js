@@ -265,7 +265,7 @@ class DexAppWindow extends Component {
 								this.#HandleHooks( packet.data );
 							break;
 							case 'getBaseDicts':
-								// console.log( 'getBaseDicts=> ', packet );
+								console.log( 'getBaseDicts=> ', packet );
 								for ( let key in packet.data.list ) {
 									this.#dicts.set( key, packet.data.list[key] );
 								}
