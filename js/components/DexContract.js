@@ -2,7 +2,7 @@
 class DexContract extends Component {
 	#titleInfo;
 	#data = {};#fixedData;#base;#dicts;#bodyFields;#menuFields;#startFields;
-	#checkFields = {};
+	#checkFields = {};#rules = {};
 	constructor ( application, parent, base, dicts) {
 		super( application, parent );
 		this.#base = base;
@@ -96,6 +96,7 @@ class DexContract extends Component {
 					parse(defs[key], name != '' ? `${ name }.${ key }` : key);
 				}
 			} else {
+				
 				// console.log( "name=> ", name );
 				let sought = that.#GetShoDataByFullName( name );
 				// console.log( "sought=> ", sought, ' name=> ', name );
@@ -196,6 +197,8 @@ class DexContract extends Component {
 		parse( conf.core, cnf, '', parent );
 		this.#data = cnf;
 		console.log('cnf=> ', cnf);
+		console.log('раскидаем по группам');
+
 	};
 	#SetTitleInfo (contract) {
 		let text = typeof contract.DOCUMENT.CONTRACT_INFORMATION.SIM.ICC !== 'undefined' ? ` ICC ${ contract.DOCUMENT.CONTRACT_INFORMATION.SIM.ICC }` : '';
@@ -227,7 +230,7 @@ class DexContract extends Component {
 		transport.Get( {com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getInitialValues', list: [
 			'startFields',
 			'dexDocumentConfiguration',
-			'fieldRules'
+			'groupRules'
 		], base: this.#base}, hash: this.Hash} );
 	};
 	#GetMenuItems ( data ) {
@@ -267,6 +270,13 @@ class DexContract extends Component {
 							break;
 							case 'InitialValues':
 								if ( packet.data.status == 200 ) {
+									let groupRules = packet.data.list.find(item=> item.name == 'groupRules');
+									if ( typeof groupRules !== 'undefined' ) {
+										this.#rules.groupRules = groupRules.fields;
+										for (let i = 0; i < this.#rules.groupRules.length; i++ ) {
+											this.#rules.groupRules[i].list = this.#rules.groupRules[i].list.split(',');
+										}
+									} 
 		 							this.#InitComponent( packet.data );
 								} else {
 									new this.Application.Components.AlertMessage( packet.data.err.join('<br>') );
