@@ -36,7 +36,7 @@ class AppPage extends Page {
 			{text: 'Действия', childs: [
 				{ text: 'Подключение к базе', watch: () => this.#ShowBasesList() },
 				{ text: 'Настройка полей таблицы', watch: () => this.#GetFieldsControl() },
-				{ text: 'Настройка полей документа', watch: () => this.#InitConfigurationDexDocument() }
+				{ text: 'Настройка полей документа', watch: () => this.#InitConfigurationDexDocument() },
 			]},
 			{text: 'Отчеты', childs: [
 				{ text: 'Отчет по долгам', watch: () => this.#InitReportDutyDocs() },
@@ -44,6 +44,9 @@ class AppPage extends Page {
 				{ text: 'Периодичный реестр договоров', watch: () => this.#InitReportDutyDocs() },
 				{ text: 'Сверка по ТП и документам', watch: () => this.#InitReportDutyDocs() },
 				{ text: 'Расчет вознаграждения', watch: () => this.#InitReportDutyDocs() }
+			]},
+			{text: 'Справочники', childs: [
+				{ text: 'Справочник отделений', watch: () => this.#InitDictionariesUnits() }
 			]}
 		]
 		this.#menu = new this.Application.Components.Menu( this.Application, this );
@@ -82,6 +85,9 @@ class AppPage extends Page {
 
 	#InitReportDutyDocs () {
 		console.log( 'Отчет по долгам' );
+	}
+	#InitDictionariesUnits () {
+		new Units( this.Application, this );
 	}
 
 
