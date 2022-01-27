@@ -1,5 +1,5 @@
-.dex-configuration {
-    width: 400px;
+.dex-dict {
+    width: 600px;
     height: 450px;
     border: 1px solid #354251;
     border-left: none;
@@ -8,7 +8,7 @@
     position: absolute;
     top: 1em;
     left: 50%;
-    margin-left: -200px;
+    margin-left: -300px;
     background: #fff;
     border-top-width: 40px;
     box-shadow: 1px 1px 15px 15px;
@@ -194,3 +194,5 @@
    0 1px rgb(83,94,104),
    0 0 1px rgb(86,96,106);
 }
+
+
