@@ -40,6 +40,28 @@
     cursor: pointer;
     margin-right: 10px;
 }
+.dex-configuration-delete {
+    width: 15px;
+    height: 15px;
+    position: relative;
+    top: -28px;
+    float: right;
+    color: #fff;
+    margin-right: 7px;
+    cursor: pointer;
+    margin-right: 30px;
+}
+.dex-configuration-add {
+    width: 15px;
+    height: 15px;
+    position: relative;
+    top: -28px;
+    float: right;
+    color: #fff;
+    margin-right: 7px;
+    cursor: pointer;
+    margin-right: 35px;
+}
 .dex-configuration .accordion-button {
     padding: 5px 20px;
     font-size: 12px;
