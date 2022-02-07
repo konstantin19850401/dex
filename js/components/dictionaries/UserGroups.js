@@ -1,11 +1,11 @@
 'use strict'
-class Units extends Dictionaries {
-	#units = [];#cbody;#unitsTable;#transport;#newElement;#regions = [];#headers;
-	#scUnits = [];
+class UserGroups extends Dictionaries {
+	#groups = [];#cbody;#groupsTable;#transport;#newElement;#headers;
+	#scGroups = [];
 	constructor ( application, parent) {
 		super( application, parent );
 		this.#transport = this.Application.Transport;
-		this.#GetDictRegions();
+		this.#GetDict();
 	}
 	// ГЕТТЕРЫ
 
@@ -23,34 +23,34 @@ class Units extends Dictionaries {
 			new I().SetAttributes( {class: 'dex-configuration-add fas fa-user-plus'} ).AddWatch(sho => {
 				sho.DomObject.addEventListener( 'click', event => this.#AddNewElement() )
 			}),
-			new Span().SetAttributes( {class: 'dex-configuration-title'} ).Text( `Справочник отделений` ),
+			new Span().SetAttributes( {class: 'dex-configuration-title'} ).Text( `Справочник групп пользователей` ),
 			this.#cbody = new Div().SetAttributes( {class: 'dex-contract-body row'} )
 		]);
 		this.#CreateList();
 	}
 	#CreateList() {
 		// this.#unitsTable = new ComplexTable( this.Application, this.#cbody ).AddWatcher({name: 'watchSelectedRows', func: ( rows )=> { this.#SetSelectedCnt( rows ) }});
-		this.#unitsTable = new ComplexTable( this.Application, this.#cbody);
-		this.#headers = [ {name: 'uid', title: 'id'}, {name: 'lastname', title: 'Фамилия'}, {name: 'firstname', title: 'Имя'}, {name: 'secondname', title: 'Отчество'}];
-		this.#unitsTable.DomObject.style.height = `calc(${ this.#cbody.DomObject.clientHeight }px - 5px)`;
+		this.#groupsTable = new ComplexTable( this.Application, this.#cbody);
+		this.#headers = [ {name: 'user_group_id', title: 'id'}, {name: 'name', title: 'Наименование'}];
+		this.#groupsTable.DomObject.style.height = `calc(${ this.#cbody.DomObject.clientHeight }px - 5px)`;
 
 		for (let i = 0; i < this.#headers.length; i++) {
 			let newHeader = new Th().SetAttributes( ).Text( this.#headers[i].title ).AddWatch( ( el )=> {
-				el.DomObject.addEventListener('click', ( event ) => {this.#unitsTable.SortByColIndex( el, i )})
+				el.DomObject.addEventListener('click', ( event ) => {this.#groupsTable.SortByColIndex( el, i )})
 			});
-			this.#unitsTable.AddHead( newHeader );
+			this.#groupsTable.AddHead( newHeader );
 		}
 		this.#AddRows();
 	}
 	#AddRows() {
-		for (let i=0; i< this.#units.length; i++) {
-			let row = new Tr().SetAttributes( {'uid_num': this.#units[i].uid} );
+		for (let i=0; i< this.#groups.length; i++) {
+			let row = new Tr().SetAttributes( {'uid_num': this.#groups[i].uid} );
 			for (let j=0; j<this.#headers.length; j++) {
-				row.AddChilds([ new Td().Text( this.#units[i][this.#headers[j].name] ) ]);
+				row.AddChilds([ new Td().Text( this.#groups[i][this.#headers[j].name] ) ]);
 			}
-			row.AddWatch(sho=> sho.DomObject.addEventListener('dblclick', event=> this.#GetDataById(this.#units[i].uid)) );
-			this.#unitsTable.AddRow( row );
-			this.#scUnits.push({uid: this.#units[i].uid, sc: row});
+			row.AddWatch(sho=> sho.DomObject.addEventListener('dblclick', event=> this.#GetDataById(this.#groups[i].uid)) );
+			this.#groupsTable.AddRow( row );
+			this.#scGroups.push({uid: this.#groups[i].uid, sc: row});
 		}
 	}
 	#Close () {
@@ -65,15 +65,12 @@ class Units extends Dictionaries {
 		if (id) this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDictUnitsSingleId', id: id}, hash: this.Hash});
 	}
 	#GetDict() {
-		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDictUnits'}, hash: this.Hash});
-	}
-	#GetDictRegions() {
-		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getAppDictById', dict: 'regions'}, hash: this.Hash});
+		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getGroupsUsers'}, hash: this.Hash});
 	}
 	//удаление елемента
 	#DeleteElement() {
 		let dels = [];
-		let arr = this.#unitsTable.SelectedRows;
+		let arr = this.#groupsTable.SelectedRows;
 		let acslength = 300;
 		if (arr.length > 0) {
 			if (arr.length < acslength) {
@@ -93,13 +90,9 @@ class Units extends Dictionaries {
 		let formHash = this.Application.Toolbox.GenerateHash;
 		let domTitle;
 		let fields = {
-			uid: 'id субдилера',
-			lastname: 'Фамилия',
-			firstname: 'Имя',
-			secondname: 'Отчество',
-			region: 'Регион',
-			title: 'Описание субдилера',
-			doc_city: 'Город субдилера',
+			user_group_id: 'id группы',
+			name: 'Наименование',
+			apps: 'Приложения',
 			status: 'Статус'
 		};
 		// console.log(this.Application);
@@ -118,7 +111,7 @@ class Units extends Dictionaries {
 			])
 		]);
 		let section = new Div( {parent: this.#cbody} ).SetAttributes( );
-		let sel = ['status', 'region'];
+		let sel = ['status'];
 		for (let key in fields) {
 			// console.log('key => ', key);
 			if ( key == 'uid' && typeof element !== 'undefined' || key != 'uid') {
@@ -133,14 +126,9 @@ class Units extends Dictionaries {
 								let options = [];
 								let d = [];
 								if (key == 'status') d = [{val: 0, text: 'Заблокировано'}, {val: 1, text: 'Активно'}];
-								else this.#regions.map(item=> d.push({val: item.uid, text: item.title}))
 								for (let i = 0; i < d.length; i++) {
 									let option = new Option().SetAttributes({'value':d[i].val}).Text(d[i].text);
 									if (key == 'status' && typeof element !== 'undefined' && element.status == d[i].val) option.SetAttributes({'selected': 'selected'});
-									else if (key == 'region' && typeof element !== 'undefined' && element.region == d[i].val) {
-										// console.log("element.uid=> ", element.uid);
-										option.SetAttributes({'selected': 'selected'});
-									}
 									options.push(option);
 								}
 								let select = new Select().SetAttributes( {class: 'col-sm-12', id: `${key}_${formHash}`} ).AddChilds(options);
@@ -158,7 +146,7 @@ class Units extends Dictionaries {
 			domTitle.Text(`Редактирование элемента. UID = [${element.uid}]`);
 			for (let key in element) {
 				// console.log('key=> ', key);
-				if (typeof fields[key] !== 'undefined' && key != 'status' && key != 'region') document.getElementById(`${key}_${formHash}`).value = element[key];
+				if (typeof fields[key] !== 'undefined' && key != 'status') document.getElementById(`${key}_${formHash}`).value = element[key];
 			}
 		}
 	}
@@ -195,52 +183,11 @@ class Units extends Dictionaries {
 				switch ( packet.subcom ) {
 					case 'appApi':
 						switch ( packet.data.action ) {
-							case 'getDictUnits':
-								if (packet.data.list.length > 0) this.#units = packet.data.list;
-								if ( typeof this.#unitsTable === 'undefined' ) this.#Show(packet.data);
-								else this.#AddRows();
-							break;
-							case 'getDictUnitsSingleId':
-								// console.log("пакет===> ", packet.data);
-								this.#AddNewElement(packet.data.list[0]);
-							break;
-							case 'getAppDictById':
-								console.log('packet=> ', packet);
-								if (packet.data.list.length > 0) {
-									packet.data.list.map(item => this.#regions.push(item))
-								}
-								this.#GetDict();
-							break;
-							case 'delElementsFromDict':
-								for (let i=0; i<packet.data.deleted.length; i++) {
-									let index = this.#scUnits.findIndex((item)=> item.uid == packet.data.deleted[i]);
-									if (index != -1) {
-										let d = this.#scUnits.splice(index, 1);
-										d[0].sc.DeleteObject();
-									}
-								}
-							break;
-							case 'createNewUnit':
-								if (packet.data.status == 200) {
-									this.#CloseNewElement();
-									for (let i = 0; i < this.#scUnits.length; i++) {
-										this.#scUnits[i].sc.DeleteObject();
-									}
-									this.#scUnits = [];
-									this.#GetDict();
-								}
-								console.log('пришел пакет ответ на создание нового элемента');
-							break;
-							case 'editUnit':
-								if (packet.data.status == 200) {
-									this.#CloseNewElement();
-									for (let i = 0; i < this.#scUnits.length; i++) {
-										this.#scUnits[i].sc.DeleteObject();
-									}
-									this.#scUnits = [];
-									this.#GetDict();
-								}
-								console.log('пришел пакет ответ на редактирование элемента');
+							case 'getGroupsUsers':
+							if (packet.data.list.length > 0) this.#groups = packet.data.list;
+							if ( typeof this.#groupsTable === 'undefined' ) this.#Show(packet.data);
+							else this.#AddRows();
+							console.log('список групп ');
 							break;
 						}
 					break;

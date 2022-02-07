@@ -46,7 +46,8 @@ class AppPage extends Page {
 				{ text: 'Расчет вознаграждения', watch: () => this.#InitReportDutyDocs() }
 			]},
 			{text: 'Справочники', childs: [
-				{ text: 'Справочник отделений', watch: () => this.#InitDictionariesUnits() }
+				{ text: 'Справочник отделений', watch: () => this.#InitDictionariesUnits() },
+				{ text: 'Справочник групп пользователей', watch: () => this.#InitDictionariesUserGroups() }
 			]}
 		]
 		this.#menu = new this.Application.Components.Menu( this.Application, this );
@@ -88,6 +89,9 @@ class AppPage extends Page {
 	}
 	#InitDictionariesUnits () {
 		new Units( this.Application, this );
+	}
+	#InitDictionariesUserGroups() {
+		new UserGroups( this.Application, this );
 	}
 
 
