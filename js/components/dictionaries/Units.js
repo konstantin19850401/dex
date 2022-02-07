@@ -1,10 +1,11 @@
 'use strict'
 class Units extends Dictionaries {
-	#units = [];#cbody;#unitsTable;#transport;#newElement;
+	#units = [];#cbody;#unitsTable;#transport;#newElement;#regions = [];
+	#scUnits = [];
 	constructor ( application, parent) {
 		super( application, parent );
 		this.#transport = this.Application.Transport;
-		this.#GetDict();
+		this.#GetDictRegions();
 	}
 	// ГЕТТЕРЫ
 
@@ -47,7 +48,9 @@ class Units extends Dictionaries {
 			}
 			row.AddWatch(sho=> sho.DomObject.addEventListener('dblclick', event=> this.#GetDataById(this.#units[i].uid)) );
 			this.#unitsTable.AddRow( row );
+			this.#scUnits.push({uid: this.#units[i].uid, sc: row});
 		}
+
 	}
 	#Close () {
 		this.Container.DeleteObject();
@@ -63,15 +66,24 @@ class Units extends Dictionaries {
 	#GetDict() {
 		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDictUnits'}, hash: this.Hash});
 	}
+	#GetDictRegions() {
+		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getAppDictById', dict: 'regions'}, hash: this.Hash});
+	}
 	//удаление елемента
 	#DeleteElement() {
 		let dels = [];
 		let arr = this.#unitsTable.SelectedRows;
+		let acslength = 300;
 		if (arr.length > 0) {
-			arr.map(item=> dels.push(item.Attributes.uid_num));
-			let c = confirm(`Вы правда желаете удалить выделенные поля? uids=> [${dels}]`);
-			if (c) {
-
+			if (arr.length < acslength) {
+				arr.map(item=> dels.push(item.Attributes.uid_num));
+				let c = confirm(`Вы правда желаете удалить выделенные поля? uids=> [${dels}]`);
+				if (c) {
+					// console.log( 'dels=> ', dels);
+					this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'delElementsFromDict', dict: 'units', elements: dels}, hash: this.Hash});
+				}
+			} else {
+				alert(`Вы можете удалить не более ${acslength} элементов`);
 			}
 		}
 
@@ -90,6 +102,7 @@ class Units extends Dictionaries {
 			doc_city: 'Город субдилера',
 			status: 'Статус'
 		};
+		// console.log(this.Application);
 		this.#newElement = new Div( {parent: this.Parent.Container} ).SetAttributes( {class: 'dex-dict'} ).AddChilds([
 			new I().SetAttributes( {class: 'dex-configuration-close fas fa-window-close'} ).AddWatch(sho => {
 				sho.DomObject.addEventListener( 'click', event => this.#CloseNewElement() )
@@ -98,13 +111,38 @@ class Units extends Dictionaries {
 			this.#cbody = new Div().SetAttributes( {class: 'dex-contract-body row'} )
 		]);
 		let section = new Div( {parent: this.#cbody} ).SetAttributes( );
+		let sel = ['status', 'region'];
 		for (let key in fields) {
+			// console.log('key => ', key);
 			let inputAttrs = {class: `col-sm-12`, type: 'text', id: `${key}_${formHash}`};
 			if (key == 'uid' && typeof element !== 'undefined') inputAttrs.disabled = true;
 			new Div( {parent: section} ).SetAttributes( {class: 'form-group row', name: key} ).AddChilds([
 				new Label().SetAttributes( {class: 'col-sm-3 col-form-label'} ).Text(fields[key]),
 				new Div().SetAttributes( {class: 'col-sm-9'} ).AddChilds([
-					new Input().SetAttributes( inputAttrs )
+					(()=> {
+						if (sel.indexOf(key) != -1) {
+							console.log('key => ', key, ' element.uid=> ', element.uid);
+							let options = [];
+							let d = [];
+							if (key == 'status') d = [{val: 0, text: 'Заблокировано'}, {val: 1, text: 'Активно'}];
+							else {
+								this.#regions.map(item=> d.push({val: item.uid, text: item.title}))
+							}
+							for (let i = 0; i < d.length; i++) {
+								let option = new Option().SetAttributes({'value':d[i].val}).Text(d[i].text);
+								if (key == 'status' && element.status == d[i].val) option.SetAttributes({'selected': 'selected'});
+								else if (key == 'region' && element.region == d[i].val) {
+									console.log("element.uid=> ", element.uid);
+									option.SetAttributes({'selected': 'selected'});
+								}
+								options.push(option);
+							}
+							let select = new Select().SetAttributes( {class: 'col-sm-12'} ).AddChilds(options);
+							return select;
+						} else {
+							return new Input().SetAttributes( inputAttrs )
+						}
+					})()
 				])
 			])
 		}
@@ -113,7 +151,7 @@ class Units extends Dictionaries {
 			domTitle.Text(`Редактирование элемента. UID = [${element.uid}]`);
 			for (let key in element) {
 				// console.log('key=> ', key);
-				if (typeof fields[key] !== 'undefined') document.getElementById(`${key}_${formHash}`).value = element[key];
+				if (typeof fields[key] !== 'undefined' && key != 'status' && key != 'region') document.getElementById(`${key}_${formHash}`).value = element[key];
 			}
 		}
 	}
@@ -132,6 +170,25 @@ class Units extends Dictionaries {
 							case 'getDictUnitsSingleId':
 								console.log("пакет===> ", packet.data);
 								this.#AddNewElement(packet.data.list[0]);
+							break;
+							case 'getAppDictById':
+								console.log('packet=> ', packet);
+								if (packet.data.list.length > 0) {
+									packet.data.list.map(item => this.#regions.push(item))
+								}
+								this.#GetDict();
+							break;
+							case 'delElementsFromDict':
+								// console.log('this.#scUnits=> ', this.#scUnits);
+								// console.log("удалили элементы справочника =>", packet.data);
+								for (let i=0; i<packet.data.deleted.length; i++) {
+									let index = this.#scUnits.findIndex((item)=> item.uid == packet.data.deleted[i]);
+									// console.log('index=> ', index);
+									if (index != -1) {
+										let d = this.#scUnits.splice(index, 1);
+										d[0].sc.DeleteObject();
+									}
+								}
 							break;
 						}
 					break;
