@@ -1,11 +1,11 @@
 'use strict'
 class UserGroups extends Dictionaries {
-	#groups = [];#cbody;#groupsTable;#transport;#newElement;#headers;
+	#groups = [];#cbody;#groupsTable;#transport;#newElement;#headers;#apps = [];
 	#scGroups = [];
 	constructor ( application, parent) {
 		super( application, parent );
 		this.#transport = this.Application.Transport;
-		this.#GetDict();
+		this.#GetApps();
 	}
 	// ГЕТТЕРЫ
 
@@ -44,13 +44,13 @@ class UserGroups extends Dictionaries {
 	}
 	#AddRows() {
 		for (let i=0; i< this.#groups.length; i++) {
-			let row = new Tr().SetAttributes( {'uid_num': this.#groups[i].uid} );
+			let row = new Tr().SetAttributes( {'uid_num': this.#groups[i].user_group_id} );
 			for (let j=0; j<this.#headers.length; j++) {
 				row.AddChilds([ new Td().Text( this.#groups[i][this.#headers[j].name] ) ]);
 			}
-			row.AddWatch(sho=> sho.DomObject.addEventListener('dblclick', event=> this.#GetDataById(this.#groups[i].uid)) );
+			row.AddWatch(sho=> sho.DomObject.addEventListener('dblclick', event=> this.#GetDataById(this.#groups[i].user_group_id)) );
 			this.#groupsTable.AddRow( row );
-			this.#scGroups.push({uid: this.#groups[i].uid, sc: row});
+			this.#scGroups.push({uid: this.#groups[i].user_group_id, sc: row});
 		}
 	}
 	#Close () {
@@ -61,11 +61,19 @@ class UserGroups extends Dictionaries {
 		this.#newElement.DeleteObject();
 	}
 	#GetDataById(id) {
-		// console.log("id=> ", id);
-		if (id) this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDictUnitsSingleId', id: id}, hash: this.Hash});
+		console.log(" запрос группы id=> ", id);
+		try {
+			if ( typeof id !== 'undefined') this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDictGroupsSingleId', id: id}, hash: this.Hash});
+		} catch(e) {
+			console.log(e);
+		}
+
 	}
 	#GetDict() {
 		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getGroupsUsers'}, hash: this.Hash});
+	}
+	#GetApps() {
+		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getAppDictById', dict: 'apps'}, hash: this.Hash});
 	}
 	//удаление елемента
 	#DeleteElement() {
@@ -77,8 +85,7 @@ class UserGroups extends Dictionaries {
 				arr.map(item=> dels.push(item.Attributes.uid_num));
 				let c = confirm(`Вы правда желаете удалить выделенные поля? uids=> [${dels}]`);
 				if (c) {
-					// console.log( 'dels=> ', dels);
-					this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'delElementsFromDict', dict: 'units', elements: dels}, hash: this.Hash});
+					this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'delElementsFromDict', dict: 'userGroups', elements: dels}, hash: this.Hash});
 				}
 			} else {
 				alert(`Вы можете удалить не более ${acslength} элементов`);
@@ -111,12 +118,12 @@ class UserGroups extends Dictionaries {
 			])
 		]);
 		let section = new Div( {parent: this.#cbody} ).SetAttributes( );
-		let sel = ['status'];
+		let sel = ['status', 'apps'];
 		for (let key in fields) {
 			// console.log('key => ', key);
-			if ( key == 'uid' && typeof element !== 'undefined' || key != 'uid') {
+			if ( key == 'user_group_id' && typeof element !== 'undefined' || key != 'user_group_id') {
 				let inputAttrs = {class: `col-sm-12`, type: 'text', id: `${key}_${formHash}`};
-				if (key == 'uid' && typeof element !== 'undefined') inputAttrs.disabled = true;
+				if (key == 'user_group_id' && typeof element !== 'undefined') inputAttrs.disabled = true;
 				new Div( {parent: section} ).SetAttributes( {class: 'form-group row', name: key} ).AddChilds([
 					new Label().SetAttributes( {class: 'col-sm-3 col-form-label'} ).Text(fields[key]),
 					new Div().SetAttributes( {class: 'col-sm-9'} ).AddChilds([
@@ -126,12 +133,25 @@ class UserGroups extends Dictionaries {
 								let options = [];
 								let d = [];
 								if (key == 'status') d = [{val: 0, text: 'Заблокировано'}, {val: 1, text: 'Активно'}];
+								else if (key == 'apps') this.#apps.map(item=> item.status == 1 ? d.push({val: item.uid, text: item.title}) : '')
 								for (let i = 0; i < d.length; i++) {
 									let option = new Option().SetAttributes({'value':d[i].val}).Text(d[i].text);
 									if (key == 'status' && typeof element !== 'undefined' && element.status == d[i].val) option.SetAttributes({'selected': 'selected'});
+									if (key == 'apps' && typeof element !== 'undefined' ) {
+										let apps = JSON.parse(element.apps);
+										for (let k = 0; k < apps.length; k++) {
+											if (apps[k] == d[i].val) {
+												option.DomObject.selected = true;
+												break;
+											}
+										}
+									}
 									options.push(option);
 								}
-								let select = new Select().SetAttributes( {class: 'col-sm-12', id: `${key}_${formHash}`} ).AddChilds(options);
+								let select;
+								if (key == 'apps') {
+									select = new Select().SetAttributes( {class: 'col-sm-12', id: `${key}_${formHash}`, multiple: true} ).AddChilds(options);
+								} else select = new Select().SetAttributes( {class: 'col-sm-12', id: `${key}_${formHash}`} ).AddChilds(options);
 								return select;
 							} else {
 								return new Input().SetAttributes( inputAttrs )
@@ -143,10 +163,10 @@ class UserGroups extends Dictionaries {
 		}
 
 		if (typeof element !== 'undefined') {
-			domTitle.Text(`Редактирование элемента. UID = [${element.uid}]`);
+			domTitle.Text(`Редактирование элемента. UID = [${element.user_group_id}]`);
 			for (let key in element) {
 				// console.log('key=> ', key);
-				if (typeof fields[key] !== 'undefined' && key != 'status') document.getElementById(`${key}_${formHash}`).value = element[key];
+				if (typeof fields[key] !== 'undefined' && key != 'status' && key != 'apps') document.getElementById(`${key}_${formHash}`).value = element[key];
 			}
 		}
 	}
@@ -154,26 +174,34 @@ class UserGroups extends Dictionaries {
 		console.log('Редактировать');
 		let data = {};
 		for (let key in fields) {
-			let element = document.getElementById(`${key}_${formHash}`);
-			// console.log('element=> ', element);
-			if (typeof element !== 'undefined') {
-				data[key] = element.value;
+			let elt;
+			if (key != 'apps') {
+				elt = document.getElementById(`${key}_${formHash}`);
+				if (typeof elt !== 'undefined') data[key] = elt.value;
+			} else {
+				elt = document.querySelectorAll(`#${key}_${formHash} option:checked`);
+				if (typeof elt !== 'undefined') data[key] = Array.from(elt).map(el => el.value);
 			}
 		}
-		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'editUnit', fields: data}, hash: this.Hash});
+		console.log('data=> ', data);
+		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'editGroup', fields: data}, hash: this.Hash});
 	}
 	#CreateNewUnit(formHash, fields) {
-		console.log('создание нового элемента ', formHash);
+		console.log('создание нового элемента ', formHash, ' fields=> ', fields);
 		let data = {};
 		for (let key in fields) {
-			if (key != 'uid') {
-				let element = document.getElementById(`${key}_${formHash}`);
-				if ( typeof element !== 'undefined' ) {
-					data[key] = element.value;
+			if (key != 'user_group_id') {
+				let elt;
+				if (key != 'apps') {
+					elt = document.getElementById(`${key}_${formHash}`);
+					if (typeof elt !== 'undefined') data[key] = elt.value;
+				} else {
+					elt = document.querySelectorAll(`#${key}_${formHash} option:checked`);
+					if (typeof elt !== 'undefined') data[key] = Array.from(elt).map(el => el.value);
 				}
 			}
 		}
-		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'createNewUnit', fields: data}, hash: this.Hash});
+		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'createNewUserGroup', fields: data}, hash: this.Hash});
 	}
 	// ПУБЛИЧНЫЕ МЕТОДЫ
 	Commands ( packet ) {
@@ -184,10 +212,51 @@ class UserGroups extends Dictionaries {
 					case 'appApi':
 						switch ( packet.data.action ) {
 							case 'getGroupsUsers':
-							if (packet.data.list.length > 0) this.#groups = packet.data.list;
-							if ( typeof this.#groupsTable === 'undefined' ) this.#Show(packet.data);
-							else this.#AddRows();
-							console.log('список групп ');
+								if (packet.data.list.length > 0) this.#groups = packet.data.list;
+								if ( typeof this.#groupsTable === 'undefined' ) this.#Show(packet.data);
+								else this.#AddRows();
+								console.log('список групп ');
+							break;
+							case 'getDictGroupsSingleId':
+								this.#AddNewElement(packet.data.list[0]);
+								console.log('getDictGroupsSingleId=> ', packet);
+							break;
+							case 'getAppDictById':
+								console.log('getAppDictById=> ');
+								if (packet.data.list.length > 0) {
+									packet.data.list.map(item => this.#apps.push(item))
+								}
+								this.#GetDict();
+							break;
+							case 'createNewUserGroup':
+								if (packet.data.status == 200) {
+									this.#CloseNewElement();
+									for (let i = 0; i < this.#scGroups.length; i++) {
+										this.#scGroups[i].sc.DeleteObject();
+									}
+									this.#scGroups = [];
+									this.#GetDict();
+								}
+							break;
+							case 'delElementsFromDict':
+								for (let i=0; i<packet.data.deleted.length; i++) {
+									let index = this.#scGroups.findIndex((item)=> item.uid == packet.data.deleted[i]);
+									if (index != -1) {
+										let d = this.#scGroups.splice(index, 1);
+										d[0].sc.DeleteObject();
+									}
+								}
+							break;
+							case 'editGroup':
+								if (packet.data.status == 200) {
+									this.#CloseNewElement();
+									for (let i = 0; i < this.#scGroups.length; i++) {
+										this.#scGroups[i].sc.DeleteObject();
+									}
+									this.#scGroups = [];
+									this.#GetDict();
+								}
+								console.log('пришел пакет ответ на редактирование элемента');
 							break;
 						}
 					break;
@@ -196,4 +265,3 @@ class UserGroups extends Dictionaries {
 		}
 	}
 }
-

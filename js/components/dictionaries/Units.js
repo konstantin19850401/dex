@@ -133,7 +133,7 @@ class Units extends Dictionaries {
 								let options = [];
 								let d = [];
 								if (key == 'status') d = [{val: 0, text: 'Заблокировано'}, {val: 1, text: 'Активно'}];
-								else this.#regions.map(item=> d.push({val: item.uid, text: item.title}))
+								else this.#regions.map(item=> item.status == 1 ? d.push({val: item.uid, text: item.title}) : '')
 								for (let i = 0; i < d.length; i++) {
 									let option = new Option().SetAttributes({'value':d[i].val}).Text(d[i].text);
 									if (key == 'status' && typeof element !== 'undefined' && element.status == d[i].val) option.SetAttributes({'selected': 'selected'});
@@ -228,6 +228,8 @@ class Units extends Dictionaries {
 									}
 									this.#scUnits = [];
 									this.#GetDict();
+								} else {
+									alert(packet.data.err.join('\n'));
 								}
 								console.log('пришел пакет ответ на создание нового элемента');
 							break;

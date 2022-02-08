@@ -110,7 +110,7 @@ class SimpleHtmlObject {
 		for ( let i = 0; i < newChilds.length; i++ ) {
 			if (newChilds[i] && mayHaveChild.indexOf( newChilds[i].ObjectType ) != -1 ) {
 				if ( newChilds[i].ObjectType == 'OPTION' ) {
-					console.log("да");
+					// console.log("да");
 				}
 				// this.#childs.push( newChilds[i] );
 				this.AddChild( newChilds[i] );
