@@ -46,8 +46,9 @@ class AppPage extends Page {
 				{ text: 'Расчет вознаграждения', watch: () => this.#InitReportDutyDocs() }
 			]},
 			{text: 'Справочники', childs: [
-				{ text: 'Справочник отделений', watch: () => this.#InitDictionariesUnits() },
-				{ text: 'Справочник групп пользователей', watch: () => this.#InitDictionariesUserGroups() }
+				{ text: 'Справочник отделений', watch: () => this.#OpenDicts('units') },
+				{ text: 'Справочник пользователей', watch: () => this.#OpenDicts('users') },
+				{ text: 'Справочник групп пользователей', watch: () => this.#OpenDicts('userGroups') }
 			]}
 		]
 		this.#menu = new this.Application.Components.Menu( this.Application, this );
@@ -87,12 +88,21 @@ class AppPage extends Page {
 	#InitReportDutyDocs () {
 		console.log( 'Отчет по долгам' );
 	}
-	#InitDictionariesUnits () {
-		new Units( this.Application, this );
+
+	#OpenDicts( dictname ) {
+		if (dictname == 'units') new Units( this.Application, this );
+		else if (dictname == 'userGroups') new UserGroups( this.Application, this );
+		else if (dictname == 'users') new Users( this.Application, this );
 	}
-	#InitDictionariesUserGroups() {
-		new UserGroups( this.Application, this );
-	}
+	// #InitDictionariesUnits () {
+	// 	new Units( this.Application, this );
+	// }
+	// #InitDictionariesUserGroups() {
+	// 	new UserGroups( this.Application, this );
+	// }
+	// #InitDictionariesUsers() {
+	// 	new Users( this.Application, this );
+	// }
 
 
 	// ПУБЛИЧНЫЕ МЕТОДЫ
