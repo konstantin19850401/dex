@@ -86,7 +86,7 @@ class Users extends Dictionaries {
 				arr.map(item=> dels.push(item.Attributes.uid_num));
 				let c = confirm(`Вы правда желаете удалить выделенные поля? uids=> [${dels}]`);
 				if (c) {
-					this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'delElementsFromDict', dict: 'userGroups', elements: dels}, hash: this.Hash});
+					this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'delElementsFromDict', dict: 'user', elements: dels}, hash: this.Hash});
 				}
 			} else {
 				alert(`Вы можете удалить не более ${acslength} элементов`);
@@ -173,17 +173,11 @@ class Users extends Dictionaries {
 		// console.log('Редактировать');
 		let data = {};
 		for (let key in fields) {
-			let elt;
-			if (key != 'apps') {
-				elt = document.getElementById(`${key}_${formHash}`);
-				if (typeof elt !== 'undefined') data[key] = elt.value;
-			} else {
-				elt = document.querySelectorAll(`#${key}_${formHash} option:checked`);
-				if (typeof elt !== 'undefined') data[key] = Array.from(elt).map(el => el.value);
-			}
+			let elt = document.getElementById(`${key}_${formHash}`);
+			if (typeof elt !== 'undefined') data[key] = elt.value;
 		}
-		// console.log('data=> ', data);
-		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'editGroup', fields: data}, hash: this.Hash});
+		console.log('data=> ', data);
+		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'editUser', fields: data}, hash: this.Hash});
 	}
 	#CreateNewUser(formHash, fields) {
 		let data = {};
@@ -193,6 +187,7 @@ class Users extends Dictionaries {
 				if (typeof elt !== 'undefined') data[key] = elt.value;
 			}
 		}
+		console.log('data=> ', data);
 		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'createNewUser', fields: data}, hash: this.Hash});
 	}
 	// ПУБЛИЧНЫЕ МЕТОДЫ
@@ -223,7 +218,34 @@ class Users extends Dictionaries {
 								this.#GetDict();
 							break;
 							case 'createNewUser':
-
+								console.log('createNewUser=> ', packet);
+								if (packet.data.status == 200) {
+									this.#CloseNewElement();
+									for (let i = 0; i < this.#scUsers.length; i++) {
+										this.#scUsers[i].sc.DeleteObject();
+									}
+									this.#scUsers = [];
+									this.#GetDict();
+								}
+							break;
+							case 'delElementsFromDict':
+								for (let i=0; i<packet.data.deleted.length; i++) {
+									let index = this.#scUsers.findIndex((item)=> item.uid == packet.data.deleted[i]);
+									if (index != -1) {
+										let d = this.#scUsers.splice(index, 1);
+										d[0].sc.DeleteObject();
+									}
+								}
+							break;
+							case 'editUser':
+								if (packet.data.status == 200) {
+									this.#CloseNewElement();
+									for (let i = 0; i < this.#scUsers.length; i++) {
+										this.#scUsers[i].sc.DeleteObject();
+									}
+									this.#scUsers = [];
+									this.#GetDict();
+								}
 							break;
 						}
 					break;
