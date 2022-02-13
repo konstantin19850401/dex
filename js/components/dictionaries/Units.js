@@ -185,7 +185,12 @@ class Units extends Dictionaries {
 				}
 			}
 		}
-		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'createNewUnit', fields: data}, hash: this.Hash});
+		let packet = {com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'createNewUnit', fields: data}, hash: this.Hash};
+		let ifNeed = confirm('Создается новое отделение. Будем создавать пользователя для входа в приложение?');
+
+		if (ifNeed) packet.data.createNewUser = true;
+		else packet.data.createNewUser = false;
+		this.#transport.Get(packet);
 	}
 	// ПУБЛИЧНЫЕ МЕТОДЫ
 	Commands ( packet ) {
