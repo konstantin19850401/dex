@@ -3,7 +3,8 @@ class Lock  extends Page {
 	//#application;#container;#applicationContainer;
 	//#hash;
 	#data = {};
-	#password = '12473513';
+	// #password = '12473513';
+	#password = 'qmE142G7';
 	#lockPage;
 	#errors;
 	constructor( application, lockPage ) {

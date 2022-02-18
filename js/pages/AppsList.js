@@ -53,19 +53,22 @@ class AppsList extends Page {
 	}
 	#LaunchApp ( name ) {
 		let transport = this.Application.Transport;
+		console.log('попытка запустить приложение name=> ', name);
 		transport.Get( {com: 'skyline.core.apps', subcom: 'select', data: {appid: name}, hash: this.Hash} );
 	}
 	#GetAppList ( ) {
+		console.log('запросим список приложений');
 		let transport = this.Application.Transport;
 		transport.Get( {com: 'skyline.core.apps', subcom: 'list', data: {}, hash: this.Hash} );
 	}
 	// ПУБЛИЧНЫЕ МЕТОДЫ
 	Commands ( packet ) {
+		console.log('packet=> ', packet);
 		switch ( packet.com ) {
 			case 'skyline.core.apps':
 				switch ( packet.subcom ) {
 					case 'list':
-						this.#InitAppList( packet.data );
+						this.#InitAppList( packet.data.list );
 					break;
 					case 'select':
 						if ( packet.data.status == 200 ) {

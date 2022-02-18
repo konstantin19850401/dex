@@ -121,7 +121,7 @@ class Units extends Dictionaries {
 		let sel = ['status', 'region'];
 		for (let key in fields) {
 			// console.log('key => ', key);
-			if ( key == 'uid' && typeof element !== 'undefined' || key != 'uid') {
+			// if ( key == 'uid' && typeof element !== 'undefined' || key != 'uid') {
 				let inputAttrs = {class: `col-sm-12`, type: 'text', id: `${key}_${formHash}`};
 				if (key == 'uid' && typeof element !== 'undefined') inputAttrs.disabled = true;
 				new Div( {parent: section} ).SetAttributes( {class: 'form-group row', name: key} ).AddChilds([
@@ -151,7 +151,7 @@ class Units extends Dictionaries {
 						})()
 					])
 				])
-			}
+			// }
 		}
 
 		if (typeof element !== 'undefined') {
@@ -178,18 +178,18 @@ class Units extends Dictionaries {
 		console.log('создание нового элемента ', formHash);
 		let data = {};
 		for (let key in fields) {
-			if (key != 'uid') {
+			// if (key != 'uid') {
 				let element = document.getElementById(`${key}_${formHash}`);
 				if ( typeof element !== 'undefined' ) {
 					data[key] = element.value;
 				}
-			}
+			// }
 		}
 		let packet = {com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'createNewUnit', fields: data}, hash: this.Hash};
-		let ifNeed = confirm('Создается новое отделение. Будем создавать пользователя для входа в приложение?');
-
-		if (ifNeed) packet.data.createNewUser = true;
-		else packet.data.createNewUser = false;
+		if (confirm('Создается новое отделение. Будем создавать пользователя для входа в приложение?')) {
+			packet.data.createNewUser = true;
+		} else packet.data.createNewUser = false;
+		console.log('packet на сервер=> ', packet);
 		this.#transport.Get(packet);
 	}
 	// ПУБЛИЧНЫЕ МЕТОДЫ

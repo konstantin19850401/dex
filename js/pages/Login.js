@@ -4,8 +4,10 @@ class Login extends Page {
 	#errors;
 	constructor( application ) {
 		super( application );
-		this.#data.login = 'admin';
-		this.#data.password = '12473513';
+		// this.#data.login = 'admin';
+		// this.#data.password = '12473513';
+		this.#data.login = 'user12323';
+		this.#data.password = 'qmE142G7';
 		this.#InitPage();
 	}
 	// ПРИВАТНЫЕ МЕТОДЫ
@@ -76,6 +78,7 @@ class Login extends Page {
 	}
 	// ПУБЛИЧНЫЕ МЕТОДЫ
 	Commands ( packet ) {
+		console.log(packet);
 		switch ( packet.status ) {
 			case 200:
 				this.RemovePage();

@@ -37,18 +37,24 @@ class Ajax {
 		xhr.onload = () => {
 			// console.log( 'response==> ', xhr.response );
 			try {
-				let response = JSON.parse( xhr.response );
-
-				if ( typeof response.hash !== 'undefined' ) {
-					if ( typeof this.#application.Hashes[ response.hash ] !== 'undefined' ) this.#application.Hashes[ response.hash ].Commands( response );
+				console.log('ответ=> ', xhr.response);
+				let response = typeof xhr.response === 'string' ? JSON.parse( xhr.response ) : xhr.response;
+				if (typeof response.status !== 'undefined' && response.status == 401) {
+					if (typeof response.err !== 'undefined') console.log(response.err);
+					this.#application.DeleteAllHash();
+					new Login( this.#application );
 				} else {
-					// if ( typeof response.data !== 'undefined' && typeof response.data.err !== 'undefined') {
-					// 	let errs = response.data.err.join('<br>');
-					// 	new this.#application.AlertMessages( errs );
-					// }
+					if ( typeof response.hash !== 'undefined' ) {
+					if ( typeof this.#application.Hashes[ response.hash ] !== 'undefined' ) this.#application.Hashes[ response.hash ].Commands( response );
+					} else {
+						// if ( typeof response.data !== 'undefined' && typeof response.data.err !== 'undefined') {
+						// 	let errs = response.data.err.join('<br>');
+						// 	new this.#application.AlertMessages( errs );
+						// }
+					}
+					if ( response.subcom == 'killsession' && response.data.status == 200 ) this.#uid = null;
+					else this.#InitSubscription();
 				}
-				if ( response.subcom == 'killsession' && response.data.status == 200 ) this.#uid = null;
-				else this.#InitSubscription();
 			} catch ( e ) {
 				console.log(e)
 			}

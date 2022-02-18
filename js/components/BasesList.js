@@ -45,6 +45,7 @@ class BasesList extends Component {
 		else {
 			let data = { action: 'list', subaction: 'period', base: base };
 			let packet = { com: 'skyline.apps.adapters', subcom: 'appApi', data: data, hash: this.Hash};
+			console.log('посылаемый пакет => ', packet);
 			let transport = this.Application.Transport;
 			transport.Get( packet );
 		}
