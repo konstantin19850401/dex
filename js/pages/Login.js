@@ -4,10 +4,10 @@ class Login extends Page {
 	#errors;
 	constructor( application ) {
 		super( application );
-		// this.#data.login = 'admin';
-		// this.#data.password = '12473513';
-		this.#data.login = 'user12323';
-		this.#data.password = 'qmE142G7';
+		this.#data.login = 'admin';
+		this.#data.password = '12473513';
+		// this.#data.login = 'user12323';
+		// this.#data.password = 'qmE142G7';
 		this.#InitPage();
 	}
 	// ПРИВАТНЫЕ МЕТОДЫ

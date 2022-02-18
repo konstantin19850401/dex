@@ -37,7 +37,7 @@ class Ajax {
 		xhr.onload = () => {
 			// console.log( 'response==> ', xhr.response );
 			try {
-				console.log('ответ=> ', xhr.response);
+				// console.log('ответ=> ', xhr.response);
 				let response = typeof xhr.response === 'string' ? JSON.parse( xhr.response ) : xhr.response;
 				if (typeof response.status !== 'undefined' && response.status == 401) {
 					if (typeof response.err !== 'undefined') console.log(response.err);
@@ -56,14 +56,19 @@ class Ajax {
 					else this.#InitSubscription();
 				}
 			} catch ( e ) {
-				console.log(e)
+				console.log("Критическая ошибка при запросе на создание подписки. Сбросить соединение ", e);
+				this.#application.DeleteAllHash();
+				new Login( this.#application );
 			}
 		}
 		xhr.onerror = () => {
 			console.log( 'Ошибка в процессе попытки подписаться на сообщения сервера' );
+			this.#application.DeleteAllHash();
+			new Login( this.#application );
 		}
 	}
 	#XMLHttpRequest ( method, packet ) {
+		// console.log('Отправляем пакет ');
 		if ( this.#uid != undefined ) packet.uid = this.#uid;
 		let xhr = new XMLHttpRequest();
 		let pkt = {packet: packet};
@@ -74,15 +79,21 @@ class Ajax {
 			if ( xhr.status == 200 ) {
 				// console.log( xhr.response );
 				let response = JSON.parse( xhr.response );
-				if ( typeof response.subcom !== 'undefined' && response.subcom == 'initsession' ) {
-					if ( typeof response.data.uid !== 'undefined' ) {
-						this.#uid = response.data.uid;
-						this.#InitSubscription();
+				if ( typeof response.status !== 'undefined' && response.status == 401 ) {
+					console.log('не авторизован');
+					this.#application.DeleteAllHash();
+					new Login( this.#application );
+				} else {
+					if ( typeof response.subcom !== 'undefined' && response.subcom == 'initsession' ) {
+						if ( typeof response.data.uid !== 'undefined' ) {
+							this.#uid = response.data.uid;
+							this.#InitSubscription();
+						}
 					}
-				}
-				if ( typeof response.hash !== 'undefined' ) {
-					if ( typeof this.#application.Hashes[ response.hash ] !== 'undefined' ) {
-						this.#application.Hashes[ response.hash ].Commands( response );
+					if ( typeof response.hash !== 'undefined' ) {
+						if ( typeof this.#application.Hashes[ response.hash ] !== 'undefined' ) {
+							this.#application.Hashes[ response.hash ].Commands( response );
+						}
 					}
 				}
 				// console.log(response);
@@ -90,8 +101,10 @@ class Ajax {
 				console.log( `Ошибка ajax запроса. Статус ошибки => ${ xhr.status }. Описание ошибки => ${ xhr.statusText }` );
 			}
 		}
-		xhr.onerror = () => {
-			console.log( 'Запрос не удался' );
+		xhr.onerror = ( ) => {
+			console.log( "Запрос не удался==>. Сбросить соединение ", xhr );
+			this.#application.DeleteAllHash();
+			new Login( this.#application );
 		}
 	}
 
