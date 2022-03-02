@@ -1,5 +1,5 @@
 'use strict'
-class DexAppWindow extends Component {
+class SalesRepresentativeWindow extends Component {
 	#base;#operator;#windowBody;#docTable;#baseTitle;#contextMenu;#dicts = new Map();
 	#data;
 	#headers = [];
@@ -9,11 +9,11 @@ class DexAppWindow extends Component {
 	#filter = { start: undefined, end: undefined, search: undefined };
 	constructor ( parent, base ) {
 		super( parent.Application, parent );
-		this.#base = base;
+		this.#base = 'Торговый представитель';
 		this.#windowsPanel = parent.WindowsPanel;
 		this.#windowsPanel.AddMenuNewItem( this );
-		this.#GetBaseDicts();
-		// this.#InitComponent();
+		// this.#GetBaseDicts();
+		this.#InitComponent();
 		// this.#Resize();
 		// this.#ListenResizeWindow();
 		// this.#GetBaseTitle();
@@ -29,6 +29,12 @@ class DexAppWindow extends Component {
 	}
 	#InitComponent() {
 		let filterBox;
+		this.#contextMenu = new ContextMenu(this.Application);
+		this.#contextMenu.AddContextItems([
+			{title: 'Создать новый документ', uid: 'doc.newdoc', statuses: '1'},
+			{title: 'Открыть документ', uid: 'doc.open', statuses: '1'},
+			{title: 'Удалить документ', uid: 'doc.delete', statuses: '1'},
+		]);
 		this.Container = new Div( {parent: this.Parent.Wrapper} ).SetAttributes( {class: 'dex-app-window'} ).AddChilds([
 			new I().SetAttributes( {class: 'dex-app-window-close fas fa-window-close'} ).AddWatch( shoObject => {
 				shoObject.DomObject.addEventListener( 'click', event => {
@@ -52,12 +58,12 @@ class DexAppWindow extends Component {
 						this.#GetData();
 					}
 				}),
-				this.#searchSho = new SearchBlock( this.Application ).AddWatcher({
-					name: 'watchSelectedSearch', func: ( search )=> {
-						this.#filter.search = search;
-						this.#GetData();
-					}
-				}),
+				// this.#searchSho = new SearchBlock( this.Application ).AddWatcher({
+				// 	name: 'watchSelectedSearch', func: ( search )=> {
+				// 		this.#filter.search = search;
+				// 		this.#GetData();
+				// 	}
+				// }),
 				this.#docTable = new ComplexTable( this.Application ).AddWatcher({name: 'watchSelectedRows', func: ( rows )=> { this.#SetSelectedCnt( rows ) }
 				}),
 			]),
@@ -69,7 +75,7 @@ class DexAppWindow extends Component {
 				this.#docTable = new ComplexTable( this.Application ).AddWatcher(
 					{name: 'watchSelectedRows', func: ( rows ) => { this.#SetSelectedCnt( rows ) }
 				}),
-				this.#contextMenu = new ContextMenu( this.Application ).AddContextItems( this.Parent.CommonDicts.contextMenu.elements )
+				this.#contextMenu
 			]),
 		]);
 		this.#contextMenu.AddWatcher({name: 'watchSelectContextMenuItem', func: ( item, selectedRows ) => { this.#GetSelectContextMenuItem( item, selectedRows ); }})
@@ -97,14 +103,14 @@ class DexAppWindow extends Component {
 	#DrawTable () {
 		// заголовки
 		if ( typeof this.#docTable !== 'undefined') {
-			let text = '';
+			console.log('нарисуем таблицу');
 			let commonDicts = this.Parent.CommonDicts;
 			this.#headers = [];
-			let hiddens = ['id', 'docid'];
+			let hiddens = [];
 			let reg = new RegExp(`${this.#operator}`, 'g');
 			this.#data.headers.map(( item, index )=> {
-				let ifIsset = commonDicts.docFields.elements.find( df => df.uid == item.id && df.vendor.match( reg ) != null );
-				if ( !ifIsset ) hiddens.push( item.id );
+				// let ifIsset = commonDicts.docFields.elements.find( df => df.uid == item.id && df.vendor.match( reg ) != null );
+				// if ( !ifIsset ) hiddens.push( item.id );
 				this.#headers.push( item.id );
 				let newHeader = new Th().SetAttributes( ).Text( item.name ).AddWatch( ( el )=> {
 					el.DomObject.addEventListener( 'click', ( event ) => {
@@ -121,44 +127,52 @@ class DexAppWindow extends Component {
 					// } )
 				} );
 				for ( let i = 0; i < this.#headers.length; i++ ) {
-					if ( typeof item.fields[ this.#headers[i] ] !== 'undefined' ) {
-						row.AddChilds([
-							(() => {
-								let text = this.#CheckText( item.fields[ this.#headers[i] ], this.#headers[i] );
-								let td = new Td().Text( text );
-								if (  hiddens.indexOf( this.#headers[i] ) != -1 ) td.SetAttributes( {class: 'dnone'} );
-								row.AddShadowCopy( this.#headers[i], text );
-								return td;
-							})()
-						]);
-						if ( this.#headers[i] == 'status' ) {
-							// row.AddClass( this.#colors[item.fields[ this.#headers[i] ]] );
-						}
-					} else if ( typeof item.datafields[ this.#headers[i] ] !== 'undefined' ) {
-						row.AddChilds([
-							(() => {
-								let text = this.#CheckText( item.datafields[ this.#headers[i] ], this.#headers[i] );
-								let td = new Td().Text( text );
-								if (  hiddens.indexOf( this.#headers[i] ) != -1 ) td.SetAttributes( {class: 'dnone'} );
-								row.AddShadowCopy( this.#headers[i], text );
-								return td;
-							})()
-						]);
-					} else {
-						row.AddChilds([
-							(() => {
-								let td = new Td().Text( '' );
-								if (  hiddens.indexOf( this.#headers[i] ) != -1 ) td.SetAttributes( {class: 'dnone'} );
-								row.AddShadowCopy( this.#headers[i], text );
-								return td;
-							})()
-						]);
-					}
+					row.AddChilds([
+						(() => {
+							let text = this.#CheckText( item[ this.#headers[i] ], this.#headers[i] );
+							let td = new Td().Text( text );
+							if (  hiddens.indexOf( this.#headers[i] ) != -1 ) td.SetAttributes( {class: 'dnone'} );
+							row.AddShadowCopy( this.#headers[i], text );
+							return td;
+						})()
+					]);
+					// if ( typeof item.fields[ this.#headers[i] ] !== 'undefined' ) {
+					// 	row.AddChilds([
+					// 		(() => {
+					// 			let text = this.#CheckText( item.fields[ this.#headers[i] ], this.#headers[i] );
+					// 			let td = new Td().Text( text );
+					// 			if (  hiddens.indexOf( this.#headers[i] ) != -1 ) td.SetAttributes( {class: 'dnone'} );
+					// 			row.AddShadowCopy( this.#headers[i], text );
+					// 			return td;
+					// 		})()
+					// 	]);
+					// 	if ( this.#headers[i] == 'status' ) {
+					// 		// row.AddClass( this.#colors[item.fields[ this.#headers[i] ]] );
+					// 	}
+					// } else if ( typeof item.datafields[ this.#headers[i] ] !== 'undefined' ) {
+					// 	row.AddChilds([
+					// 		(() => {
+					// 			let text = this.#CheckText( item.datafields[ this.#headers[i] ], this.#headers[i] );
+					// 			let td = new Td().Text( text );
+					// 			if (  hiddens.indexOf( this.#headers[i] ) != -1 ) td.SetAttributes( {class: 'dnone'} );
+					// 			row.AddShadowCopy( this.#headers[i], text );
+					// 			return td;
+					// 		})()
+					// 	]);
+					// } else {
+					// 	row.AddChilds([
+					// 		(() => {
+					// 			let td = new Td().Text( '' );
+					// 			if (  hiddens.indexOf( this.#headers[i] ) != -1 ) td.SetAttributes( {class: 'dnone'} );
+					// 			row.AddShadowCopy( this.#headers[i], text );
+					// 			return td;
+					// 		})()
+					// 	]);
+					// }
 				}
 				this.#docTable.AddRow( row );
 			});
 			this.#SetTotalCnt( this.#data.list );
-			this.#SetSelectedCnt([]);
 		}
 	}
 	#CheckText ( text, fname ) {
@@ -174,18 +188,18 @@ class DexAppWindow extends Component {
 	}
 	#GetSelectContextMenuItem ( item, selectedRows ) {
 		console.log('выбран элемент контекстного меню ', item);
-		let data = {action: 'hooks', base: this.#base};
-		if ( item.uid == 'doc.print' ) {
-			data.subaction = 'document.print.doc';
-			data.list = [];
-			selectedRows.map( item => data.list.push( item.ShadowCopy.id ) );
-		} else if ( item.uid == 'doc.open' ) {
-			if ( selectedRows.length == 0 || selectedRows.length > 1) return;
-			data.subaction = 'document.open.doc';
-			data.docid = selectedRows[0].ShadowCopy.id;
-		}
+		let data = {action: 'hooks'};
+		// if ( item.uid == 'doc.print' ) {
+		// 	data.subaction = 'document.print.doc';
+		// 	data.list = [];
+		// 	selectedRows.map( item => data.list.push( item.ShadowCopy.id ) );
+		// } else if ( item.uid == 'doc.open' ) {
+		// 	if ( selectedRows.length == 0 || selectedRows.length > 1) return;
+		// 	data.subaction = 'document.open.doc';
+		// 	data.docid = selectedRows[0].ShadowCopy.id;
+		// }
 		if ( item.uid == 'doc.newdoc' ) {
-			new DexContract( this.Application, this, this.#base, this.#dicts );
+			new SalesRepresentativeDocument( this.Application, this );
  		} else {
  			data.list = JSON.stringify( data.list );
 			let transport = this.Application.Transport;
@@ -207,26 +221,26 @@ class DexAppWindow extends Component {
 	}
 	#GetData (  ) {
 		let transport = this.Application.Transport;
-		let data = { action: 'list', subaction: 'period', base: this.#base };
+		let data = { action: 'getUserDocuments', subaction: 'period', base: this.#base };
 		for ( let key in this.#filter ) {
 			if ( typeof this.#filter[key] !== 'undefined' ) data[key] = this.#filter[key];
 		}
-		let packet = { com: 'skyline.apps.adapters', subcom: 'appApi', data: data, hash: this.Hash};
-		// console.log( ' запрос списка дог packet=>', packet );
+		let packet = { com: 'skyline.apps.salesRepresentative', subcom: 'appApi', data: data, hash: this.Hash};
+		console.log( ' запрос списка дог packet=>', packet );
 		transport.Get( packet );
 	}
-	#HandleHooks ( data ) {
-		// console.log("data=> ", data);
-		if ( typeof data.err === 'undefined' ) {
-			if ( data.subaction === 'document.print.doc' ) window.open( `${ this.Application.Transport.Url }/adapters/printing/${ data.link }`);
-			else if ( data.subaction === 'document.open.doc' ) {
-				// console.log( 'пытаемся открыть документ ' );
-				// new DexContract( this.Application, this, this.#base );
-			}
-		} else {
-			console.log( "какие-то ошибки ", data.err );
-		}
-	}
+	// #HandleHooks ( data ) {
+	// 	// console.log("data=> ", data);
+	// 	if ( typeof data.err === 'undefined' ) {
+	// 		if ( data.subaction === 'document.print.doc' ) window.open( `${ this.Application.Transport.Url }/adapters/printing/${ data.link }`);
+	// 		else if ( data.subaction === 'document.open.doc' ) {
+	// 			// console.log( 'пытаемся открыть документ ' );
+	// 			// new DexContract( this.Application, this, this.#base );
+	// 		}
+	// 	} else {
+	// 		console.log( "какие-то ошибки ", data.err );
+	// 	}
+	// }
 
 	// публичные методы
 	Minimize() {
@@ -247,38 +261,17 @@ class DexAppWindow extends Component {
 	Commands ( packet ) {
 		// console.log(packet);
 		switch ( packet.com ) {
-			case 'skyline.apps.adapters':
+			case 'skyline.apps.salesRepresentative':
 				switch ( packet.subcom ) {
 					case 'appApi':
 						switch ( packet.data.action ) {
-							case 'list':
-								this.#operator = packet.data.operator;
-								this.#data = packet.data;
+							case 'getUserDocuments':
+							    this.#data = packet.data;
+								console.log('пришли данные по документам', packet);
 								this.#ClearTable();
 								this.#DrawTable();
-
-							break;
-							case 'getBaseName':
-								if ( packet.data.title != '' && this.#base != packet.data.title ) {
-									this.#baseTitle.Text( `[ ${packet.data.title} ]`);
-									this.Parent.WindowsPanel.ChangeWindowTitle( this.Hash, packet.data.title );
-								}
-							break;
-							case 'hooks':
-								this.#HandleHooks( packet.data );
-							break;
-							case 'getBaseDicts':
-								console.log( 'getBaseDicts=> ', packet );
-								for ( let key in packet.data.list ) {
-									this.#dicts.set( key, packet.data.list[key] );
-								}
-								this.#InitComponent();
-								this.#Resize();
-								this.#ListenResizeWindow();
-								this.#GetBaseTitle();
-
-								this.#ClearTable();
-								this.#DrawTable();
+								// appWindow.MakeActive();
+								// appWindow.Maximize();
 							break;
 						}
 					break;
