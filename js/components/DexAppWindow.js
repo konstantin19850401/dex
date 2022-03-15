@@ -28,7 +28,7 @@ class DexAppWindow extends Component {
 		transport.Get( {com: 'skyline.apps.adapters', subcom: 'appApi', data: { action: 'getBaseDicts', base: this.#base }, hash: this.Hash} );
 	}
 	#InitComponent() {
-		let filterBox;
+		let filterBox; let periodJournal; let filter; let search;
 		this.Container = new Div( {parent: this.Parent.Wrapper} ).SetAttributes( {class: 'dex-app-window'} ).AddChilds([
 			new I().SetAttributes( {class: 'dex-app-window-close fas fa-window-close'} ).AddWatch( shoObject => {
 				shoObject.DomObject.addEventListener( 'click', event => {
@@ -42,24 +42,35 @@ class DexAppWindow extends Component {
 					}
 				} )
 			}),
-			this.#baseTitle = new Span().SetAttributes( {class: 'dex-app-window-title'} ).Text( `[ ${ this.#base } ]` ),
+			//this.#baseTitle = new Span().SetAttributes( {class: 'dex-app-window-title'} ).Text( `[ ${ this.#base } ]` ),
+
 			// filterBox = new Div().SetAttributes( {class: 'dex-app-window-filter'} ).AddChilds([
 			new Div().SetAttributes( {class: 'dex-app-window-filter'} ).AddChilds([
-				this.#periodSho = new Period( this.Application ).AddWatcher({
-						name: 'watchSelectedPeriod', func: ( start, end )=> {
-						this.#filter.start = start;
-						this.#filter.end = end;
-						this.#GetData();
-					}
-				}),
-				this.#searchSho = new SearchBlock( this.Application ).AddWatcher({
-					name: 'watchSelectedSearch', func: ( search )=> {
-						this.#filter.search = search;
-						this.#GetData();
-					}
-				}),
-				this.#docTable = new ComplexTable( this.Application ).AddWatcher({name: 'watchSelectedRows', func: ( rows )=> { this.#SetSelectedCnt( rows ) }
-				}),
+				periodJournal = new Div().SetAttributes({class: 'dex-filter-element'}).AddChilds([
+					new I().SetAttributes({class: 'fas fa-calendar-alt'}),
+				]),
+				// filter = new Div().SetAttributes({class: 'dex-filter-element'}).AddChilds([
+				// 	new I().SetAttributes({class: 'fas fa-filter'}),
+				// ]),
+				search = new Div().SetAttributes({class: 'dex-filter-element'}).AddChilds([
+					new I().SetAttributes({class: 'fas fa-search'}),
+				]),
+
+				// this.#periodSho = new Period( this.Application ).AddWatcher({
+				// 		name: 'watchSelectedPeriod', func: ( start, end )=> {
+				// 		this.#filter.start = start;
+				// 		this.#filter.end = end;
+				// 		this.#GetData();
+				// 	}
+				// }),
+				// this.#searchSho = new SearchBlock( this.Application ).AddWatcher({
+				// 	name: 'watchSelectedSearch', func: ( search )=> {
+				// 		this.#filter.search = search;
+				// 		this.#GetData();
+				// 	}
+				// }),
+				// this.#docTable = new ComplexTable( this.Application ).AddWatcher({name: 'watchSelectedRows', func: ( rows )=> { this.#SetSelectedCnt( rows ) }
+				// }),
 			]),
 			new Div().SetAttributes( {class: 'dex-app-window-info'} ).AddChilds([
 				this.#totalDocsSho = new Span().SetAttributes( {class: 'dex-app-window-total'} ).Text( `Всего: ${ this.#totalDocs }` ),
@@ -72,6 +83,49 @@ class DexAppWindow extends Component {
 				this.#contextMenu = new ContextMenu( this.Application ).AddContextItems( this.Parent.CommonDicts.contextMenu.elements )
 			]),
 		]);
+		periodJournal.AddWatch(shoObject=> {
+			shoObject.DomObject.addEventListener('click', event=> {
+				let mw = new MessagesWindow(this.Application, this.Container, 'Задайте период журнала', {width: 300, height: 125});
+				let period = new Period( this.Application );
+				if (typeof this.#filter.start !== 'undefined') period.StartPeriod = this.#filter.start;
+				if (typeof this.#filter.end !== 'undefined') period.EndPeriod = this.#filter.end;
+				mw.AddBody(period);
+				mw.OnClose(()=> {
+					this.#filter.start = period.StartPeriod;
+					this.#filter.end = period.EndPeriod;
+					this.#GetData();
+				});
+			})
+		});
+		// filter.AddWatch(shoObject=> {
+		// 	shoObject.DomObject.addEventListener('click', event=> {
+		// 		let mw = new MessagesWindow(this.Application, this.Container, 'Фильтр по документу', {width: 300, height: 115});
+		// 		// let search = new SearchBlock( this.Application );
+		// 		// mw.AddBody(search);
+		// 		let multiselect = new Select().SetAttributes({class:'select', multiple:true}).AddChilds([
+		// 			new Option().SetAttributes({value: '1'}).Text('Привет'),
+		// 			new Option().SetAttributes({value: '2'}).Text('Привет1'),
+		// 			new Option().SetAttributes({value: '3'}).Text('Привет2'),
+		// 			new Option().SetAttributes({value: '4'}).Text('Привет3'),
+		// 			new Option().SetAttributes({value: '5'}).Text('Привет4'),
+		// 			new Option().SetAttributes({value: '6'}).Text('Привет5'),
+		// 		]);
+		// 		mw.AddBody(multiselect);
+		// 	})
+		// });
+		search.AddWatch(shoObject=> {
+			shoObject.DomObject.addEventListener('click', event=> {
+				let mw = new MessagesWindow(this.Application, this.Container, 'Поиск по документу', {width: 300, height: 115});
+				let search = new SearchBlock( this.Application );
+				if (typeof this.#filter.search !== 'undefined') search.SearchText = this.#filter.search;
+				mw.AddBody(search);
+				mw.OnClose(()=> {
+					this.#filter.search = search.SearchText;
+					this.#GetData();
+				})
+			})
+		});
+
 		this.#contextMenu.AddWatcher({name: 'watchSelectContextMenuItem', func: ( item, selectedRows ) => { this.#GetSelectContextMenuItem( item, selectedRows ); }})
 		this.#docTable.AddContextMenu( this.#contextMenu );
 		this.#docTable.AddWatcher({name: 'watchContextMenu', func: ( rows, coords ) => { this.#ContextMenu( rows, coords ) }});
@@ -183,11 +237,15 @@ class DexAppWindow extends Component {
 			if ( selectedRows.length == 0 || selectedRows.length > 1) return;
 			data.subaction = 'document.open.doc';
 			data.docid = selectedRows[0].ShadowCopy.id;
+		} else if ( item.uid == 'doc.replacement' ) {
+			data.subaction = 'document.replacement';
+			data.list = [];
+			selectedRows.map( item => data.list.push( item.ShadowCopy.id ) );
 		}
 		if ( item.uid == 'doc.newdoc' ) {
 			new DexContract( this.Application, this, this.#base, this.#dicts );
  		} else {
- 			data.list = JSON.stringify( data.list );
+ 			data.list = data.list;
 			let transport = this.Application.Transport;
 			transport.Get( {com: 'skyline.apps.adapters', subcom: 'appApi', data: data, hash: this.Hash} );
  		}
@@ -209,16 +267,16 @@ class DexAppWindow extends Component {
 		let transport = this.Application.Transport;
 		let data = { action: 'list', subaction: 'period', base: this.#base };
 		for ( let key in this.#filter ) {
-			if ( typeof this.#filter[key] !== 'undefined' ) data[key] = this.#filter[key];
+			if ( typeof this.#filter[key] !== 'undefined') data[key] = this.#filter[key];
 		}
 		let packet = { com: 'skyline.apps.adapters', subcom: 'appApi', data: data, hash: this.Hash};
-		// console.log( ' запрос списка дог packet=>', packet );
+		console.log( ' запрос списка дог packet=>', packet );
 		transport.Get( packet );
 	}
 	#HandleHooks ( data ) {
 		// console.log("data=> ", data);
 		if ( typeof data.err === 'undefined' ) {
-			if ( data.subaction === 'document.print.doc' ) window.open( `${ this.Application.Transport.Url }/adapters/printing/${ data.link }`);
+			if ( data.subaction === 'document.print.doc' || data.subaction === 'document.replacement') window.open( `${ this.Application.Transport.Url }/adapters/printing/${ data.link }`);
 			else if ( data.subaction === 'document.open.doc' ) {
 				// console.log( 'пытаемся открыть документ ' );
 				// new DexContract( this.Application, this, this.#base );
@@ -260,7 +318,7 @@ class DexAppWindow extends Component {
 							break;
 							case 'getBaseName':
 								if ( packet.data.title != '' && this.#base != packet.data.title ) {
-									this.#baseTitle.Text( `[ ${packet.data.title} ]`);
+									//this.#baseTitle.Text( `[ ${packet.data.title} ]`);
 									this.Parent.WindowsPanel.ChangeWindowTitle( this.Hash, packet.data.title );
 								}
 							break;

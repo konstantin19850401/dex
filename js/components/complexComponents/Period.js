@@ -24,8 +24,14 @@ class Period extends Component {
 	get EndDateInput () { return this.Application.Toolbox.DateToInput( this.#end ) }
 
 	// СЕТТЕРЫ
-	set StartPeriod ( date ) { this.#start = date; };
-	set EndPeriod ( date ) { this.#end = date; };
+	set StartPeriod ( date ) {
+		this.#start = this.#DexDateToMoment(date)
+		this.#startInput.Value( this.StartDateInput );
+	};
+	set EndPeriod ( date ) {
+		this.#end = this.#DexDateToMoment(date);
+		this.#endInput.Value( this.EndDateInput );
+	};
 
 	// ПРИВАТНЫЕ МЕТОДЫ
 	#InitPeriod () {
@@ -33,7 +39,7 @@ class Period extends Component {
 		if ( typeof this.#start === 'undefined' ) this.#start = this.Application.Toolbox.CurrentDate;
 		if ( typeof this.#end === 'undefined' ) this.#end = this.Application.Toolbox.CurrentDate;
 		if ( this.#end.isBefore( this.#start ) ) this.#end = this.#start;
-		this.Container = new Div().SetAttributes( {class: 'dex-period-container'} ).AddChilds([
+		this.Container = new Div().SetAttributes( {class: 'dex-period-container d-flex justify-content-center'} ).AddChilds([
 			new Div().SetAttributes( {class: 'form-group'} ).AddChilds([
 				this.#startInput = new Input().SetAttributes( {class: 'form-control', name: 'date-start', type: 'date'} ).Value( this.StartDateInput ).AddWatch((el) => {
 						el.DomObject.addEventListener( 'input', (event) => {
@@ -88,6 +94,10 @@ class Period extends Component {
 	#MomentDateToDex ( momentDate ) {
 		let dexDate = momentDate.format( 'YYYYMMDD' );
 		return dexDate;
+	}
+	#DexDateToMoment(dexDate) {
+		let md =  moment(dexDate, 'YYYYMMDD');
+		return md;
 	}
 	// ПУБЛИЧНЫЕ МЕТОДЫ
 	// InitParent ( parent ) {

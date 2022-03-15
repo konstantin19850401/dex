@@ -5,6 +5,7 @@
     font-size: 12px;
     background: #fff;
     padding-top: 6px;
+    color: #000;
 }
 .dex-period-container-input {
     border-top: none;
@@ -37,4 +38,9 @@
 .date-splitter {
     width: 2em;
     float: left;
+}
+.common-window .dex-app-window-body {
+    width: 100%;
+    height: auto;
+    margin-left: 1px;
 }

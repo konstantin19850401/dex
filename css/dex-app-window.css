@@ -75,7 +75,7 @@
 .dex-app-window-filter {
     float: left;
     left: 0px;
-    margin-left: 200px;
+    margin-left: 20px;
     position: absolute;
     margin-top: -30px;
     height: 30px;
@@ -87,14 +87,14 @@
     color: #fff;
     cursor: pointer;
     left: 0px;
-    position: absolute;
+    /*position: absolute;*/
     font-size: 11px;
     background: none;
 }
 .dex-app-window .dex-period-container input {
    /*position: relative;z-index:1;opacity:0;*/
-   color:  #fff;
-   border: 0px;
+   /*color:  #fff;*/
+   /*border: 1px;*/
 }
 .dex-app-window .dex-period-container input:focus{
     border: 0px;
@@ -105,4 +105,15 @@
 }
 .dex-app-window .dex-period-container .form-control {
     width:  auto;
+}
+.dex-app-window .dex-filter-element {
+    color: #fff;
+    width: 20px;
+    height: 20px;
+    float: left;
+    cursor: pointer;
+    text-align: center;
+    line-height: 20px;
+    margin-top: 4px;
+    margin-left: 10px;
 }

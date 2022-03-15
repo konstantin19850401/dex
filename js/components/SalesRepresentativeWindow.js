@@ -201,9 +201,9 @@ class SalesRepresentativeWindow extends Component {
 		if ( item.uid == 'doc.newdoc' ) {
 			new SalesRepresentativeDocument( this.Application, this );
  		} else {
- 			data.list = JSON.stringify( data.list );
-			let transport = this.Application.Transport;
-			transport.Get( {com: 'skyline.apps.adapters', subcom: 'appApi', data: data, hash: this.Hash} );
+ 		// 	data.list = JSON.stringify( data.list );
+			// let transport = this.Application.Transport;
+			// transport.Get( {com: 'skyline.apps.adapters', subcom: 'appApi', data: data, hash: this.Hash} );
  		}
 	}
 	#GetPrint() {

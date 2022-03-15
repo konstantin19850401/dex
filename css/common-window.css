@@ -1,0 +1,28 @@
+.common-window {
+    width: 800px;
+    height: 600px;
+    border: 1px solid #354251;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    margin-left: -400px;
+    background: #fff;
+    border-top-width: 30px;
+    box-shadow: 1px 1px 15px 1px;
+    z-index: 10;
+    transition: all 150ms linear;
+    -o-transition: all 150ms linear;
+    -ms-transition: all 150ms linear;
+    -moz-transition: all 150ms linear;
+    -webkit-transition: all 150ms linear;
+    padding-right: 2px;
+}
+.common-window .dex-app-window-close {
+    margin-right: 8px;
+}
+.common-window .dex-app-window-filter {
+    margin-left: 20px;
+}

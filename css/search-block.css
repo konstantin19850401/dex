@@ -1,9 +1,8 @@
 .dex-app-window .dex-search-container {
-    position: absolute;
     height: 30px;
     margin-top: 0px;
-    margin-left: 280px;
-    width: 150px;
+    margin-left: 20px;
+    width: 260px;
     color: #fff;
 }
 .dex-search-container i {
@@ -11,13 +10,12 @@
 }
 .dex-search-container input {
    background: none;
-   width: 170px;
    transition: 0.2s ease all;
    float: left;
    font-size: 11px;
    background: #fff;
    color: #000;
-   height: 22px;
+   height: 35px;
    margin-top: 4px;
    padding-left: 5px;
 }

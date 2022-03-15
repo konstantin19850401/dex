@@ -1,12 +1,11 @@
 'use strict'
 class SalesRepresentativeDocument extends Component {
-	#titleInfo;
-	#data = {};#fixedData;#base;#dicts;#bodyFields;#menuFields;#startFields;
-	#checkFields = {};#rules = {};
+	#data = {};#titleInfo;#bodyFields;
+	#units = [];
 	constructor ( application, parent) {
 		console.log("создаем новый документ");
 		super( application, parent );
-		this.#InitComponent();
+		this.#GetUnits();
 	};
 	// ГЕТТЕРЫ
 
@@ -37,8 +36,8 @@ class SalesRepresentativeDocument extends Component {
 			}),
 			this.#titleInfo = new Span().SetAttributes( {class: 'dex-contract-title-new'} ).Text( `Создание нового документа` ),
 			new Div().SetAttributes( {class: 'dex-contract-body row'} ).AddChilds([
-				this.#menuFields = new Div().SetAttributes( {class: 'dex-contract-dynamic-left sticky-top col-3'} ),
-				this.#startFields = new Div().SetAttributes( {class: 'start-fields-block'} ),
+				// this.#menuFields = new Div().SetAttributes( {class: 'dex-contract-dynamic-left sticky-top col-3'} ),
+
 				this.#bodyFields = new Div().SetAttributes( {class: 'dex-contract-dynamic-right col-8'} ),
 			]),
 			new Div().SetAttributes( {class: 'dex-contract-footer'} ).AddChilds([
@@ -47,8 +46,9 @@ class SalesRepresentativeDocument extends Component {
 				}),
 			])
 		]);
-		this.#menuFields.DomObject.hidden = true;
-		this.#bodyFields.DomObject.hidden = true;
+		this.Container.DomObject.hidden = true;
+		this.Container.DomObject.style.height = '500px';
+		// this.#bodyFields.DomObject.hidden = true;
 		// if ( typeof data !== 'undefined' ) {
 		// 	data.list.find(item=> item.name == 'startFields').fields.map(item=> {
 		// 		// this.#data[ item.value ] = '';
@@ -67,7 +67,20 @@ class SalesRepresentativeDocument extends Component {
 		// }
 
 		// console.log("this.dicts=> ", this.#dicts);
+		if ( typeof data == 'undefined' ) this.#ShowQuestion();
 	};
+	#ShowQuestion() {
+
+
+
+		let question = new Div({parent: this.Container}).SetAttributes( {class: 'card '} ).AddChilds([
+			new Span().SetAttributes({class: 'card-header'}).Text('Как будем выбирать sim-карты?')
+		]);
+		question.DomObject.style.position = 'absolute';
+		question.DomObject.style.top = '0px';
+		question.DomObject.style.left = '0px';
+		question.DomObject.style.width = this.Container.DomObject.style.width;
+	}
 	#GetShoDataByFullName( fullName ) {
 		let sought;
 		function parse( node ) {
@@ -83,66 +96,66 @@ class SalesRepresentativeDocument extends Component {
 	};
 	#SetDefaultValues( data ) {
 		// console.log("установим значения по умолчанию", data);
-		let that = this;
-		function parse( defs, name ) {
-			if ( typeof defs == 'object' && defs != null ) {
-				for (let key in defs) {
-					// console.log( "key => ", key, " name=> ", name, ' defs=> ', defs );
-					parse(defs[key], name != '' ? `${ name }.${ key }` : key);
-				}
-			} else {
+		// let that = this;
+		// function parse( defs, name ) {
+		// 	if ( typeof defs == 'object' && defs != null ) {
+		// 		for (let key in defs) {
+		// 			// console.log( "key => ", key, " name=> ", name, ' defs=> ', defs );
+		// 			parse(defs[key], name != '' ? `${ name }.${ key }` : key);
+		// 		}
+		// 	} else {
 				
-				// console.log( "name=> ", name );
-				let sought = that.#GetShoDataByFullName( name );
-				// console.log( "sought=> ", sought, ' name=> ', name );
-				if (sought) { 
-					// console.log("sought.dataContainer=> ", sought.dataContainer);
-					if ( typeof sought.dataContainer !== 'undefined' ) sought.dataContainer.Value( defs );
-					if ( sought && sought.fname && that.#fixedData.indexOf( sought.fname ) != -1) { 
-						// console.log("sought.blockContainer-=> ", sought);
-						if (sought.blockContainer) sought.blockContainer.DomObject.hidden = true;
-						if (sought.dataContainer) sought.dataContainer.DomObject.readOnly = true;
-					}
-				}
-			}
-		}
-		parse( data, '' );
+		// 		// console.log( "name=> ", name );
+		// 		let sought = that.#GetShoDataByFullName( name );
+		// 		// console.log( "sought=> ", sought, ' name=> ', name );
+		// 		if (sought) {
+		// 			// console.log("sought.dataContainer=> ", sought.dataContainer);
+		// 			if ( typeof sought.dataContainer !== 'undefined' ) sought.dataContainer.Value( defs );
+		// 			if ( sought && sought.fname && that.#fixedData.indexOf( sought.fname ) != -1) {
+		// 				// console.log("sought.blockContainer-=> ", sought);
+		// 				if (sought.blockContainer) sought.blockContainer.DomObject.hidden = true;
+		// 				if (sought.dataContainer) sought.dataContainer.DomObject.readOnly = true;
+		// 			}
+		// 		}
+		// 	}
+		// }
+		// parse( data, '' );
 	};
 	#AddNewField( parent, obj, ignore ) {
 		let dataContainer;let blockContainer;
 		if ( typeof obj.data !== 'undefined' && typeof obj.data.data_type !== 'undefined' && ignore.indexOf(obj.data.data_type) == -1 ) {
 			// сформируем поле для отображения
-			if ( obj.data.data_type == 'text' || obj.data.data_type == 'date' ) {
-				let type = obj.data.data_type == 'date' ? 'date' : 'text';
-				dataContainer = new Input().SetAttributes( {class: 'form-floating', name: obj.name, type: type} ).AddWatch(
-					(el) => {
-						el.DomObject.addEventListener( 'input', (event) => {
-							obj.data.value = event.target.value;
-							if ( event.target.value != "" ) el.SetAttributes( {'class': 'form-control dirty'} )
-							else el.SetAttributes( {'class': 'form-control'} );
-						} );
-						if ( el.Value != '' ) { el.DomObject.dispatchEvent(new Event('input')); }
-					}
-				)
-				blockContainer = new Div( {parent: parent} ).SetAttributes( {class: 'form-group'} ).AddChilds([
-					dataContainer,
-					new Label().SetAttributes( {class: 'dex-label', for: obj.name} ).Text( obj.data.description )
-				]);
-			} else if ( obj.data.data_type == 'dict' ) {
-				let dict = this.#dicts.get( obj.data.dict_name );
-				dataContainer = new ComboBox(  this.Application, { data: dict } );
-				let defField = dict.find(item=> item.uid == 0);
-				if ( typeof defField != 'undefined' )  dataContainer.Value(defField.uid);
-				// dataContainer = new ComboBox(  this.Application, { data: dict } ).AddWatcher( ( el ) => {
-				// 	this.#params.base = el.Value;
-				// 	this.#GetData( );
-				// } )
-				// console.log( 'dict=> ', dict );
-				blockContainer = new Div( {parent: parent} ).SetAttributes( {class: 'form-group'} ).AddChilds([
-					dataContainer,
-					new Label().SetAttributes( {class: 'dex-label-combo', for: obj.name} ).Text( obj.data.description )
-				]);
-			}
+			// if ( obj.data.data_type == 'text' || obj.data.data_type == 'date' ) {
+			// 	let type = obj.data.data_type == 'date' ? 'date' : 'text';
+			// 	dataContainer = new Input().SetAttributes( {class: 'form-floating', name: obj.name, type: type} ).AddWatch(
+			// 		(el) => {
+			// 			el.DomObject.addEventListener( 'input', (event) => {
+			// 				obj.data.value = event.target.value;
+			// 				if ( event.target.value != "" ) el.SetAttributes( {'class': 'form-control dirty'} )
+			// 				else el.SetAttributes( {'class': 'form-control'} );
+			// 			} );
+			// 			if ( el.Value != '' ) { el.DomObject.dispatchEvent(new Event('input')); }
+			// 		}
+			// 	)
+			// 	blockContainer = new Div( {parent: parent} ).SetAttributes( {class: 'form-group'} ).AddChilds([
+			// 		dataContainer,
+			// 		new Label().SetAttributes( {class: 'dex-label', for: obj.name} ).Text( obj.data.description )
+			// 	]);
+			// } else if ( obj.data.data_type == 'dict' ) {
+			// 	let dict = this.#dicts.get( obj.data.dict_name );
+			// 	dataContainer = new ComboBox(  this.Application, { data: dict } );
+			// 	let defField = dict.find(item=> item.uid == 0);
+			// 	if ( typeof defField != 'undefined' )  dataContainer.Value(defField.uid);
+			// 	// dataContainer = new ComboBox(  this.Application, { data: dict } ).AddWatcher( ( el ) => {
+			// 	// 	this.#params.base = el.Value;
+			// 	// 	this.#GetData( );
+			// 	// } )
+			// 	// console.log( 'dict=> ', dict );
+			// 	blockContainer = new Div( {parent: parent} ).SetAttributes( {class: 'form-group'} ).AddChilds([
+			// 		dataContainer,
+			// 		new Label().SetAttributes( {class: 'dex-label-combo', for: obj.name} ).Text( obj.data.description )
+			// 	]);
+			// }
 
 
 			// dataContainer = new Input().SetAttributes( {class: 'form-floating', name: obj.name, type: 'text'} ).AddWatch(
@@ -160,7 +173,7 @@ class SalesRepresentativeDocument extends Component {
 
 			// если поле заморожено, то закроем для изменения
 		} else if (typeof obj.data !== 'undefined' && obj.data.data_type == 'menu-node') {
-			new Div( {parent: this.#menuFields} ).SetAttributes( {class: 'dynamic-block-title'} ).Text( obj.data.description );
+			// new Div( {parent: this.#menuFields} ).SetAttributes( {class: 'dynamic-block-title'} ).Text( obj.data.description );
 		} else if ( typeof obj.data !== 'undefined' && obj.data.data_type == 'node' ) {
 			// new H5( {parent: parent} ).SetAttributes( {class: 'form-group'} ).Text( obj.data.description )
 		}
@@ -193,7 +206,6 @@ class SalesRepresentativeDocument extends Component {
 		this.#data = cnf;
 		console.log('cnf=> ', cnf);
 		console.log('раскидаем по группам');
-
 	};
 	#SetTitleInfo (contract) {
 		let text = typeof contract.DOCUMENT.CONTRACT_INFORMATION.SIM.ICC !== 'undefined' ? ` ICC ${ contract.DOCUMENT.CONTRACT_INFORMATION.SIM.ICC }` : '';
@@ -202,79 +214,45 @@ class SalesRepresentativeDocument extends Component {
 		this.#titleInfo.Text( `Тип [ Новый договор ] SIM [ ${ text } ] ${ unit }` );
 	};
 	#ShowDocumentForm ( data ) {
-		this.#fixedData = data.fixed;
-		this.#SetDefaultValues(data.contract);
-		this.#SetTitleInfo(data.contract);
-		this.#startFields.DomObject.hidden = !this.#startFields.DomObject.hidden;
-		this.#menuFields.DomObject.hidden = !this.#menuFields.DomObject.hidden;
-		this.#bodyFields.DomObject.hidden = !this.#bodyFields.DomObject.hidden;
-		this.Container.RemoveClass( 'check-sim-data' );		
+		this.Container.DomObject.hidden = false;
+		// this.#fixedData = data.fixed;
+		// this.#SetDefaultValues(data.contract);
+		// this.#SetTitleInfo(data.contract);
+		// this.#startFields.DomObject.hidden = !this.#startFields.DomObject.hidden;
+		// this.#menuFields.DomObject.hidden = !this.#menuFields.DomObject.hidden;
+		// this.#bodyFields.DomObject.hidden = !this.#bodyFields.DomObject.hidden;
+		// this.Container.RemoveClass( 'check-sim-data' );
 	};
 	#CheckStartFields () {
-		let transport = this.Application.Transport;
-		let data = {base: this.#base, action: 'checkStartFields', };
-		for (let key in this.#checkFields) data[key] = this.#checkFields[key];
-		transport.Get( {com: 'skyline.apps.adapters', subcom: 'appApi', data: data, hash: this.Hash} );
+		// let transport = this.Application.Transport;
+		// let data = {base: this.#base, action: 'checkStartFields', };
+		// for (let key in this.#checkFields) data[key] = this.#checkFields[key];
+		// transport.Get( {com: 'skyline.apps.adapters', subcom: 'appApi', data: data, hash: this.Hash} );
 	};
 	#Close () {
 		this.Container.DeleteObject();
 		this.Application.DeleteHash( this.Hash );
 	};
-	#GetStartFields () {
-		let transport = this.Application.Transport;
-		transport.Get( {com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getInitialValues', list: [
-			'startFields',
-			'dexDocumentConfiguration',
-			'groupRules'
-		], base: this.#base}, hash: this.Hash} );
-	};
-	#GetMenuItems ( data ) {
-		let transport = this.Application.Transport;
-		transport.Get( {com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDexContractConfiguration', base: this.#base}, hash: this.Hash} );
+	#GetUnits() {
+		this.Application.Transport.Get({com: 'skyline.apps.salesRepresentative', subcom: 'appApi', data: {action: 'getUnits'}, hash: this.Hash})
 	};
 	// ПУБЛИЧНЫЕ МЕТОДЫ
 	Commands ( packet ) {
 		console.log( packet );
 		switch ( packet.com ) {
-			case 'skyline.apps.adapters':
+			case 'skyline.apps.salesRepresentative':
 				switch ( packet.subcom ) {
 					case 'appApi':
 						switch ( packet.data.action ) {
-							case 'startFields':
-								console.log( 'пришли стартовые поля' );
-								if ( packet.data.status == 200 ) {
-									// this.#checkFields = packet.data.list.find(item=> item.name == 'startFields');;
-									// console.log( "startFields=> ", packet.data );
-									// let data = {};
-									// data.list = packet.data.list;
-									// this.#GetMenuItems( data );
-								}
-							break;
-							case 'checkStartFields':
-								// console.log("checkStartFields=> ", packet.data);
-								if ( packet.data.status == 200 ) {
-									if ( typeof packet.data.err === 'undefined' ) {
-										// this.#data.DOCUMENT = packet.data.contract;
-										this.#ShowDocumentForm( packet.data );
-
-									} else {
-										new this.Application.Components.AlertMessage( packet.data.err.join('<br>') );
-									}
-								}
-								// console.log( 'пришли данные по проверке первичных полей' );
-							break;
-							case 'InitialValues':
-								if ( packet.data.status == 200 ) {
-									let groupRules = packet.data.list.find(item=> item.name == 'groupRules');
-									if ( typeof groupRules !== 'undefined' ) {
-										this.#rules.groupRules = groupRules.fields;
-										for (let i = 0; i < this.#rules.groupRules.length; i++ ) {
-											this.#rules.groupRules[i].list = this.#rules.groupRules[i].list.split(',');
-										}
-									} 
-		 							this.#InitComponent( packet.data );
+							case 'getUnits':
+								console.log('Пришли отделения ', packet);
+								if (packet.data.status == 200) {
+									this.#units = packet.data.list;
+									this.#InitComponent();
+									this.#ShowDocumentForm();
 								} else {
-									new this.Application.Components.AlertMessage( packet.data.err.join('<br>') );
+									this.#Close();
+									console.log('Ошибка какая-то. Форма не будет открыта');
 								}
 							break;
 						}
