@@ -6,7 +6,7 @@ class DexAppWindow extends Component {
 	#windowsPanel;
 	#totalDocsSho;#selectedDocsSho;#totalDocs=0;#selectedDocs=0;
 	#periodSho;#searchSho;
-	#filter = { start: undefined, end: undefined, search: undefined };
+	#filter = { start: undefined, end: undefined, search: undefined, units: [] };
 	constructor ( parent, base ) {
 		super( parent.Application, parent );
 		this.#base = base;
@@ -49,9 +49,9 @@ class DexAppWindow extends Component {
 				periodJournal = new Div().SetAttributes({class: 'dex-filter-element'}).AddChilds([
 					new I().SetAttributes({class: 'fas fa-calendar-alt'}),
 				]),
-				// filter = new Div().SetAttributes({class: 'dex-filter-element'}).AddChilds([
-				// 	new I().SetAttributes({class: 'fas fa-filter'}),
-				// ]),
+				filter = new Div().SetAttributes({class: 'dex-filter-element'}).AddChilds([
+					new I().SetAttributes({class: 'fas fa-filter'}),
+				]),
 				search = new Div().SetAttributes({class: 'dex-filter-element'}).AddChilds([
 					new I().SetAttributes({class: 'fas fa-search'}),
 				]),
@@ -97,22 +97,72 @@ class DexAppWindow extends Component {
 				});
 			})
 		});
-		// filter.AddWatch(shoObject=> {
-		// 	shoObject.DomObject.addEventListener('click', event=> {
-		// 		let mw = new MessagesWindow(this.Application, this.Container, 'Фильтр по документу', {width: 300, height: 115});
-		// 		// let search = new SearchBlock( this.Application );
-		// 		// mw.AddBody(search);
-		// 		let multiselect = new Select().SetAttributes({class:'select', multiple:true}).AddChilds([
-		// 			new Option().SetAttributes({value: '1'}).Text('Привет'),
-		// 			new Option().SetAttributes({value: '2'}).Text('Привет1'),
-		// 			new Option().SetAttributes({value: '3'}).Text('Привет2'),
-		// 			new Option().SetAttributes({value: '4'}).Text('Привет3'),
-		// 			new Option().SetAttributes({value: '5'}).Text('Привет4'),
-		// 			new Option().SetAttributes({value: '6'}).Text('Привет5'),
-		// 		]);
-		// 		mw.AddBody(multiselect);
-		// 	})
-		// });
+		filter.AddWatch(shoObject=> {
+			shoObject.DomObject.addEventListener('click', event=> {
+				let mw = new MessagesWindow(this.Application, this.Container, 'Фильтр по документу', {width: 500, height: 115});
+				// let search = new SearchBlock( this.Application );
+				// mw.AddBody(search);
+				let items = [
+					{id: "headingOne", target: 'collapseOne', header: 'Фильтр отделений', text: ``, status: false, btn: null, b: null
+					},
+					{id: "headingTwo", target: 'collapseTwo', header: 'Статус документа', text: `This is the first item's accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow`, status: false, btn: null, b: null
+					},
+					{id: "headingThree", target: 'collapseThree', header: 'Тарифный план', text: `This is the first item's accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow`, status: false, btn: null, b: null
+					}
+				];
+				let headerStatus = {0: 'accordion-button collapsed', 1: 'accordion-button'};
+				let bodyStatus = {0: 'accordion-collapse collapse', 1: 'accordion-collapse collapse show'};
+
+				let accordion = new Div().SetAttributes({class: 'accordion'}).AddChilds((()=> {
+					let arr = [];
+					for (let i=0; i < items.length; i++) {
+						let item = new Div().SetAttributes({class: 'accordion-item'}).AddChilds([
+							new H2().SetAttributes({class: 'accordion-header', id: items[i].id}).AddChilds([
+								items[i].btn = new Button().SetAttributes({class: headerStatus[items[i].status | 0], type: 'button', 'data-bs-toggle': 'collapse', 'data-bs-target': items[i].target, 'aria-expanded': items[i].status, 'aria-controls': items[i].target}).Text(items[i].header).AddWatch(shoObject=> {
+									shoObject.DomObject.addEventListener('click', event=> {
+										for (let j =0; j < items.length; j++) {
+											if (items[j].status == true && j != i) {
+												items[j].btn.RemoveClass(headerStatus[items[j].status | 0]);
+												items[j].b.RemoveClass(bodyStatus[items[j].status | 0]);
+												items[j].status = !items[j].status;
+												items[j].btn.AddClass(headerStatus[items[j].status | 0]);
+												items[j].b.AddClass(bodyStatus[items[j].status | 0]);
+											}
+										}
+										items[i].btn.RemoveClass(headerStatus[items[i].status | 0]);
+										items[i].b.RemoveClass(bodyStatus[items[i].status | 0]);
+										items[i].status = !items[i].status;
+										items[i].btn.AddClass(headerStatus[items[i].status | 0]);
+										items[i].b.AddClass(bodyStatus[items[i].status | 0]);
+									})
+								})
+							]),
+							items[i].b = new Div().SetAttributes({class: bodyStatus[items[i].status | 0], id: items[i].id, 'aria-labelledby': items[i].id, 'data-bs-parent': 'accordionExample' }).AddChilds([
+								new Div().SetAttributes({class: 'accordion-body'}).AddChilds([
+									new Span().Text(items[i].text)
+								])
+							])
+						]);
+						arr.push(item);
+					}
+					return arr;
+				})());
+				mw.AddBody(accordion);
+
+				// фильтры
+				let nwidget = new TwoColsTransfer(this.Application, items[0].b, 'Фильтр отделений', this.#dicts.get('units'));
+				if (this.#filter.units.length > 0) {
+					nwidget.SetRightValues(this.#filter.units);
+				}
+				mw.OnClose(()=> {
+					this.#filter.units = nwidget.GetRightValues;
+					this.#GetData();
+				})
+				// let nwidget = new TwoColsTransfer(this.Application, items[0].b, 'Фильтр отделений', this.#dicts.get('units'));
+				// let nwidget = new TwoColsTransfer(this.Application, this.Container, 'Фильтр отделений', this.#dicts.get('units'));
+
+			})
+		});
 		search.AddWatch(shoObject=> {
 			shoObject.DomObject.addEventListener('click', event=> {
 				let mw = new MessagesWindow(this.Application, this.Container, 'Поиск по документу', {width: 300, height: 115});

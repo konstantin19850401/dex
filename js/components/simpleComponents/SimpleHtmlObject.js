@@ -150,14 +150,20 @@ class SimpleHtmlObject {
 	};
 	// добавить класс
 	AddClass ( newclass ) {
-		this.#domElement.classList.toggle( newclass );
+		let arr = newclass.split(' ');
+		for (let i = 0; i < arr.length; i++) {
+			this.#domElement.classList.toggle( arr[i] );
+		}
 	};
 	ToggleClass ( tclass ) {
 		this.#domElement.classList.toggle( tclass );
 	};
 	RemoveClass ( className ) {
 		// console.log( 'удалить класс', className , ' для элемента ', this.#domElement );
-		this.#domElement.classList.remove( className );
+		let arr = className.split(' ');
+		for (let i = 0; i < arr.length; i++) {
+			this.#domElement.classList.remove( arr[i] );
+		}
 	};
 	AddWatch ( func ) { func ( this ); return this; };
 	HideFirstChilds () {
@@ -170,5 +176,11 @@ class SimpleHtmlObject {
 			child.classList.remove( 'd-none' );
 		});
 	};
+	Hide() {
+		this.AddClass('d-none');
+	};
+	Show() {
+		this.RemoveClass('d-none');
+	}
 }
 

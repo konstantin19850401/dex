@@ -18,6 +18,7 @@
    height: 35px;
    margin-top: 4px;
    padding-left: 5px;
+   border-radius: 0px;
 }
 .dex-search-container input:focus {
    box-shadow: none;

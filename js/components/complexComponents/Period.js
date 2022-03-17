@@ -57,7 +57,8 @@ class Period extends Component {
 						if ( el.Value != '' ) { el.DomObject.dispatchEvent(new Event('input')); }
 					}
 				),
-				new Label().SetAttributes( {for: 'date-start'} ).Text( 'Период с' )
+				// new Label().SetAttributes( {for: 'date-start'} ).Text( 'Период с' )
+				new Label().SetAttributes( {for: 'date-start'} ).Text( '' )
 			]),
 			new Div().SetAttributes( {class: 'date-splitter'} ).Text( '-' ),
 			new Div().SetAttributes( {class: 'form-group'} ).AddChilds([
@@ -77,7 +78,8 @@ class Period extends Component {
 						if ( el.Value != '' ) { el.DomObject.dispatchEvent(new Event('input')); }
 					}
 				),
-				new Label().SetAttributes( {for: 'date-end'} ).Text( 'Период по' )
+				new Label().SetAttributes( {for: 'date-end'} ).Text( '' )
+				// new Label().SetAttributes( {for: 'date-end'} ).Text( 'Период по' )
 			])
 		]);
 		// console.log('this.Container=> ', this.Container);

@@ -1,6 +1,6 @@
 .common-window {
     width: 800px;
-    height: 600px;
+    /*height: 600px;*/
     border: 1px solid #354251;
     border-left: none;
     border-right: none;
@@ -19,10 +19,27 @@
     -moz-transition: all 150ms linear;
     -webkit-transition: all 150ms linear;
     padding-right: 2px;
+    padding-bottom: 5px;
 }
 .common-window .dex-app-window-close {
     margin-right: 8px;
 }
 .common-window .dex-app-window-filter {
     margin-left: 20px;
+}
+.common-window .accordion-button {
+    padding:  5px;
+}
+.common-window .accordion-item {
+    border-bottom: 0px;
+    border-left: 0px;
+    border-right: 0px;
+    border-top: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: 0px;
+}
+.common-window .bases-list-btn {
+    margin-right: 5px;
+}
+.common-window .accordion-body {
+    padding: 0px;
 }

@@ -22,6 +22,9 @@
 .dex-period-container .form-control ~ label {
     margin-top:  -10px;
 }
+.dex-period-container input {
+    border-radius: 0px;
+}
 .dex-period-container .form-control {
     background:  none;
     width: 100px;

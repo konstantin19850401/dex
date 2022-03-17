@@ -30,7 +30,7 @@ class MessagesWindow extends Component {
 		for (let key in data) {
 			if (key == 'height' || key == 'width') {
 				let s = {height: 'margin-top', width: 'margin-left'};
-				this.Container.DomObject.style[key] = `${data[key]}px`;
+				if (key != 'height') this.Container.DomObject.style[key] = `${data[key]}px`;
 				this.Container.DomObject.style[s[key]] = `-${data[key]/2}px`;
 			}
 		}
