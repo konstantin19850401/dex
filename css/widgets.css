@@ -43,11 +43,25 @@
     height: calc(100% - 5px);
     overflow-y: scroll;
 }
+.tc-transfer-left-filter {
+    width:  100%;
+}
+.tc-transfer-left-filter input {
+    width:  100%;
+    height:  1.3em;
+}
 .tc-transfer-body-block-right {
     padding-left: 1px;
     padding-right: 1px;
     height: calc(100% - 5px);
     overflow-y: scroll;
+}
+.tc-transfer-right-filter {
+    width:  100%;
+}
+.tc-transfer-right-filter input {
+    width:  100%;
+    height:  1.3em;
 }
 
 .tc-transfer-body-block-left::-webkit-scrollbar-track {border-radius: 1px;}

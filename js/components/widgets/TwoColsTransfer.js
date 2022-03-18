@@ -2,6 +2,7 @@
 class TwoColsTransfer {
 	#parent;#container;#application;#hash;#title;#dict;
 	#leftFields;#rightFields;
+	#filterLeft;#filterRight;
 	#leftArr = [];#rightArr = [];
 	constructor ( application, parent, title, dict) {
 		this.#application = application;
@@ -39,8 +40,38 @@ class TwoColsTransfer {
 				})
 			]),
 			new Div().SetAttributes( {class: 'widget-block-body row'} ).AddChilds([
-				this.#leftFields = new Div().SetAttributes( {class: 'tc-transfer-body-block-left col-6'} ),
-				this.#rightFields = new Div().SetAttributes( {class: 'tc-transfer-body-block-right col-6'} )
+				this.#leftFields = new Div().SetAttributes( {class: 'tc-transfer-body-block-left col-6'} ).AddChilds([
+					new Div().SetAttributes({class: 'tc-transfer-left-filter'}).AddChilds([
+						this.#filterLeft = new Input().AddWatch(shoObject=> {
+							shoObject.DomObject.addEventListener('input', event=> {
+								let val = event.target.value;
+ 								for (let i= 0; i < this.#leftArr.length; i++) {
+ 									if (this.#leftArr[i].item.title.includes(val)) {
+ 										if (this.#leftArr[i].display == false) {
+ 											// надо проверить,
+ 											this.#leftArr[i].display = true;
+ 											this.#leftArr[i].sho.Show();
+ 										}
+ 									} else {
+ 										if (this.#leftArr[i].display == true) {
+ 											this.#leftArr[i].display = false;
+ 											this.#leftArr[i].sho.Hide();
+ 										}
+ 									}
+ 								}
+							})
+						})
+					])
+				]),
+				this.#rightFields = new Div().SetAttributes( {class: 'tc-transfer-body-block-right col-6'} ).AddChilds([
+					new Div().SetAttributes({class: 'tc-transfer-right-filter'}).AddChilds([
+						this.#filterRight = new Input().AddWatch(shoObject=> {
+							shoObject.DomObject.addEventListener('input', event=> {
+
+							})
+						})
+					])
+				])
 			])
 		]);
 		this.#FillBlock();
@@ -77,7 +108,6 @@ class TwoColsTransfer {
 				carr.push(obj);
 			}
 		}
-		console.log('==> ', this.#rightArr);
 	}
 	SetRightValues(arr) {
 		if (Array.isArray(arr)) {
@@ -110,6 +140,8 @@ class TwoColsTransfer {
 				this.#rightArr[i].sho.Hide();
 			}
 		}
+		this.#filterLeft.Value('');
+		this.#filterRight.Value('');
 	}
 }
 
