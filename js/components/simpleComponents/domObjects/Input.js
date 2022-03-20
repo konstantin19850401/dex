@@ -5,7 +5,7 @@ class Input extends SimpleHtmlObject {
 		super( object, 'INPUT' );
 		this.#OnChangeData();
 	};
-	get Value () { return this.#value; };
+	get Value () { return typeof this.#value != 'undefined' ? this.#value : ''; };
 
 
 
@@ -21,7 +21,7 @@ class Input extends SimpleHtmlObject {
 	}
 
 	// AddWatch ( func ) { func ( this ); return this; };
-	Value ( value ) {
+	set Value ( value ) {
 		this.#value = value;
 		let dom = this.DomObject;
 		dom.value = value;

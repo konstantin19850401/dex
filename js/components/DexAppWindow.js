@@ -7,6 +7,7 @@ class DexAppWindow extends Component {
 	#totalDocsSho;#selectedDocsSho;#totalDocs=0;#selectedDocs=0;
 	#periodSho;#searchSho;
 	#filter = { start: undefined, end: undefined, search: undefined, units: [] };
+	#temp = {tct: {left:'', right: ''}};
 	constructor ( parent, base ) {
 		super( parent.Application, parent );
 		this.#base = base;
@@ -154,8 +155,12 @@ class DexAppWindow extends Component {
 				if (this.#filter.units.length > 0) {
 					nwidget.SetRightValues(this.#filter.units);
 				}
+				if (typeof this.#temp.tct.left !== 'undefined') nwidget.SetLeftFilter = this.#temp.tct.left;
+				if (typeof this.#temp.tct.right !== 'undefined') nwidget.SetRightFilter = this.#temp.tct.right;
 				mw.OnClose(()=> {
 					this.#filter.units = nwidget.GetRightValues;
+					// this.#temp.tct.left = nwidget.FilterLeft;
+					// this.#temp.tct.right = nwidget.FilterRight;
 					this.#GetData();
 				})
 				// let nwidget = new TwoColsTransfer(this.Application, items[0].b, 'Фильтр отделений', this.#dicts.get('units'));

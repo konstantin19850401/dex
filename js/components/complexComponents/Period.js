@@ -26,11 +26,11 @@ class Period extends Component {
 	// СЕТТЕРЫ
 	set StartPeriod ( date ) {
 		this.#start = this.#DexDateToMoment(date)
-		this.#startInput.Value( this.StartDateInput );
+		this.#startInput.Value = this.StartDateInput;
 	};
 	set EndPeriod ( date ) {
 		this.#end = this.#DexDateToMoment(date);
-		this.#endInput.Value( this.EndDateInput );
+		this.#endInput.Value = this.EndDateInput;
 	};
 
 	// ПРИВАТНЫЕ МЕТОДЫ
@@ -41,7 +41,7 @@ class Period extends Component {
 		if ( this.#end.isBefore( this.#start ) ) this.#end = this.#start;
 		this.Container = new Div().SetAttributes( {class: 'dex-period-container d-flex justify-content-center'} ).AddChilds([
 			new Div().SetAttributes( {class: 'form-group'} ).AddChilds([
-				this.#startInput = new Input().SetAttributes( {class: 'form-control', name: 'date-start', type: 'date'} ).Value( this.StartDateInput ).AddWatch((el) => {
+				this.#startInput = new Input().SetAttributes( {class: 'form-control', name: 'date-start', type: 'date'} ).AddWatch((el) => {
 						el.DomObject.addEventListener( 'input', (event) => {
 							if ( event.target.value != "" ) el.SetAttributes( {'class': 'form-control dirty'} )
 							else el.SetAttributes( {'class': 'form-control'} );
@@ -49,7 +49,7 @@ class Period extends Component {
 							this.#start = date;
 							if ( this.#start.isAfter( this.#end ) ) {
 								this.#end = this.#start;
-								this.#endInput.Value( this.EndDateInput );
+								this.#endInput.Value = this.EndDateInput;
 							}
 							// if ( typeof this.#watcher !== 'undefined' ) this.#watcher( this );
 							this.#HandleWatches();
@@ -62,7 +62,7 @@ class Period extends Component {
 			]),
 			new Div().SetAttributes( {class: 'date-splitter'} ).Text( '-' ),
 			new Div().SetAttributes( {class: 'form-group'} ).AddChilds([
-				this.#endInput = new Input().SetAttributes( {class: 'form-control', name: 'date-end', type: 'date'} ).Value( this.EndDateInput ).AddWatch((el) => {
+				this.#endInput = new Input().SetAttributes( {class: 'form-control', name: 'date-end', type: 'date'} ).AddWatch((el) => {
 						el.DomObject.addEventListener( 'input', (event) => {
 							if ( event.target.value != "" ) el.SetAttributes( {'class': 'form-control dirty'} )
 							else el.SetAttributes( {'class': 'form-control'} );
@@ -70,7 +70,7 @@ class Period extends Component {
 							this.#end = date;
 							if ( this.#start.isAfter( this.#end ) ) {
 								this.#start = this.#end;
-								this.#startInput.Value( this.StartDateInput );
+								this.#startInput.Value = this.StartDateInput;
 							}
 							// if ( typeof this.#watcher !== 'undefined' ) this.#watcher( this );
 							this.#HandleWatches();
@@ -82,6 +82,8 @@ class Period extends Component {
 				// new Label().SetAttributes( {for: 'date-end'} ).Text( 'Период по' )
 			])
 		]);
+		this.#startInput.Value = this.StartDateInput;
+		this.#endInput.Value = this.EndDateInput;
 		// console.log('this.Container=> ', this.Container);
 	}
 	#HandleWatches () {

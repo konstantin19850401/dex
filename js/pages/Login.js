@@ -31,7 +31,7 @@ class Login extends Page {
 												if ( event.target.value != "" ) el.SetAttributes( {'class': 'form-control dirty'} )
 												else el.SetAttributes( {'class': 'form-control'} );
 											} );
-											el.Value( this.#data.login );
+											el.Value = this.#data.login ;
 											if ( el.Value != '' ) { el.DomObject.dispatchEvent(new Event('input')); }
 										}
 									),
@@ -45,7 +45,7 @@ class Login extends Page {
 												if ( event.target.value != "" ) el.SetAttributes( {'class': 'form-control dirty'} )
 												else el.SetAttributes( {'class': 'form-control'} );
 											} );
-											el.Value( this.#data.password );
+											el.Value = this.#data.password;
 											if ( el.Value != '' ) { el.DomObject.dispatchEvent(new Event('input')); }
 
 										}),
