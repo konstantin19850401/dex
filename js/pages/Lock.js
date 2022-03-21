@@ -44,7 +44,7 @@ class Lock  extends Page {
 														if ( event.target.value != "" ) el.SetAttributes( {'class': 'form-control dirty'} )
 														else el.SetAttributes( {'class': 'form-control'} );
 													})
-													el.Value( this.#password );
+													el.Value = this.#password;
 													if ( el.Value != '' ) { el.DomObject.dispatchEvent(new Event('input')); }
 												}),
 											new Label().SetAttributes( {for: 'password'} ).Text( 'Пароль' )
@@ -64,8 +64,10 @@ class Lock  extends Page {
 		]);
 	}
 	#Send () {
+		let packet = {com: 'skyline.core.auth', subcom: 'unlocksession', data: {password: this.#password}, hash: this.Hash };
+		console.log('lock=> ', packet);
 		let transport = this.Application.Transport;
-		transport.Get( {com: 'skyline.core.auth', subcom: 'unlocksession', data: {password: this.#password}, hash: this.Hash } );
+		transport.Get(packet);
 	}
 	// ПУБЛИЧНЫЕ МЕТОДЫ
 	PrependPage () {
@@ -79,6 +81,7 @@ class Lock  extends Page {
 		this.Application.CurrentPage = this.#lockPage;
 	}
 	Commands ( packet ) {
+		console.log('===>', packet);
 		switch ( packet.com ) {
 			case 'skyline.core.auth':
 				switch ( packet.subcom ) {

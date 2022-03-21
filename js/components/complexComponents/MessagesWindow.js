@@ -1,6 +1,6 @@
 'use strict'
 class MessagesWindow extends Component {
-	#title;#body;#window;#onClose;
+	#title;#body;#window;#onClose;#ifClose;
 	constructor ( application, parent, title, data ) {
 		super( application, parent );
 		this.#title = title;
@@ -39,7 +39,6 @@ class MessagesWindow extends Component {
 		if (typeof this.#onClose !== 'undefined') this.#onClose();
 	}
 	OnClose(func) {
-		console.log('закроем');
 		this.#onClose = func;
 	}
 	AddBody(mwbody) {
@@ -50,6 +49,10 @@ class MessagesWindow extends Component {
 	Close () {
 		this.Container.DeleteObject();
 		this.Application.DeleteHash( this.Hash );
+		if (typeof this.#ifClose !== 'undefined') this.#ifClose();
 	};
+	IfCloseForm(func) {
+		this.#ifClose = func;
+	}
 }
 

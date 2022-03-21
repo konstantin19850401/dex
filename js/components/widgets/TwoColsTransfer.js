@@ -53,7 +53,7 @@ class TwoColsTransfer {
 							shoObject.DomObject.addEventListener('input', event=> {
 								let val = event.target.value;
  								for (let i= 0; i < this.#leftArr.length; i++) {
- 									if (this.#leftArr[i].item.title.includes(val)) {
+ 									if (this.#leftArr[i].item.title.toLowerCase().includes(val)) {
  										if (this.#leftArr[i].display == false) {
  											// надо проверить, находится ли элемент справа
  											if (this.#states.left.indexOf(this.#leftArr[i].item.uid) != -1) {
@@ -78,7 +78,7 @@ class TwoColsTransfer {
 							shoObject.DomObject.addEventListener('input', event=> {
 								let val = event.target.value;
 								for (let i= 0; i < this.#rightArr.length; i++) {
- 									if (this.#rightArr[i].item.title.includes(val)) {
+ 									if (this.#rightArr[i].item.title.toLowerCase().includes(val)) {
  										if (this.#rightArr[i].display == false) {
  											// надо проверить, находится ли элемент справа
  											if (this.#states.right.indexOf(this.#rightArr[i].item.uid) != -1) {
@@ -132,8 +132,8 @@ class TwoColsTransfer {
 							if (acarr[j].item.uid == item.uid) {
 								acarr[j].display = true;
 								acarr[j].sho.Show();
-								if ( arrs[i] == 'leftArr' && !item.title.includes(this.#filterRight.Value) ||
-									arrs[i] == 'rightArr' && !item.title.includes(this.#filterLeft.Value)) {
+								if ( arrs[i] == 'leftArr' && !item.title.toLowerCase().includes(this.#filterRight.Value) ||
+									arrs[i] == 'rightArr' && !item.title.toLowerCase().includes(this.#filterLeft.Value)) {
 									acarr[j].sho.Hide();
 									acarr[j].display = false;
 								}
@@ -146,7 +146,6 @@ class TwoColsTransfer {
 				carr.push(obj);
 			}
 		}
-
 	}
 	SetRightValues(arr) {
 		if (Array.isArray(arr)) {
@@ -171,7 +170,7 @@ class TwoColsTransfer {
 	set SetLeftFilter(str) {
 		this.#filterLeft.Value = str;
 		for (let i=0; i < this.#leftArr.length; i++) {
-			if (!this.#leftArr[i].item.title.includes(str)) {
+			if (!this.#leftArr[i].item.title.toLowerCase().includes(str)) {
 				this.#leftArr[i].display = false;
 				this.#leftArr[i].sho.Hide();
 			}
@@ -180,7 +179,7 @@ class TwoColsTransfer {
 	set SetRightFilter(str) {
 		this.#filterRight.Value = str;
 		for (let i=0; i < this.#rightArr.length; i++) {
-			if (!this.#rightArr[i].item.title.includes(str)) {
+			if (!this.#rightArr[i].item.title.toLowerCase().includes(str)) {
 				this.#rightArr[i].display = false;
 				this.#rightArr[i].sho.Hide();
 			}

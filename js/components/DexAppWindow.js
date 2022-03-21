@@ -7,6 +7,7 @@ class DexAppWindow extends Component {
 	#totalDocsSho;#selectedDocsSho;#totalDocs=0;#selectedDocs=0;
 	#periodSho;#searchSho;
 	#filter = { start: undefined, end: undefined, search: undefined, units: [], statuses: [] };
+	#ifIssetFilters = [];
 	#temp = {tct: {left:'', right: ''}};
 	constructor ( parent, base ) {
 		super( parent.Application, parent );
@@ -70,96 +71,108 @@ class DexAppWindow extends Component {
 		]);
 		periodJournal.AddWatch(shoObject=> {
 			shoObject.DomObject.addEventListener('click', event=> {
-				let mw = new MessagesWindow(this.Application, this.Container, 'Задайте период журнала', {width: 300, height: 125});
-				let period = new Period( this.Application );
-				if (typeof this.#filter.start !== 'undefined') period.StartPeriod = this.#filter.start;
-				if (typeof this.#filter.end !== 'undefined') period.EndPeriod = this.#filter.end;
-				mw.AddBody(period);
-				mw.OnClose(()=> {
-					this.#filter.start = period.StartPeriod;
-					this.#filter.end = period.EndPeriod;
-					this.#GetData();
-				});
+				if (this.#ifIssetFilters.indexOf('periodJournal') == -1) {
+					this.#ifIssetFilters.push('periodJournal');
+					let mw = new MessagesWindow(this.Application, this.Container, 'Задайте период журнала', {width: 300, height: 125});
+					let period = new Period( this.Application );
+					if (typeof this.#filter.start !== 'undefined') period.StartPeriod = this.#filter.start;
+					if (typeof this.#filter.end !== 'undefined') period.EndPeriod = this.#filter.end;
+					mw.AddBody(period);
+					mw.OnClose(()=> {
+						this.#filter.start = period.StartPeriod;
+						this.#filter.end = period.EndPeriod;
+						this.#GetData();
+					});
+					mw.IfCloseForm(()=> {this.#ifIssetFilters.splice(this.#ifIssetFilters.indexOf('periodJournal'), 1);})
+				}
 			})
 		});
 		filter.AddWatch(shoObject=> {
 			shoObject.DomObject.addEventListener('click', event=> {
-				let mw = new MessagesWindow(this.Application, this.Container, 'Фильтр по документу', {width: 500, height: 115});
-				// let search = new SearchBlock( this.Application );
-				// mw.AddBody(search);
-				let items = [
-					{id: `headingOne_${this.Hash}`, target: 'collapseOne', header: 'Фильтр отделений', text: ``, status: false, btn: null, b: null},
-					{id: `headingTwo_${this.Hash}`, target: 'collapseTwo', header: 'Статус документа', text: ``, status: false, btn: null, b: null},
-					{id: `headingThree_${this.Hash}`, target: 'collapseThree', header: 'Тарифный план', text: ``, status: false, btn: null, b: null}
-				];
-				let headerStatus = {0: 'accordion-button collapsed', 1: 'accordion-button'};
-				let bodyStatus = {0: 'accordion-collapse collapse', 1: 'accordion-collapse collapse show'};
+				if (this.#ifIssetFilters.indexOf('filter') == -1) {
+					this.#ifIssetFilters.push('filter');
+					let mw = new MessagesWindow(this.Application, this.Container, 'Фильтр по документу', {width: 500, height: 115});
+					// let search = new SearchBlock( this.Application );
+					// mw.AddBody(search);
+					let items = [
+						{id: `headingOne_${this.Hash}`, target: 'collapseOne', header: 'Фильтр отделений', text: ``, status: false, btn: null, b: null},
+						{id: `headingTwo_${this.Hash}`, target: 'collapseTwo', header: 'Статус документа', text: ``, status: false, btn: null, b: null},
+						// {id: `headingThree_${this.Hash}`, target: 'collapseThree', header: 'Тарифный план', text: ``, status: false, btn: null, b: null}
+					];
+					let headerStatus = {0: 'accordion-button collapsed', 1: 'accordion-button'};
+					let bodyStatus = {0: 'accordion-collapse collapse', 1: 'accordion-collapse collapse show'};
 
-				let accordion = new Div().SetAttributes({class: 'accordion'}).AddChilds((()=> {
-					let arr = [];
-					for (let i=0; i < items.length; i++) {
-						let item = new Div().SetAttributes({class: 'accordion-item'}).AddChilds([
-							new H2().SetAttributes({class: 'accordion-header', id: items[i].id}).AddChilds([
-								items[i].btn = new Button().SetAttributes({class: headerStatus[items[i].status | 0], type: 'button', 'data-bs-toggle': 'collapse', 'data-bs-target': items[i].target, 'aria-expanded': items[i].status, 'aria-controls': items[i].target}).Text(items[i].header).AddWatch(shoObject=> {
-									shoObject.DomObject.addEventListener('click', event=> {
-										for (let j =0; j < items.length; j++) {
-											if (items[j].status == true && j != i) {
-												items[j].btn.RemoveClass(headerStatus[items[j].status | 0]);
-												items[j].b.RemoveClass(bodyStatus[items[j].status | 0]);
-												items[j].status = !items[j].status;
-												items[j].btn.AddClass(headerStatus[items[j].status | 0]);
-												items[j].b.AddClass(bodyStatus[items[j].status | 0]);
+					let accordion = new Div().SetAttributes({class: 'accordion'}).AddChilds((()=> {
+						let arr = [];
+						for (let i=0; i < items.length; i++) {
+							let item = new Div().SetAttributes({class: 'accordion-item'}).AddChilds([
+								new H2().SetAttributes({class: 'accordion-header', id: items[i].id}).AddChilds([
+									items[i].btn = new Button().SetAttributes({class: headerStatus[items[i].status | 0], type: 'button', 'data-bs-toggle': 'collapse', 'data-bs-target': items[i].target, 'aria-expanded': items[i].status, 'aria-controls': items[i].target}).Text(items[i].header).AddWatch(shoObject=> {
+										shoObject.DomObject.addEventListener('click', event=> {
+											for (let j =0; j < items.length; j++) {
+												if (items[j].status == true && j != i) {
+													items[j].btn.RemoveClass(headerStatus[items[j].status | 0]);
+													items[j].b.RemoveClass(bodyStatus[items[j].status | 0]);
+													items[j].status = !items[j].status;
+													items[j].btn.AddClass(headerStatus[items[j].status | 0]);
+													items[j].b.AddClass(bodyStatus[items[j].status | 0]);
+												}
 											}
-										}
-										items[i].btn.RemoveClass(headerStatus[items[i].status | 0]);
-										items[i].b.RemoveClass(bodyStatus[items[i].status | 0]);
-										items[i].status = !items[i].status;
-										items[i].btn.AddClass(headerStatus[items[i].status | 0]);
-										items[i].b.AddClass(bodyStatus[items[i].status | 0]);
+											items[i].btn.RemoveClass(headerStatus[items[i].status | 0]);
+											items[i].b.RemoveClass(bodyStatus[items[i].status | 0]);
+											items[i].status = !items[i].status;
+											items[i].btn.AddClass(headerStatus[items[i].status | 0]);
+											items[i].b.AddClass(bodyStatus[items[i].status | 0]);
+										})
 									})
-								})
-							]),
-							items[i].b = new Div().SetAttributes({class: bodyStatus[items[i].status | 0], id: items[i].id, 'aria-labelledby': items[i].id, 'data-bs-parent': 'accordionExample' }).AddChilds([
-								new Div().SetAttributes({class: 'accordion-body'}).AddChilds([
-									new Span().Text(items[i].text)
+								]),
+								items[i].b = new Div().SetAttributes({class: bodyStatus[items[i].status | 0], id: items[i].id, 'aria-labelledby': items[i].id, 'data-bs-parent': 'accordionExample' }).AddChilds([
+									new Div().SetAttributes({class: 'accordion-body'}).AddChilds([
+										new Span().Text(items[i].text)
+									])
 								])
-							])
-						]);
-						arr.push(item);
+							]);
+							arr.push(item);
+						}
+						return arr;
+					})());
+					mw.AddBody(accordion);
+
+					// фильтры
+					// Отделения
+					let tctUnits = new TwoColsTransfer(this.Application, items[0].b, 'Фильтр отделений', this.#dicts.get('units'));
+					if (this.#filter.units.length > 0) {
+						tctUnits.SetRightValues(this.#filter.units);
 					}
-					return arr;
-				})());
-				mw.AddBody(accordion);
+					if (typeof this.#temp.tct.left !== 'undefined') tctUnits.SetLeftFilter = this.#temp.tct.left;
+					if (typeof this.#temp.tct.right !== 'undefined') tctUnits.SetRightFilter = this.#temp.tct.right;
 
-				// фильтры
-				// Отделения
-				let tctUnits = new TwoColsTransfer(this.Application, items[0].b, 'Фильтр отделений', this.#dicts.get('units'));
-				if (this.#filter.units.length > 0) {
-					tctUnits.SetRightValues(this.#filter.units);
+					// Статусы документа
+					let tctStatuses = new TwoColsTransfer(this.Application, items[1].b, 'Фильтр статусов', this.#dicts.get('statuses'));
+					if (this.#filter.statuses.length > 0) tctStatuses.SetRightValues(this.#filter.statuses);
+					mw.OnClose(()=> {
+						this.#filter.units = tctUnits.GetRightValues;
+						this.#filter.statuses = tctStatuses.GetRightValues;
+						this.#GetData();
+					})
+					mw.IfCloseForm(()=> {this.#ifIssetFilters.splice(this.#ifIssetFilters.indexOf('filter'), 1);})
 				}
-				if (typeof this.#temp.tct.left !== 'undefined') tctUnits.SetLeftFilter = this.#temp.tct.left;
-				if (typeof this.#temp.tct.right !== 'undefined') tctUnits.SetRightFilter = this.#temp.tct.right;
-
-				// Статусы документа
-				let tctStatuses = new TwoColsTransfer(this.Application, items[1].b, 'Фильтр статусов', this.#dicts.get('statuses'));
-				if (this.#filter.statuses.length > 0) tctStatuses.SetRightValues(this.#filter.statuses);
-				mw.OnClose(()=> {
-					this.#filter.units = tctUnits.GetRightValues;
-					this.#filter.statuses = tctStatuses.GetRightValues;
-					this.#GetData();
-				})
 			})
 		});
 		search.AddWatch(shoObject=> {
 			shoObject.DomObject.addEventListener('click', event=> {
-				let mw = new MessagesWindow(this.Application, this.Container, 'Поиск по документу', {width: 300, height: 115});
-				let search = new SearchBlock( this.Application );
-				if (typeof this.#filter.search !== 'undefined') search.SearchText = this.#filter.search;
-				mw.AddBody(search);
-				mw.OnClose(()=> {
-					this.#filter.search = search.SearchText;
-					this.#GetData();
-				})
+				if (this.#ifIssetFilters.indexOf('search') == -1) {
+					this.#ifIssetFilters.push('search');
+					let mw = new MessagesWindow(this.Application, this.Container, 'Поиск по документу', {width: 300, height: 115});
+					let search = new SearchBlock( this.Application );
+					if (typeof this.#filter.search !== 'undefined') search.SearchText = this.#filter.search;
+					mw.AddBody(search);
+					mw.OnClose(()=> {
+						this.#filter.search = search.SearchText;
+						this.#GetData();
+					})
+					mw.IfCloseForm(()=> {this.#ifIssetFilters.splice(this.#ifIssetFilters.indexOf('search'), 1);})
+				}
 			})
 		});
 
