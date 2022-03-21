@@ -6,7 +6,7 @@ class DexAppWindow extends Component {
 	#windowsPanel;
 	#totalDocsSho;#selectedDocsSho;#totalDocs=0;#selectedDocs=0;
 	#periodSho;#searchSho;
-	#filter = { start: undefined, end: undefined, search: undefined, units: [] };
+	#filter = { start: undefined, end: undefined, search: undefined, units: [], statuses: [] };
 	#temp = {tct: {left:'', right: ''}};
 	constructor ( parent, base ) {
 		super( parent.Application, parent );
@@ -55,23 +55,7 @@ class DexAppWindow extends Component {
 				]),
 				search = new Div().SetAttributes({class: 'dex-filter-element'}).AddChilds([
 					new I().SetAttributes({class: 'fas fa-search'}),
-				]),
-
-				// this.#periodSho = new Period( this.Application ).AddWatcher({
-				// 		name: 'watchSelectedPeriod', func: ( start, end )=> {
-				// 		this.#filter.start = start;
-				// 		this.#filter.end = end;
-				// 		this.#GetData();
-				// 	}
-				// }),
-				// this.#searchSho = new SearchBlock( this.Application ).AddWatcher({
-				// 	name: 'watchSelectedSearch', func: ( search )=> {
-				// 		this.#filter.search = search;
-				// 		this.#GetData();
-				// 	}
-				// }),
-				// this.#docTable = new ComplexTable( this.Application ).AddWatcher({name: 'watchSelectedRows', func: ( rows )=> { this.#SetSelectedCnt( rows ) }
-				// }),
+				])
 			]),
 			new Div().SetAttributes( {class: 'dex-app-window-info'} ).AddChilds([
 				this.#totalDocsSho = new Span().SetAttributes( {class: 'dex-app-window-total'} ).Text( `Всего: ${ this.#totalDocs }` ),
@@ -104,12 +88,9 @@ class DexAppWindow extends Component {
 				// let search = new SearchBlock( this.Application );
 				// mw.AddBody(search);
 				let items = [
-					{id: "headingOne", target: 'collapseOne', header: 'Фильтр отделений', text: ``, status: false, btn: null, b: null
-					},
-					{id: "headingTwo", target: 'collapseTwo', header: 'Статус документа', text: `This is the first item's accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow`, status: false, btn: null, b: null
-					},
-					{id: "headingThree", target: 'collapseThree', header: 'Тарифный план', text: `This is the first item's accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow`, status: false, btn: null, b: null
-					}
+					{id: `headingOne_${this.Hash}`, target: 'collapseOne', header: 'Фильтр отделений', text: ``, status: false, btn: null, b: null},
+					{id: `headingTwo_${this.Hash}`, target: 'collapseTwo', header: 'Статус документа', text: ``, status: false, btn: null, b: null},
+					{id: `headingThree_${this.Hash}`, target: 'collapseThree', header: 'Тарифный план', text: ``, status: false, btn: null, b: null}
 				];
 				let headerStatus = {0: 'accordion-button collapsed', 1: 'accordion-button'};
 				let bodyStatus = {0: 'accordion-collapse collapse', 1: 'accordion-collapse collapse show'};
@@ -151,21 +132,22 @@ class DexAppWindow extends Component {
 				mw.AddBody(accordion);
 
 				// фильтры
-				let nwidget = new TwoColsTransfer(this.Application, items[0].b, 'Фильтр отделений', this.#dicts.get('units'));
+				// Отделения
+				let tctUnits = new TwoColsTransfer(this.Application, items[0].b, 'Фильтр отделений', this.#dicts.get('units'));
 				if (this.#filter.units.length > 0) {
-					nwidget.SetRightValues(this.#filter.units);
+					tctUnits.SetRightValues(this.#filter.units);
 				}
-				if (typeof this.#temp.tct.left !== 'undefined') nwidget.SetLeftFilter = this.#temp.tct.left;
-				if (typeof this.#temp.tct.right !== 'undefined') nwidget.SetRightFilter = this.#temp.tct.right;
+				if (typeof this.#temp.tct.left !== 'undefined') tctUnits.SetLeftFilter = this.#temp.tct.left;
+				if (typeof this.#temp.tct.right !== 'undefined') tctUnits.SetRightFilter = this.#temp.tct.right;
+
+				// Статусы документа
+				let tctStatuses = new TwoColsTransfer(this.Application, items[1].b, 'Фильтр статусов', this.#dicts.get('statuses'));
+				if (this.#filter.statuses.length > 0) tctStatuses.SetRightValues(this.#filter.statuses);
 				mw.OnClose(()=> {
-					this.#filter.units = nwidget.GetRightValues;
-					// this.#temp.tct.left = nwidget.FilterLeft;
-					// this.#temp.tct.right = nwidget.FilterRight;
+					this.#filter.units = tctUnits.GetRightValues;
+					this.#filter.statuses = tctStatuses.GetRightValues;
 					this.#GetData();
 				})
-				// let nwidget = new TwoColsTransfer(this.Application, items[0].b, 'Фильтр отделений', this.#dicts.get('units'));
-				// let nwidget = new TwoColsTransfer(this.Application, this.Container, 'Фильтр отделений', this.#dicts.get('units'));
-
 			})
 		});
 		search.AddWatch(shoObject=> {

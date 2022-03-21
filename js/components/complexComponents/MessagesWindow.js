@@ -39,6 +39,7 @@ class MessagesWindow extends Component {
 		if (typeof this.#onClose !== 'undefined') this.#onClose();
 	}
 	OnClose(func) {
+		console.log('закроем');
 		this.#onClose = func;
 	}
 	AddBody(mwbody) {
