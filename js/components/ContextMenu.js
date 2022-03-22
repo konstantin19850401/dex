@@ -45,7 +45,7 @@ class ContextMenu extends Component {
 			let allowed = item.copy.statuses.split(',').map(item=> parseInt(item));
 			for ( let i = 0; i < selectedStatuses.length; i++ ) {
 				if ( allowed.indexOf( selectedStatuses[i] ) == -1 ) {
-					item.elm.DomObject.style.display = 'none';
+					// item.elm.DomObject.style.display = 'none'; // раскомментировать!!!!
 					break;
 				}
 			}

@@ -153,7 +153,7 @@ class ComplexTable extends Component {
 		this.#contextMenu.TableLink = this;
 	};
 	ShowContextMenu ( coords ) {
-		// console.log( 'his.#contextMenu=> ', this.#contextMenu.DomObject );
+		console.log( 'his.#contextMenu=> ', this.#contextMenu.DomObject );
 		this.#contextMenu.DomObject.classList.toggle( 'context-menu-show' );
 		this.#contextMenu.DomObject.style.marginTop = `${ coords.y }px`;
 		this.#contextMenu.DomObject.style.marginLeft = `${ coords.x }px`;
