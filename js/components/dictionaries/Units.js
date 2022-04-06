@@ -1,7 +1,7 @@
 'use strict'
 class Units extends Dictionaries {
 	#units = [];#cbody;#unitsTable;#transport;#newElement;#regions = [];#headers;
-	#scUnits = [];#store;
+	#scUnits = [];#store;#storesList = [];
 	constructor ( application, parent) {
 		super( application, parent );
 		this.#transport = this.Application.Transport;
@@ -183,7 +183,6 @@ class Units extends Dictionaries {
 						(()=> {
 							let arr = [];
 							for (let i=0; i<element.stores.length; i++) {
-								console.log("store=> ", element.stores[i]);
 								let attrs = {class: "list-group-item list-group-item-action", store_uid: element.stores[i].uid};
 								if (element.stores[i].status == 0) {
 									attrs.class = "list-group-item list-group-item-action bg-secondary bg-gradient";
@@ -192,6 +191,7 @@ class Units extends Dictionaries {
 								let li = new Li().SetAttributes(attrs).Text(element.stores[i].title).AddWatch(sho=> {
 									sho.DomObject.addEventListener('dblclick', event => this.#GetUnitStore(element.stores[i].uid));
 								});
+								this.#storesList.push({uid: element.stores[i].uid, status: element.stores[i].status, title: element.stores[i].title,  sho: li});
 								arr.push(li);
 							}
 							return arr;
@@ -223,7 +223,7 @@ class Units extends Dictionaries {
 				data[key] = element.value;
 			}
 		}
-		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'editUnit', fields: data}, hash: this.Hash});
+		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'editStore', fields: data}, hash: this.Hash});
 	}
 	#CreateNewUnit(formHash, fields) {
 		console.log('создание нового элемента ', formHash);
@@ -278,7 +278,7 @@ class Units extends Dictionaries {
 		let hiddens = ['uid', 'lastname', 'firstname', 'secondname', 'region', 'title'];
 		for (let key in fields) {
 			let inputAttrs = {class: `col-sm-12`, type: 'text', id: `${key}_${formHash}`};
-			if (key == 'uid') inputAttrs.disabled = true;
+			if (key == 'uid' || key == 'title') inputAttrs.disabled = true;
 			let block = new Div( {parent: section} ).SetAttributes( {class: 'form-group row', name: key} ).AddChilds([
 				new Label().SetAttributes( {class: 'col-sm-3 col-form-label'} ).Text(fields[key]),
 				new Div().SetAttributes( {class: 'col-sm-9'} ).AddChilds([
@@ -385,6 +385,23 @@ class Units extends Dictionaries {
 									this.#GetDict();
 								}
 								console.log('пришел пакет ответ на редактирование элемента');
+							break;
+							case 'editStore':
+								if (packet.data.status == 200) {
+									this.#CloseStoreWindow();
+									let li = this.#storesList.find(item=> item.uid == packet.data.list[0].uid);
+									if (li.status != packet.data.list[0].status) {
+										li.status = packet.data.list[0].status;
+										if (packet.data.list[0].status == 1) li.sho.RemoveClass("bg-secondary bg-gradient");
+										else if (packet.data.list[0].status == 0) li.sho.AddClass("bg-secondary bg-gradient");
+									}
+									if (li.title != packet.data.list[0].title) {
+										li.title = packet.data.list[0].title;
+										li.sho.Text(packet.data.list[0].title);
+									}
+								} else {
+									alert(packet.data.err.join('\n'));
+								}
 							break;
 							case 'getDictStoresSingleId':
 								this.#ShowUnitStore(packet.data.list[0]);

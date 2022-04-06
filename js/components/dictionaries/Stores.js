@@ -31,7 +31,7 @@ class Stores extends Dictionaries {
 	#CreateList() {
 		// this.#unitsTable = new ComplexTable( this.Application, this.#cbody ).AddWatcher({name: 'watchSelectedRows', func: ( rows )=> { this.#SetSelectedCnt( rows ) }});
 		this.#unitsTable = new ComplexTable( this.Application, this.#cbody);
-		this.#headers = [ {name: 'uid', title: 'id'}, {name: 'title', title: 'Торговая точка'}, {name: 'parent_title', title: 'Отделение'} ];
+		this.#headers = [ {name: 'uid', title: 'id'}, {name: 'dex_uid', title: 'dex id'}, {name: 'title', title: 'Торговая точка'}, {name: 'parent_title', title: 'Отделение'} ];
 		this.#unitsTable.DomObject.style.height = `calc(${ this.#cbody.DomObject.clientHeight }px - 5px)`;
 
 		for (let i = 0; i < this.#headers.length; i++) {
@@ -44,7 +44,9 @@ class Stores extends Dictionaries {
 	}
 	#AddRows() {
 		for (let i=0; i< this.#stores.length; i++) {
-			let row = new Tr().SetAttributes( {'uid_num': this.#stores[i].uid} );
+			let attrs = {'uid_num': this.#stores[i].uid};
+			if (this.#stores[i].status == 0) attrs.class = "bg-secondary bg-gradient";
+			let row = new Tr().SetAttributes( attrs );
 			for (let j=0; j<this.#headers.length; j++) {
 				row.AddChilds([ new Td().Text( this.#stores[i][this.#headers[j].name] ) ]);
 			}
@@ -209,7 +211,7 @@ class Stores extends Dictionaries {
 				data[key] = element.value;
 			}
 		}
-		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'editUnit', fields: data}, hash: this.Hash});
+		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'editStore', fields: data}, hash: this.Hash});
 	}
 	#CreateNewUnit(formHash, fields) {
 		console.log('создание нового элемента ', formHash);
@@ -271,6 +273,18 @@ class Stores extends Dictionaries {
 								}
 							break;
 							case 'createNewStore':
+								if (packet.data.status == 200) {
+									this.#CloseNewElement();
+									for (let i = 0; i < this.#scStores.length; i++) {
+										this.#scStores[i].sc.DeleteObject();
+									}
+									this.#scStores = [];
+									this.#GetDict();
+								} else {
+									alert(packet.data.err.join('\n'));
+								}
+							break;
+							case 'editStore':
 								if (packet.data.status == 200) {
 									this.#CloseNewElement();
 									for (let i = 0; i < this.#scStores.length; i++) {
