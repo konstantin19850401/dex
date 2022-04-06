@@ -70,6 +70,9 @@ class Stores extends Dictionaries {
 	#GetDictRegions() {
 		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getAppDictById', dict: 'regions'}, hash: this.Hash});
 	}
+	#GetDictUnits() {
+		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getAppDictById', dict: 'units'}, hash: this.Hash});
+	}
 	//удаление елемента
 	#DeleteElement() {
 		let dels = [];
@@ -95,6 +98,7 @@ class Stores extends Dictionaries {
 		let fields = {
 			parent: 'Отделение',
 			uid: 'id торговой точки',
+			dex_uid: 'DEX идентификатор',
 			lastname: 'Фамилия',
 			firstname: 'Имя',
 			secondname: 'Отчество',
@@ -119,7 +123,8 @@ class Stores extends Dictionaries {
 			])
 		]);
 		let section = new Div( {parent: this.#cbody} );
-		let units = this.Parent.CommonDicts['units'].elements;
+		// let units = this.Parent.CommonDicts['units'].elements;
+		let units = this.#units;
 		//сначала покажем кто родитель
 		// new Div( {parent: section} ).SetAttributes( {class: 'form-group row', name: "unit"} ).AddChilds([
 		// 	new Label().SetAttributes( {class: 'col-sm-3 col-form-label'} ).Text("Отделение"),
@@ -235,10 +240,17 @@ class Stores extends Dictionaries {
 						switch ( packet.data.action ) {
 							case 'getAppDictById':
 								console.log('packet=> ', packet);
-								if (packet.data.list.length > 0) {
-									packet.data.list.map(item => this.#regions.push(item))
-								}
-								this.#GetDict();
+								//if (packet.data.list.length > 0) {
+									if (packet.data.dictname == 'regions') {
+										packet.data.list.map(item => this.#regions.push(item));
+										this.#GetDictUnits();
+									} else if (packet.data.dictname == 'units') {
+										console.log("Пришли отделения");
+										this.#units = packet.data.list;
+										this.#GetDict();
+									}
+								//}
+
 							break;
 							case 'getDictStores':
 								if (packet.data.list.length > 0) this.#stores = packet.data.list;

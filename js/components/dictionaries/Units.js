@@ -1,7 +1,7 @@
 'use strict'
 class Units extends Dictionaries {
 	#units = [];#cbody;#unitsTable;#transport;#newElement;#regions = [];#headers;
-	#scUnits = [];
+	#scUnits = [];#store;
 	constructor ( application, parent) {
 		super( application, parent );
 		this.#transport = this.Application.Transport;
@@ -60,6 +60,9 @@ class Units extends Dictionaries {
 	#CloseNewElement() {
 		this.#newElement.DeleteObject();
 	}
+	#CloseStoreWindow() {
+		this.#store.DeleteObject();
+	}
 	#GetDataById(id) {
 		// console.log("id=> ", id);
 		if (id) this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDictUnitsSingleId', id: id}, hash: this.Hash});
@@ -69,6 +72,12 @@ class Units extends Dictionaries {
 	}
 	#GetDictRegions() {
 		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getAppDictById', dict: 'regions'}, hash: this.Hash});
+	}
+	#GetUnitStore(storeId) {
+		if (typeof storeId !== "undefined") {
+			console.log("запросим торговую точку");
+			this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDictStoresSingleId', id: storeId}, hash: this.Hash});
+		}
 	}
 	//удаление елемента
 	#DeleteElement() {
@@ -94,6 +103,7 @@ class Units extends Dictionaries {
 		let domTitle;
 		let fields = {
 			uid: 'id субдилера',
+			dex_uid: 'DEX id первой ТТ',
 			lastname: 'Фамилия',
 			firstname: 'Имя',
 			secondname: 'Отчество',
@@ -123,8 +133,9 @@ class Units extends Dictionaries {
 			// console.log('key => ', key);
 			// if ( key == 'uid' && typeof element !== 'undefined' || key != 'uid') {
 				let inputAttrs = {class: `col-sm-12`, type: 'text', id: `${key}_${formHash}`};
-				if (key == 'uid' && typeof element !== 'undefined') inputAttrs.disabled = true;
-				new Div( {parent: section} ).SetAttributes( {class: 'form-group row', name: key} ).AddChilds([
+				// if (key == 'uid' && typeof element !== 'undefined') inputAttrs.disabled = true;
+				if (key == 'uid' ) inputAttrs.disabled = true;
+				let block = new Div( {parent: section} ).SetAttributes( {class: 'form-group row', name: key} ).AddChilds([
 					new Label().SetAttributes( {class: 'col-sm-3 col-form-label'} ).Text(fields[key]),
 					new Div().SetAttributes( {class: 'col-sm-9'} ).AddChilds([
 						(()=> {
@@ -140,6 +151,8 @@ class Units extends Dictionaries {
 									else if (key == 'region' && typeof element !== 'undefined' && element.region == d[i].val) {
 										// console.log("element.uid=> ", element.uid);
 										option.SetAttributes({'selected': 'selected'});
+									} else if ( typeof element === 'undefined' && key == 'status' ) {
+										option.SetAttributes({'selected': 'selected'});
 									}
 									options.push(option);
 								}
@@ -150,7 +163,8 @@ class Units extends Dictionaries {
 							}
 						})()
 					])
-				])
+				]);
+				if (key == 'dex_uid' && typeof element !== 'undefined') block.Hide();
 			// }
 		}
 
@@ -160,9 +174,46 @@ class Units extends Dictionaries {
 				// console.log('key=> ', key);
 				if (typeof fields[key] !== 'undefined' && key != 'status' && key != 'region') document.getElementById(`${key}_${formHash}`).value = element[key];
 			}
+
+			// покажем торговые точки отделения
+			let block = new Div( {parent: section} ).SetAttributes( {class: 'form-group row', name: "stores"} ).AddChilds([
+				new Label().SetAttributes( {class: 'col-sm-3 col-form-label'} ).Text("Список ТТ"),
+				new Div().SetAttributes( {class: 'col-sm-9'} ).AddChilds([
+					new Ul().SetAttributes({class: "list-group list-group-numbered"}).AddChilds(
+						(()=> {
+							let arr = [];
+							for (let i=0; i<element.stores.length; i++) {
+								console.log("store=> ", element.stores[i]);
+								let attrs = {class: "list-group-item list-group-item-action", store_uid: element.stores[i].uid};
+								if (element.stores[i].status == 0) {
+									attrs.class = "list-group-item list-group-item-action bg-secondary bg-gradient";
+									attrs["aria-disabled"] = "true";
+								}
+								let li = new Li().SetAttributes(attrs).Text(element.stores[i].title).AddWatch(sho=> {
+									sho.DomObject.addEventListener('dblclick', event => this.#GetUnitStore(element.stores[i].uid));
+								});
+								arr.push(li);
+							}
+							return arr;
+						})()
+					)
+				])
+			])
 		}
 	}
 	#EditUnit(formHash, fields) {
+		console.log('Редактировать');
+		let data = {};
+		for (let key in fields) {
+			let element = document.getElementById(`${key}_${formHash}`);
+			// console.log('element=> ', element);
+			if (typeof element !== 'undefined') {
+				data[key] = element.value;
+			}
+		}
+		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'editUnit', fields: data}, hash: this.Hash});
+	}
+	#EditStore(formHash, fields) {
 		console.log('Редактировать');
 		let data = {};
 		for (let key in fields) {
@@ -191,6 +242,92 @@ class Units extends Dictionaries {
 		} else packet.data.createNewUser = false;
 		console.log('packet на сервер=> ', packet);
 		this.#transport.Get(packet);
+	}
+	#ShowUnitStore(element) {
+		let formHash = this.Application.Toolbox.GenerateHash;
+		let domTitle;
+		let fields = {
+			parent: 'Отделение',
+			uid: 'id торговой точки',
+			dex_uid: 'DEX идентификатор',
+			lastname: 'Фамилия',
+			firstname: 'Имя',
+			secondname: 'Отчество',
+			region: 'Регион',
+			title: 'Описание точки',
+			doc_city: 'Нас. пункт',
+			status: 'Статус'
+		};
+		// console.log(this.Application);
+		this.#store = new Div( {parent: this.Parent.Container} ).SetAttributes( {class: 'dex-dict'} ).AddChilds([
+			new I().SetAttributes( {class: 'dex-configuration-close fas fa-window-close'} ).AddWatch(sho => {
+				sho.DomObject.addEventListener( 'click', event => this.#CloseStoreWindow() )
+			}),
+			domTitle = new Span().SetAttributes( {class: 'dex-configuration-title'} ).Text( `Добавление нового элемента` ),
+			this.#cbody = new Div().SetAttributes( {class: 'dex-contract-body row'} ),
+			new Div().SetAttributes( {class: 'dex-configuration-footer'} ).AddChilds([
+				new Button().SetAttributes( {class: 'dex-configuration-info-btn'} ).Text( typeof element !== 'undefined' ? 'Редактировать' : 'Создать').AddWatch((el)=> {
+					el.DomObject.addEventListener( 'click', event => this.#EditStore(formHash, fields));
+				})
+			])
+		]);
+		let section = new Div( {parent: this.#cbody} );
+		let units = this.#units;
+
+		let sel = ['status', 'region', 'parent'];
+		let hiddens = ['uid', 'lastname', 'firstname', 'secondname', 'region', 'title'];
+		for (let key in fields) {
+			let inputAttrs = {class: `col-sm-12`, type: 'text', id: `${key}_${formHash}`};
+			if (key == 'uid') inputAttrs.disabled = true;
+			let block = new Div( {parent: section} ).SetAttributes( {class: 'form-group row', name: key} ).AddChilds([
+				new Label().SetAttributes( {class: 'col-sm-3 col-form-label'} ).Text(fields[key]),
+				new Div().SetAttributes( {class: 'col-sm-9'} ).AddChilds([
+					(()=> {
+						if (sel.indexOf(key) != -1) {
+							// console.log('key => ', key, ' element.uid=> ', element.uid);
+							let options = [];
+							let d = [];
+							if (key == 'status') d = [{val: 0, text: 'Заблокировано'}, {val: 1, text: 'Активно'}];
+							else if (key == 'parent') units.map(item=> d.push({val: item.uid, text: item.title}))
+							else this.#regions.map(item=> item.status == 1 ? d.push({val: item.uid, text: item.title}) : '')
+							for (let i = 0; i < d.length; i++) {
+								let option = new Option().SetAttributes({'value':d[i].val}).Text(d[i].text);
+								if (key == 'status' && typeof element !== 'undefined' && element.status == d[i].val) {
+									option.SetAttributes({'selected': 'selected'});
+								} else if (key == 'region' && typeof element !== 'undefined' && element.region == d[i].val) {
+									option.SetAttributes({'selected': 'selected'});
+								} else if (key == 'parent' && typeof element !== 'undefined' && element.parent_uid == d[i].val) {
+									option.SetAttributes({'selected': 'selected'});
+
+								} else if ( typeof element === 'undefined' && key == 'status' ) {
+									option.SetAttributes({'selected': 'selected'});
+								}
+								options.push(option);
+							}
+							let attrs = {class: 'col-sm-12', id: `${key}_${formHash}`};
+							if (key == 'parent' || key == 'region') attrs.disabled = true;
+							let select = new Select().SetAttributes(attrs).AddChilds(options);
+
+							return select;
+						} else {
+							return new Input().SetAttributes( inputAttrs )
+						}
+					})()
+				])
+			])
+
+			if (typeof element === 'undefined' && hiddens.indexOf(key) != -1) {
+				block.Hide();
+			}
+		}
+
+		if (typeof element !== 'undefined') {
+			domTitle.Text(`Редактирование торговой точки. UID = [${element.uid}]`);
+			for (let key in element) {
+				// console.log('key=> ', key);
+				if (typeof fields[key] !== 'undefined' && key != 'status' && key != 'region') document.getElementById(`${key}_${formHash}`).value = element[key];
+			}
+		}
 	}
 	// ПУБЛИЧНЫЕ МЕТОДЫ
 	Commands ( packet ) {
@@ -249,6 +386,9 @@ class Units extends Dictionaries {
 								}
 								console.log('пришел пакет ответ на редактирование элемента');
 							break;
+							case 'getDictStoresSingleId':
+								this.#ShowUnitStore(packet.data.list[0]);
+							break
 						}
 					break;
 				}

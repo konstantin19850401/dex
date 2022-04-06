@@ -80,9 +80,11 @@ class Ajax {
 				// console.log( xhr.response );
 				let response = JSON.parse( xhr.response );
 				if ( typeof response.status !== 'undefined' && response.status == 401 ) {
-					console.log('не авторизован');
-					this.#application.DeleteAllHash();
-					new Login( this.#application );
+					console.log('не авторизован ', packet);
+					if (packet.subcom != 'initsession') {
+						this.#application.DeleteAllHash();
+						new Login( this.#application );
+					}
 				} else {
 					if ( typeof response.subcom !== 'undefined' && response.subcom == 'initsession' ) {
 						if ( typeof response.data.uid !== 'undefined' ) {
