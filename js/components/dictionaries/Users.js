@@ -187,7 +187,6 @@ class Users extends Dictionaries {
 				if (typeof elt !== 'undefined') data[key] = elt.value;
 			}
 		}
-		console.log('data=> ', data);
 		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'createNewUser', fields: data}, hash: this.Hash});
 	}
 	// ПУБЛИЧНЫЕ МЕТОДЫ

@@ -1,7 +1,7 @@
 'use strict'
 class Units extends Dictionaries {
 	#units = [];#cbody;#unitsTable;#transport;#newElement;#regions = [];#headers;
-	#scUnits = [];#store;#storesList = [];
+	#scUnits = [];#store;#scStores = [];#storeTable;#autoct;
 	constructor ( application, parent) {
 		super( application, parent );
 		this.#transport = this.Application.Transport;
@@ -77,6 +77,12 @@ class Units extends Dictionaries {
 		if (typeof storeId !== "undefined") {
 			console.log("запросим торговую точку");
 			this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDictStoresSingleId', id: storeId}, hash: this.Hash});
+		}
+	}
+	#GetAddress(string) {
+		// console.log("======> ", string);
+		if (typeof string !== 'undefined' && string != '') {
+			this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getKladrByOneString', string: string}, hash: this.Hash});
 		}
 	}
 	//удаление елемента
@@ -176,29 +182,54 @@ class Units extends Dictionaries {
 			}
 
 			// покажем торговые точки отделения
+			let tableBlock;
 			let block = new Div( {parent: section} ).SetAttributes( {class: 'form-group row', name: "stores"} ).AddChilds([
 				new Label().SetAttributes( {class: 'col-sm-3 col-form-label'} ).Text("Список ТТ"),
-				new Div().SetAttributes( {class: 'col-sm-9'} ).AddChilds([
-					new Ul().SetAttributes({class: "list-group list-group-numbered"}).AddChilds(
-						(()=> {
-							let arr = [];
-							for (let i=0; i<element.stores.length; i++) {
-								let attrs = {class: "list-group-item list-group-item-action", store_uid: element.stores[i].uid};
-								if (element.stores[i].status == 0) {
-									attrs.class = "list-group-item list-group-item-action bg-secondary bg-gradient";
-									attrs["aria-disabled"] = "true";
-								}
-								let li = new Li().SetAttributes(attrs).Text(element.stores[i].title).AddWatch(sho=> {
-									sho.DomObject.addEventListener('dblclick', event => this.#GetUnitStore(element.stores[i].uid));
-								});
-								this.#storesList.push({uid: element.stores[i].uid, status: element.stores[i].status, title: element.stores[i].title,  sho: li});
-								arr.push(li);
-							}
-							return arr;
-						})()
-					)
+				tableBlock = new Div().SetAttributes( {class: 'col-sm-9'} ).AddChilds([
+					// new Ul().SetAttributes({class: "list-group list-group-numbered"}).AddChilds(
+					// 	(()=> {
+					// 		let arr = [];
+					// 		for (let i=0; i<element.stores.length; i++) {
+					// 			let attrs = {class: "list-group-item list-group-item-action", store_uid: element.stores[i].uid};
+					// 			if (element.stores[i].status == 0) {
+					// 				attrs.class = "list-group-item list-group-item-action bg-secondary bg-gradient";
+					// 				attrs["aria-disabled"] = "true";
+					// 			}
+					// 			let li = new Li().SetAttributes(attrs).Text(element.stores[i].title).AddWatch(sho=> {
+					// 				sho.DomObject.addEventListener('dblclick', event => this.#GetUnitStore(element.stores[i].uid));
+					// 			});
+					// 			this.#storesList.push({uid: element.stores[i].uid, status: element.stores[i].status, title: element.stores[i].title,  sho: li});
+					// 			arr.push(li);
+					// 		}
+
+					// 		return arr;
+					// 	})()
+					// )
 				])
-			])
+			]);
+			this.#storeTable = new ComplexTable( this.Application, tableBlock);
+			this.#headers = [ {name: 'uid', title: 'id'}, {name: 'dex_uid', title: 'dex id'}, {name: 'title', title: 'Торговая точка'}];
+			for (let i = 0; i < this.#headers.length; i++) {
+				let newHeader = new Th().SetAttributes( ).Text( this.#headers[i].title ).AddWatch( ( el )=> {
+					el.DomObject.addEventListener('click', ( event ) => {this.#storeTable.SortByColIndex( el, i )})
+				});
+				this.#storeTable.AddHead( newHeader );
+			}
+			let stores = element.stores;
+			for (let i=0; i< stores.length; i++) {
+				let attrs = {'uid_num': stores[i].uid};
+				if (stores[i].status == 0) attrs.class = "bg-secondary bg-gradient";
+				let row = new Tr().SetAttributes( attrs );
+				let obj = {uid: stores[i].uid, sc: row, status: stores[i].status, title: stores[i].title, rowTitleTd: null};
+				for (let j=0; j<this.#headers.length; j++) {
+					let td = new Td().Text( stores[i][this.#headers[j].name] );
+					row.AddChilds([ td ]);
+					if (this.#headers[j].name == 'title') obj.rowTitleTd = td;
+				}
+				row.AddWatch(sho=> sho.DomObject.addEventListener('dblclick', event=> this.#GetUnitStore(stores[i].uid)) );
+				this.#storeTable.AddRow( row );
+				this.#scStores.push({uid: stores[i].uid, sc: row, status: stores[i].status, title: stores[i].title});
+			}
 		}
 	}
 	#EditUnit(formHash, fields) {
@@ -273,7 +304,7 @@ class Units extends Dictionaries {
 		]);
 		let section = new Div( {parent: this.#cbody} );
 		let units = this.#units;
-
+		let autocompleteInput;let rightBlock;
 		let sel = ['status', 'region', 'parent'];
 		let hiddens = ['uid', 'lastname', 'firstname', 'secondname', 'region', 'title'];
 		for (let key in fields) {
@@ -281,7 +312,7 @@ class Units extends Dictionaries {
 			if (key == 'uid' || key == 'title') inputAttrs.disabled = true;
 			let block = new Div( {parent: section} ).SetAttributes( {class: 'form-group row', name: key} ).AddChilds([
 				new Label().SetAttributes( {class: 'col-sm-3 col-form-label'} ).Text(fields[key]),
-				new Div().SetAttributes( {class: 'col-sm-9'} ).AddChilds([
+				rightBlock = new Div().SetAttributes( {class: 'col-sm-9'} ).AddChilds([
 					(()=> {
 						if (sel.indexOf(key) != -1) {
 							// console.log('key => ', key, ' element.uid=> ', element.uid);
@@ -307,14 +338,28 @@ class Units extends Dictionaries {
 							let attrs = {class: 'col-sm-12', id: `${key}_${formHash}`};
 							if (key == 'parent' || key == 'region') attrs.disabled = true;
 							let select = new Select().SetAttributes(attrs).AddChilds(options);
-
 							return select;
 						} else {
-							return new Input().SetAttributes( inputAttrs )
+							let input;
+							if (key == 'doc_city') {
+								inputAttrs.class = "col-sm-12 autocomplete";
+								autocompleteInput = input = new Input().SetAttributes( inputAttrs );
+								// console.log("autocompleteInput=> ", autocompleteInput);
+								autocompleteInput.AddWatch(sho=> sho.DomObject.addEventListener('input', event=> this.#GetAddress(event.target.value)));
+								this.#autoct = new Autocomplete(autocompleteInput, [], true);
+							} else {
+								input = new Input().SetAttributes( inputAttrs );
+							}
+
+
+
+							return input;
 						}
 					})()
 				])
 			])
+			// console.log("autocompleteInput=> ", autocompleteInput);
+			// autocompleteInput.InitParent(rightBlock);
 
 			if (typeof element === 'undefined' && hiddens.indexOf(key) != -1) {
 				block.Hide();
@@ -389,15 +434,15 @@ class Units extends Dictionaries {
 							case 'editStore':
 								if (packet.data.status == 200) {
 									this.#CloseStoreWindow();
-									let li = this.#storesList.find(item=> item.uid == packet.data.list[0].uid);
-									if (li.status != packet.data.list[0].status) {
-										li.status = packet.data.list[0].status;
-										if (packet.data.list[0].status == 1) li.sho.RemoveClass("bg-secondary bg-gradient");
-										else if (packet.data.list[0].status == 0) li.sho.AddClass("bg-secondary bg-gradient");
+									let item = this.#scStores.find(item=> item.uid == packet.data.list[0].uid);
+									if (item.status != packet.data.list[0].status) {
+									 	item.status = packet.data.list[0].status;
+										if (packet.data.list[0].status == 1) item.sc.RemoveClass("bg-secondary bg-gradient");
+										else if (packet.data.list[0].status == 0) item.sc.AddClass("bg-secondary bg-gradient");
 									}
-									if (li.title != packet.data.list[0].title) {
-										li.title = packet.data.list[0].title;
-										li.sho.Text(packet.data.list[0].title);
+									if (item.title != packet.data.list[0].title) {
+										item.title = packet.data.list[0].title;
+										item.rowTitleTd.Text(packet.data.list[0].title);
 									}
 								} else {
 									alert(packet.data.err.join('\n'));
@@ -405,7 +450,11 @@ class Units extends Dictionaries {
 							break;
 							case 'getDictStoresSingleId':
 								this.#ShowUnitStore(packet.data.list[0]);
-							break
+							break;
+							case 'getKladrByOneString':
+								this.#autoct.List(packet.data.list);
+								this.#autoct.IfInput();
+							break;
 						}
 					break;
 				}

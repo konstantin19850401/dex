@@ -1,6 +1,6 @@
 'use strict'
 class Application {
-	#ajax;#errs = [];
+	#ajax;#kladr;#errs = [];
 	#currentPage;#container;#toolbox;#alertMessages;#gorizontalMenu;
 	#hashes = {};
 	#components = {};
@@ -33,6 +33,7 @@ class Application {
 	}
 	// ГЕТТЕРЫ
 	get Transport () { return this.#ajax; };
+	get Kladr() {return this.#kladr; }
 	// get AlertMessages () { return this.#alertMessages; };
 	// get GorizontalMenu () { return this.#gorizontalMenu; };
 	get Toolbox () { return this.#toolbox; };
