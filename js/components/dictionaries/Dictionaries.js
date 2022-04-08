@@ -26,7 +26,8 @@ class Dictionaries {
 	// Приватные методы
 
 	// публичные методы
-	Container ( shoObject ) {
+	get Container() {return this.#container;}
+	set Container ( shoObject ) {
 		this.#container = shoObject;
 	}
 	InitParent ( parent ) {

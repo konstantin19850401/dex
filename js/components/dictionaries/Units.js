@@ -13,6 +13,9 @@ class Units extends Dictionaries {
 
 	// ПРИВАТНЫЕ МЕТОДЫ
 	#Show( data ) {
+		if (typeof this.Container !== 'undefined' && this.Container != null) {
+			this.Container.DeleteObject();
+		}
 		this.Container = new Div( {parent: this.Parent.Container} ).SetAttributes( {class: 'dex-dict'} ).AddChilds([
 			new I().SetAttributes( {class: 'dex-configuration-close fas fa-window-close'} ).AddWatch(sho => {
 				sho.DomObject.addEventListener( 'click', event => this.#Close() )
@@ -43,7 +46,9 @@ class Units extends Dictionaries {
 		this.#AddRows();
 	}
 	#AddRows() {
+		console.log("добавляем значения! ");
 		for (let i=0; i< this.#units.length; i++) {
+			console.log("i=", i, " ", this.#units[i]);
 			let row = new Tr().SetAttributes( {'uid_num': this.#units[i].uid} );
 			for (let j=0; j<this.#headers.length; j++) {
 				row.AddChilds([ new Td().Text( this.#units[i][this.#headers[j].name] ) ]);
@@ -343,7 +348,7 @@ class Units extends Dictionaries {
 							let input;
 							if (key == 'doc_city') {
 								inputAttrs.class = "col-sm-12 autocomplete";
-								autocompleteInput = input = new Input().SetAttributes( inputAttrs );
+								autocompleteInput = input = new Textarea().SetAttributes( inputAttrs );
 								// console.log("autocompleteInput=> ", autocompleteInput);
 								autocompleteInput.AddWatch(sho=> sho.DomObject.addEventListener('input', event=> this.#GetAddress(event.target.value)));
 								this.#autoct = new Autocomplete(autocompleteInput, [], true);
@@ -384,8 +389,13 @@ class Units extends Dictionaries {
 						switch ( packet.data.action ) {
 							case 'getDictUnits':
 								if (packet.data.list.length > 0) this.#units = packet.data.list;
-								if ( typeof this.#unitsTable === 'undefined' ) this.#Show(packet.data);
-								else this.#AddRows();
+								// if ( typeof this.#unitsTable === 'undefined' ) {
+								// 	console.log("show!!!");
+								// 	this.#Show(packet.data);
+								// } else {
+								// 	this.#AddRows();
+								// }
+								this.#Show(packet.data);
 							break;
 							case 'getDictUnitsSingleId':
 								// console.log("пакет===> ", packet.data);

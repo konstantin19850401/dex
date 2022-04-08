@@ -1,9 +1,9 @@
 'use strict'
 class Autocomplete {
-	#input;#list = [];#currentFocus;#dynamic = false;
+	#textarea;#list = [];#currentFocus;#dynamic = false;
 	#autocompleteItems;
 	constructor (shoObject, list, dynamic) {
-		this.#input = shoObject;
+		this.#textarea = shoObject;
 		this.#list = list;
 		this.#dynamic = dynamic;
 		this.#Init();
@@ -11,33 +11,33 @@ class Autocomplete {
 	#Init() {
 
 		if (!this.#dynamic) {
-			this.#autocompleteItems = new Div({parent: this.#input.ObjectParent}).SetAttributes({class: "autocomplete-items"});
-			this.#input.AddWatch(sho=> sho.DomObject.addEventListener('input', event=> this.IfInput(event)));
+			this.#autocompleteItems = new Div({parent: this.#textarea.ObjectParent}).SetAttributes({class: "autocomplete-items"});
+			this.#textarea.AddWatch(sho=> sho.DomObject.addEventListener('textarea', event=> this.Iftextarea(event)));
 		}
-		// this.#input.AddWatch(sho=> sho.DomObject.addEventListener('keydown', event=> this.#IfKeyDown(event)));
-		this.#input.AddWatch(sho=> sho.DomObject.addEventListener('click', event=> this.#IfClick(event)));
+		// this.#textarea.AddWatch(sho=> sho.DomObject.addEventListener('keydown', event=> this.#IfKeyDown(event)));
+		this.#textarea.AddWatch(sho=> sho.DomObject.addEventListener('click', event=> this.#IfClick(event)));
 	};
 	IfInput(event) {
-		var a, b, i, val = this.#dynamic ? this.#input.DomObject.value : event.target.value;
+		var a, b, i, val = this.#dynamic ? this.#textarea.DomObject.value : event.target.value;
 		this.#CloseAllLists();
 		if (!val) { return false;}
 		this.#currentFocus = -1;
-		this.#autocompleteItems = new Div({parent: this.#input.ObjectParent}).SetAttributes({class: "autocomplete-items"});
+		this.#autocompleteItems = new Div({parent: this.#textarea.ObjectParent}).SetAttributes({class: "autocomplete-items"});
 		for (i = 0; i < this.#list.length; i++) {
 			b = new Div().SetAttributes({item: this.#list[i]}).Text(`${this.#list[i]}`);
 			b.AddChilds([
 				new Input().SetAttributes({type: 'hidden'}).Value = this.#list[i]
 			]).AddWatch(sho=> sho.DomObject.addEventListener('click', event=> {
 				let attrs = sho.Attributes;
-				this.#input.Value = attrs.item;
+				this.#textarea.Value = attrs.item;
 				this.#CloseAllLists();
 			}));
 			this.#autocompleteItems.AddChilds([b]);
 		}
-		// console.log('===> ', this.#input.DomObject.offsetWidth);
-		if (this.#list.length > 0 ) this.#autocompleteItems.DomObject.style.width = `${this.#input.DomObject.offsetWidth}px`;
+		// console.log('===> ', this.#textarea.DomObject.offsetWidth);
+		if (this.#list.length > 0 ) this.#autocompleteItems.DomObject.style.width = `${this.#textarea.DomObject.offsetWidth}px`;
 		else this.#CloseAllLists();
-		// this.#autocompleteItems.DomObject.style.marginLeft = `${this.#input.DomObject.offsetWidth}px`;
+		// this.#autocompleteItems.DomObject.style.marginLeft = `${this.#textarea.DomObject.offsetWidth}px`;
 	}
 	#IfKeyDown(event) {
 		var x = document.getElementById(this.id + "autocomplete-list");
@@ -71,7 +71,7 @@ class Autocomplete {
 	    за исключением того, что было передано в качестве аргумента:*/
 	    var x = document.getElementsByClassName("autocomplete-items");
 	    for (var i = 0; i < x.length; i++) {
-	      if (elmnt != x[i] && elmnt != this.#input.DomObject) {
+	      if (elmnt != x[i] && elmnt != this.#textarea.DomObject) {
 	        x[i].parentNode.removeChild(x[i]);
 	      }
 	    }
