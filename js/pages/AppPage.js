@@ -37,6 +37,9 @@ class AppPage extends Page {
 				{ text: 'Подключение к базе', watch: () => this.#ShowBasesList() },
 				{ text: 'Настройка полей таблицы', watch: () => this.#GetFieldsControl() },
 				{ text: 'Настройка полей документа', watch: () => this.#InitConfigurationDexDocument() },
+				{ text: 'Разработчик. Журнал', watch: () => this.#ShowDevelopJournal() },
+				{ text: 'Разработчик. API', watch: () => this.#ShowDevelopApi() },
+				{ text: 'Склад. Журнал документов', watch: () => this.#ShowStorehouseJournal() },
 			]},
 			{text: 'Отчеты', childs: [
 				{ text: 'Отчет по долгам', watch: () => this.#InitReportDutyDocs() },
@@ -57,7 +60,9 @@ class AppPage extends Page {
 		this.#menu.AddMenuNewItem( menu );
 	}
 	#InitWindowsPanel () {
-		this.#windowsPanel = new this.Application.Components.WindowsPanel( this.Application, this );
+		this.Application.TaskBar = new this.Application.Components.WindowsPanel( this.Application, this );
+		// this.#windowsPanel = new this.Application.Components.WindowsPanel( this.Application, this );
+		this.#windowsPanel = this.Application.TaskBar;
 	}
 	#Resize () {
 		this.#windowsWrapper.DomObject.style.marginTop = `27px`;
@@ -78,6 +83,15 @@ class AppPage extends Page {
 	}
 	#InitConfigurationDexDocument () {
 		new ConfigurationDexDocument( this.Application, this );
+	}
+	#ShowStorehouseJournal () {
+		new StoreHouse(this.Application, this);
+	}
+	#ShowDevelopJournal() {
+
+	}
+	#ShowDevelopApi() {
+
 	}
 	#GetGlobalDicts () {
 		this.#commonDicts = [];
@@ -125,18 +139,21 @@ class AppPage extends Page {
 					case 'appApi':
 						switch ( packet.data.action ) {
 							case 'list':
-								let appWindow = this.#appWindows.find( w => w.Base == packet.data.base );
+								// let appWindow = this.#appWindows.find( w => w.Base == packet.data.base );
+								let appWindow = this.Application.TaskBar.Items.find(item=> item.w.Base == packet.data.base);
 								if ( typeof appWindow === 'undefined' ) {
-									appWindow = new this.Application.Components.DexAppWindow( this, packet.data.base );
-									this.#appWindows.push( appWindow );
+									appWindow = new this.Application.Components.DexAppWindow(this, packet.data.base);
+									// this.#appWindows.push( appWindow );
 									appWindow.Commands( packet );
+									// this.Application.TaskBar.AddMenuNewItem(appWindow);
 								} else {
-									appWindow.MakeActive();
-									appWindow.Maximize();
+									this.Application.TaskBar.MakeActive(appWindow.Hash);
+									//appWindow.MakeActive();
+									// appWindow.Maximize();
 								}
 							break;
 							case 'getGlobalAppDicts':
-								console.log( 'Пришли справочники', packet );
+								// console.log( 'Пришли справочники', packet );
 								this.#commonDicts = packet.data.list;
 								// for ( let dict in packet.data.list ) {
 								// 	if ( typeof this.#appDicts[dict] !== 'undefined' ) this.#appDicts[dict] = packet.data.list[dict];

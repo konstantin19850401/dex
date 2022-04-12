@@ -6,6 +6,7 @@ class Application {
 	#components = {};
 	#watcher = [];
 	#complexElements = [];
+	#taskBar;
 	constructor(object) {
 		if ( typeof object.ajax !== 'undefined' ) {
 			this.#ajax = new Ajax(object.ajax, this);
@@ -43,9 +44,11 @@ class Application {
 	get Components () { return this.#components; };
 	get Watcher () { return this.#watcher; };
 	get ComplexElements () { return this.#complexElements; };
+	get TaskBar() {return this.#taskBar; }
 
 	// СЕТТЕРЫ
 	set CurrentPage ( page ) { if ( page ) this.#currentPage = page }
+	set TaskBar(taskBar) {this.#taskBar = taskBar; }
 
 	// ПРИВАТНЫЕ МЕТОДЫ
 	#BodyWatcher() {

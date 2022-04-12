@@ -147,6 +147,10 @@ class SimpleHtmlObject {
 		this.#domElement.textContent = '';
 		this.#childs.length = 0;
 	};
+	RemoveChildByIndex(index) {
+		let arr = this.#childs.splice(index, 1);
+		arr[0].DeleteObject();
+	};
 	// добавить класс
 	AddClass ( newclass ) {
 		let arr = newclass.split(' ');

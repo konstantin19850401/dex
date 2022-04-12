@@ -1,5 +1,5 @@
 'use strict'
-class DexAppWindow extends Component {
+class DexAppWindow extends WindowClass {
 	#base;#operator;#windowBody;#docTable;#baseTitle;#contextMenu;#dicts = new Map();
 	#data;
 	#headers = [];
@@ -12,13 +12,19 @@ class DexAppWindow extends Component {
 	constructor ( parent, base ) {
 		super( parent.Application, parent );
 		this.#base = base;
-		this.#windowsPanel = parent.WindowsPanel;
-		this.#windowsPanel.AddMenuNewItem( this );
+		console.log("base====> ", base);
+		// this.#windowsPanel = parent.WindowsPanel;
+		// this.#windowsPanel.AddMenuNewItem( this );
+		// this.Application.TaskBar.AddMenuNewItem(this);
+
 		this.#GetBaseDicts();
+
+		console.log("application=> ", parent.Application);
 		// this.#InitComponent();
 		// this.#Resize();
 		// this.#ListenResizeWindow();
 		// this.#GetBaseTitle();
+
 	}
 	// ГЕТТЕРЫ
 	get Base () { return this.#base; };
@@ -31,33 +37,24 @@ class DexAppWindow extends Component {
 	}
 	#InitComponent() {
 		let filterBox; let periodJournal; let filter; let search;
-		this.Container = new Div( {parent: this.Parent.Wrapper} ).SetAttributes( {class: 'dex-app-window'} ).AddChilds([
-			new I().SetAttributes( {class: 'dex-app-window-close fas fa-window-close'} ).AddWatch( shoObject => {
-				shoObject.DomObject.addEventListener( 'click', event => {
-					this.#windowsPanel.DeleteWindow( this.Hash );
-					this.Parent.DeleteWindow( this.Hash );
-					this.Container.DeleteObject();
-					let appWindow = this.Parent.AppWindows;
-					if ( appWindow.length > 0 ) {
-						appWindow[0].Maximize();
-						appWindow[0].MakeActive();
-					}
-				} )
-			}),
+		this.Container.AddChilds([
+			// new I().SetAttributes( {class: 'dex-app-window-close fas fa-window-close'} ).AddWatch( shoObject => {
+			// 	shoObject.DomObject.addEventListener( 'click', event => {
+			// 		// this.#windowsPanel.DeleteWindow( this.Hash );
+			// 		this.Application.TaskBar.DeleteWindow( this.Hash );
+			// 		this.Parent.DeleteWindow( this.Hash );
+			// 		this.Container.DeleteObject();
+			// 		// let appWindow = this.Parent.AppWindows;
+			// 		// if ( appWindow.length > 0 ) {
+			// 		// 	appWindow[0].Maximize();
+			// 		// 	appWindow[0].MakeActive();
+			// 		// }
+			// 	} )
+			// }),
 			//this.#baseTitle = new Span().SetAttributes( {class: 'dex-app-window-title'} ).Text( `[ ${ this.#base } ]` ),
 
 			// filterBox = new Div().SetAttributes( {class: 'dex-app-window-filter'} ).AddChilds([
-			new Div().SetAttributes( {class: 'dex-app-window-filter'} ).AddChilds([
-				periodJournal = new Div().SetAttributes({class: 'dex-filter-element'}).AddChilds([
-					new I().SetAttributes({class: 'fas fa-calendar-alt'}),
-				]),
-				filter = new Div().SetAttributes({class: 'dex-filter-element'}).AddChilds([
-					new I().SetAttributes({class: 'fas fa-filter'}),
-				]),
-				search = new Div().SetAttributes({class: 'dex-filter-element'}).AddChilds([
-					new I().SetAttributes({class: 'fas fa-search'}),
-				])
-			]),
+
 			new Div().SetAttributes( {class: 'dex-app-window-info'} ).AddChilds([
 				this.#totalDocsSho = new Span().SetAttributes( {class: 'dex-app-window-total'} ).Text( `Всего: ${ this.#totalDocs }` ),
 				this.#selectedDocsSho = new Span().SetAttributes( {class: 'dex-app-window-selected'} ).Text( `Выделено: ${ this.#selectedDocs }` )
@@ -68,6 +65,19 @@ class DexAppWindow extends Component {
 				}),
 				this.#contextMenu = new ContextMenu( this.Application ).AddContextItems( this.Parent.CommonDicts.contextMenu.elements )
 			]),
+		]);
+		this.Instruments.AddChilds([
+			new Div().SetAttributes( {class: 'dex-app-window-filter'} ).AddChilds([
+				periodJournal = new Div().SetAttributes({class: 'dex-filter-element'}).AddChilds([
+					new I().SetAttributes({class: 'fas fa-calendar-alt'}),
+				]),
+				filter = new Div().SetAttributes({class: 'dex-filter-element'}).AddChilds([
+					new I().SetAttributes({class: 'fas fa-filter'}),
+				]),
+				search = new Div().SetAttributes({class: 'dex-filter-element'}).AddChilds([
+					new I().SetAttributes({class: 'fas fa-search'}),
+				])
+			])
 		]);
 		periodJournal.AddWatch(shoObject=> {
 			shoObject.DomObject.addEventListener('click', event=> {
@@ -337,23 +347,23 @@ class DexAppWindow extends Component {
 	}
 
 	// публичные методы
-	Minimize() {
-		this.Container.DomObject.style.width = '0px';
-		this.Container.DomObject.style.display = 'none';
-	}
-	Maximize() {
-		this.Container.DomObject.style.display = 'block';
-		this.Container.DomObject.style.width = '100%';
-		this.#Resize();
-	}
-	MakeActive() {
-		this.#windowsPanel.MakeActive( this.Hash );
-	}
+	// Minimize() {
+	// 	this.Container.DomObject.style.width = '0px';
+	// 	this.Container.DomObject.style.display = 'none';
+	// }
+	// Maximize() {
+	// 	this.Container.DomObject.style.display = 'block';
+	// 	this.Container.DomObject.style.width = '100%';
+	// 	this.#Resize();
+	// }
+	// MakeActive() {
+	// 	this.Application.TaskBar.MakeActive( this.Hash );
+	// }
 	UpdatePeriod () {
 		this.#GetData();
 	}
 	Commands ( packet ) {
-		// console.log(packet);
+		// console.log("!!!!!! ", packet);
 		switch ( packet.com ) {
 			case 'skyline.apps.adapters':
 				switch ( packet.subcom ) {
@@ -364,19 +374,19 @@ class DexAppWindow extends Component {
 								this.#data = packet.data;
 								this.#ClearTable();
 								this.#DrawTable();
-
 							break;
 							case 'getBaseName':
 								if ( packet.data.title != '' && this.#base != packet.data.title ) {
 									//this.#baseTitle.Text( `[ ${packet.data.title} ]`);
-									this.Parent.WindowsPanel.ChangeWindowTitle( this.Hash, packet.data.title );
+									// this.Parent.WindowsPanel.ChangeWindowTitle( this.Hash, packet.data.title );
+									this.Title = packet.data.title;
 								}
 							break;
 							case 'hooks':
 								this.#HandleHooks( packet.data );
 							break;
 							case 'getBaseDicts':
-								console.log( 'getBaseDicts=> ', packet );
+								// console.log( 'getBaseDicts=> ', packet );
 								for ( let key in packet.data.list ) {
 									this.#dicts.set( key, packet.data.list[key] );
 								}

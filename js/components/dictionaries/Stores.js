@@ -106,7 +106,7 @@ class Stores extends Dictionaries {
 			secondname: 'Отчество',
 			region: 'Регион',
 			title: 'Описание точки',
-			doc_city: 'Нас. пункт',
+			address: 'Адрес ТТ',
 			status: 'Статус'
 		};
 		// console.log(this.Application);

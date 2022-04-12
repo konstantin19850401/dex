@@ -8,9 +8,9 @@ class Component {
 		this.#application.InsertHashInHashes( this.#hash, this );
 	}
 	// ГЕТТЕРЫ
-	// get Container () {
-	// 	return this.#container;
-	// }
+	get Container () {
+		return this.#container;
+	}
 	get DomObject () {
 		return this.Container.DomObject;
 	}

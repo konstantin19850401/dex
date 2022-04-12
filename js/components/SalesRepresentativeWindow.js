@@ -19,6 +19,7 @@ class SalesRepresentativeWindow extends Component {
 		// this.#GetBaseTitle();
 	}
 	// ГЕТТЕРЫ
+	get Title() { return this.#base; }
 	get Base () { return this.#base; };
 	// СЕТТЕРЫ
 	// set WindowsPanel ( panel ) { this.#windowsPanel = panel; };

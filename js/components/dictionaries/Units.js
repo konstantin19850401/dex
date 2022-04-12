@@ -291,7 +291,7 @@ class Units extends Dictionaries {
 			secondname: 'Отчество',
 			region: 'Регион',
 			title: 'Описание точки',
-			doc_city: 'Нас. пункт',
+			address: 'Адрес',
 			status: 'Статус'
 		};
 		// console.log(this.Application);
@@ -346,7 +346,7 @@ class Units extends Dictionaries {
 							return select;
 						} else {
 							let input;
-							if (key == 'doc_city') {
+							if (key == 'address') {
 								inputAttrs.class = "col-sm-12 autocomplete";
 								autocompleteInput = input = new Textarea().SetAttributes( inputAttrs );
 								// console.log("autocompleteInput=> ", autocompleteInput);
