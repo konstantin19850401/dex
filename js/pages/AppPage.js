@@ -49,10 +49,11 @@ class AppPage extends Page {
 				{ text: 'Расчет вознаграждения', watch: () => this.#InitReportDutyDocs() }
 			]},
 			{text: 'Справочники', childs: [
-				{ text: 'Справочник пользователей', watch: () => this.#OpenDicts('users') },
-				{ text: 'Справочник групп пользователей', watch: () => this.#OpenDicts('userGroups') },
-				{ text: 'Справочник отделений', watch: () => this.#OpenDicts('units') },
-				{ text: 'Справочник торговых точек', watch: () => this.#OpenDicts('stores') }
+				{ text: 'Справочник Пользователи', watch: () => this.#OpenDicts('users') },
+				{ text: 'Справочник Группы пользователей', watch: () => this.#OpenDicts('userGroups') },
+				{ text: 'Справочник Отделения', watch: () => this.#OpenDicts('units') },
+				{ text: 'Справочник Торговые точки', watch: () => this.#OpenDicts('stores') },
+				{ text: 'Справочник Виды документов', watch: () => this.#OpenDicts('docTypes') }
 			]}
 		]
 		this.#menu = new this.Application.Components.Menu( this.Application, this );
@@ -85,7 +86,8 @@ class AppPage extends Page {
 		new ConfigurationDexDocument( this.Application, this );
 	}
 	#ShowStorehouseJournal () {
-		new StoreHouse(this.Application, this);
+		let item = this.Application.TaskBar.Items.find(item=> item.w.WindowType == "store");
+		if (typeof item === "undefined") new StoreHouse(this.Application, this);
 	}
 	#ShowDevelopJournal() {
 
@@ -109,6 +111,7 @@ class AppPage extends Page {
 		else if (dictname == 'userGroups') new UserGroups( this.Application, this );
 		else if (dictname == 'users') new Users( this.Application, this );
 		else if (dictname == 'stores') new Stores(this.Application, this);
+		else if (dictname == 'docTypes') {}
 	}
 	// #InitDictionariesUnits () {
 	// 	new Units( this.Application, this );
@@ -142,7 +145,7 @@ class AppPage extends Page {
 								// let appWindow = this.#appWindows.find( w => w.Base == packet.data.base );
 								let appWindow = this.Application.TaskBar.Items.find(item=> item.w.Base == packet.data.base);
 								if ( typeof appWindow === 'undefined' ) {
-									appWindow = new this.Application.Components.DexAppWindow(this, packet.data.base);
+									appWindow = new DexAppWindow(this, packet.data.base);
 									// this.#appWindows.push( appWindow );
 									appWindow.Commands( packet );
 									// this.Application.TaskBar.AddMenuNewItem(appWindow);

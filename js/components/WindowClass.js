@@ -44,7 +44,6 @@ class WindowClass {
 		this.Container.DeleteObject();
 	}
 	Minimize() {
-		console.log("окно минимум");
 		this.#container.DomObject.style.width = '0px';
 		// this.#container.DomObject.style.display = 'none';
 		this.Hide();

@@ -9,6 +9,7 @@ class DexAppWindow extends WindowClass {
 	#filter = { start: undefined, end: undefined, search: undefined, units: [], statuses: [] };
 	#ifIssetFilters = [];
 	#temp = {tct: {left:'', right: ''}};
+	#windowType = "dex";
 	constructor ( parent, base ) {
 		super( parent.Application, parent );
 		this.#base = base;
@@ -28,6 +29,7 @@ class DexAppWindow extends WindowClass {
 	}
 	// ГЕТТЕРЫ
 	get Base () { return this.#base; };
+	get WindowType() {return this.#windowType;}
 	// СЕТТЕРЫ
 	// set WindowsPanel ( panel ) { this.#windowsPanel = panel; };
 	// ПРиватные методы

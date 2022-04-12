@@ -18,7 +18,6 @@ class WindowsPanel extends Component {
 			.AddChilds([
 				this.#elements = new Span().SetAttributes({class: "dex-menu-left"})
 			]);
-
 	}
 	#CreateNewWindow ( appWindow ) {
 		let newElement = {btn:null, w:null};
@@ -44,8 +43,8 @@ class WindowsPanel extends Component {
 		for (let i=0; i<this.#hashes.length; i++) {
 			if (this.#hashes[i].w.Hash == hash) {
 				if (this.#hashes.length > 1 && this.#active == hash) {
-					if (this.#hashes[0].w.Hash != hash) this.MakeActive(this.#hashes[0].w.Hash);
-					else this.MakeActive(this.#hashes[this.#hashes.length - 1].w.Hash);
+					if (i - 1 < 0) this.MakeActive(this.#hashes[i + 1].w.Hash);
+					else this.MakeActive(this.#hashes[i - 1].w.Hash);
 				}
 				let item = this.#hashes.splice(i, 1);
 				item[0].btn.DeleteObject();

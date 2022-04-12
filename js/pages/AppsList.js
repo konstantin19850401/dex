@@ -99,6 +99,16 @@ class AppsList extends Page {
 					break;
 				}
 			break;
+			case 'skyline.apps.storeHouse':
+				switch ( packet.subcom ) {
+					case 'appApi':
+						if ( packet.data.status == 200 && packet.data.action == 'startingLocationApp' ) {
+							this.RemovePage();
+							new StoreHouse( this.Application, packet.data.units);
+						} else console.log('Неизвестная команда');
+					break;
+				}
+			break;
 			default: console.log('неизвестная команда ', packet)
 		}
 	}
