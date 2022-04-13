@@ -1,21 +1,17 @@
 'use strict'
 class StoreHouse extends WindowClass {
-	#windowType = "store";
 	constructor ( application, parent ) {
 		super( application, parent );
 		this.Title = "Склад. Журнал документов";
-		// this.GetJournal();
+		this.Show();
 	}
-	get WindowType() {return this.#windowType;}
-	#GetJournal() {
-		let transport = this.Application.Transport;
-		transport.Get( {com: 'skyline.apps.storeHouse', subcom: 'appApi', data: {action: 'getJournal'}, hash: this.Hash} );
-	}
+
+	// get Title() {return this.#wTitle;}
 
 	Commands ( packet ) {
 		// console.log(packet);
 		switch ( packet.com ) {
-			case 'skyline.apps.storeHouse':
+			case 'skyline.apps.adapters':
 				switch ( packet.subcom ) {
 					case 'appApi':
 						switch ( packet.data.action ) {

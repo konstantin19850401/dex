@@ -111,7 +111,7 @@ class AppPage extends Page {
 		else if (dictname == 'userGroups') new UserGroups( this.Application, this );
 		else if (dictname == 'users') new Users( this.Application, this );
 		else if (dictname == 'stores') new Stores(this.Application, this);
-		else if (dictname == 'docTypes') {}
+		else if (dictname == 'docTypes') {new DocTypes( this.Application, this )}
 	}
 	// #InitDictionariesUnits () {
 	// 	new Units( this.Application, this );
