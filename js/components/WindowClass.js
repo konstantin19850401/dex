@@ -1,7 +1,7 @@
 'use strict'
 class WindowClass {
 	#parent;#container;#application;#hash;#wTitle = "";
-	#shoTitle;#instruments;
+	#shoTitle;#instruments;#cbody;
 	constructor ( application, parent ) {
 		this.#application = application;
 		this.#parent = parent;
@@ -16,10 +16,10 @@ class WindowClass {
 				new I().SetAttributes({class: 'dex-app-window-close fas fa-window-close'})
 					.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.Close())),
 				this.#shoTitle = new Span().SetAttributes({class: 'dex-app-window-title'}).Text(`${this.#wTitle}`),
-				this.#instruments = new Div().SetAttributes({class: "dex-app-window-instruments"})
+				this.#instruments = new Div().SetAttributes({class: "dex-app-window-instruments"}),
+				this.#cbody = new Div().SetAttributes( {class: 'dex-app-window-body'} )
 			]);
 		this.#application.TaskBar.AddMenuNewItem( this );
-
 	}
 
 	get Parent() {return this.#parent;}
@@ -28,6 +28,7 @@ class WindowClass {
 	get Container () {return this.#container;}
 	get Title() {return this.#wTitle;}
 	get Instruments() {return this.#instruments;}
+	get CBody() {return this.#cbody;}
 
 	set Container(shoObject) {this.#container = shoObject;}
 	set Title(title) {

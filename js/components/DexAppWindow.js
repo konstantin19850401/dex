@@ -61,12 +61,18 @@ class DexAppWindow extends WindowClass {
 				this.#totalDocsSho = new Span().SetAttributes( {class: 'dex-app-window-total'} ).Text( `Всего: ${ this.#totalDocs }` ),
 				this.#selectedDocsSho = new Span().SetAttributes( {class: 'dex-app-window-selected'} ).Text( `Выделено: ${ this.#selectedDocs }` )
 			]),
-			this.#windowBody = new Div().SetAttributes( {class: 'dex-app-window-body'} ).AddChilds([
-				this.#docTable = new ComplexTable( this.Application ).AddWatcher(
+			// this.#windowBody = new Div().SetAttributes( {class: 'dex-app-window-body'} ).AddChilds([
+			// 	this.#docTable = new ComplexTable( this.Application ).AddWatcher(
+			// 		{name: 'watchSelectedRows', func: ( rows ) => { this.#SetSelectedCnt( rows ) }
+			// 	}),
+			// 	this.#contextMenu = new ContextMenu( this.Application ).AddContextItems( this.Parent.CommonDicts.contextMenu.elements )
+			// ]),
+		]);
+		this.CBody.AddChilds([
+			this.#docTable = new ComplexTable( this.Application ).AddWatcher(
 					{name: 'watchSelectedRows', func: ( rows ) => { this.#SetSelectedCnt( rows ) }
 				}),
-				this.#contextMenu = new ContextMenu( this.Application ).AddContextItems( this.Parent.CommonDicts.contextMenu.elements )
-			]),
+			this.#contextMenu = new ContextMenu( this.Application ).AddContextItems( this.Parent.CommonDicts.contextMenu.elements )
 		]);
 		this.Instruments.AddChilds([
 			new Div().SetAttributes( {class: 'dex-app-window-filter'} ).AddChilds([
@@ -193,12 +199,10 @@ class DexAppWindow extends WindowClass {
 		this.#docTable.AddWatcher({name: 'watchContextMenu', func: ( rows, coords ) => { this.#ContextMenu( rows, coords ) }});
 	}
 	#Resize () {
-		this.#docTable.DomObject.style.height = `calc(${ this.#windowBody.DomObject.clientHeight }px - 5px)`;
+		this.#docTable.DomObject.style.height = `calc(${ this.CBody.DomObject.clientHeight }px - 5px)`;
 	}
 	#ListenResizeWindow () {
-		window.addEventListener( 'resize', event => {
-			this.#Resize();
-		}, false )
+		window.addEventListener('resize', event => this.#Resize(), false);
 	}
 	#ContextMenu ( rows, coords ) {
 		// console.log( 'выделенные строки ', this.#docTable.SelectedRows );
