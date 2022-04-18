@@ -15,13 +15,17 @@ class ArrivalStoreHouse extends WindowClass {
 	#Init() {
 		let cascade;
 		this.#headers = [
-			{uid: 0, titles: [{name: 'num', title: 'п/п'}, {name: 'icc', title: 'ICC'}, {name: 'msidn', title: 'MSISDN'}, {name: "tp", title: 'Тарифный план'}]}
+			{uid: 0, titles: [{name: 'num', title: 'п/п'}, {name: 'icc', title: 'ICC'}, {name: 'msidn', title:'MSISDN'}, {name: "tp", title: 'Тарифный план'}]},
+			{uid: 1, titles: [{name: 'num', title: 'п/п'}, {name: 'title', title: 'Наименование'}]}
 		];
 		this.#cascadeList = [
 			{name: 'stock', sho: null, dict: 'stocks', labelTitle: 'Склад', rulles: [], value: null},
 			{name: 'product', sho: null, dict: 'typesProducts', labelTitle: 'Тип товара', rulles: [], value: null},
 			{name: 'operator', sho: null, dict: 'operators', labelTitle: 'Оператор', rulles: [{type: 'show', if: 'product', vals: [0]}], value: null},
-			{name: 'base', sho: null, dict: 'dexBases', labelTitle: 'База', rulles: [{type: 'show', if: 'product', vals: [0]}, {type: 'link', check: 'operator', fromDictField: 'operator'}], value: null}
+			{name: 'base', sho: null, dict: 'dexBases', labelTitle: 'База', rulles: [
+				{type: 'show', if: 'product', vals: [0]},
+				{type: 'link', check: 'operator', fromDictField: 'operator'}
+			], value: null}
 		]
 		new Div({parent: this.CBody}).SetAttributes({class: 'window-two-block-app-body row'}).AddChilds([
 			cascade = new Div().SetAttributes({class: 'col align-self-start col-sm-4'}),
@@ -29,6 +33,13 @@ class ArrivalStoreHouse extends WindowClass {
 		]);
 		this.#arrivalTable = new ComplexTable( this.Application, this.#right);
 		this.#arrivalTable.DomObject.style.height = `calc(${ this.CBody.DomObject.clientHeight }px - 5px)`;
+
+		for (let j = 0; j < this.#headers[0].titles.length; j++) {
+			let newHeader = new Th().SetAttributes( ).Text( this.#headers[0].titles[j].title ).AddWatch( ( el )=> {
+				el.DomObject.addEventListener('click', ( event ) => {this.#arrivalTable.SortByColIndex( el, i )})
+			});
+			this.#arrivalTable.AddHead( newHeader );
+		}
 
 		for (let i = 0; i < this.#cascadeList.length; i++) {
 			new Div({parent: cascade}).SetAttributes({class: 'form-group'}).AddChilds([
@@ -39,6 +50,7 @@ class ArrivalStoreHouse extends WindowClass {
 						let dict = this.#dicts.find(item => item.name == this.#cascadeList[i].dict);
 						for (let i = 0; i < dict.list.length; i++) {
 							let option = new Option().SetAttributes({'value': dict.list[i].uid}).Text(dict.list[i].title);
+							// if (i == 0) option.SetAttributes({'selected': 'selected'});
 							arr.push(option);
 						}
 						this.#cascadeList[i].value = dict.list[0].uid;
@@ -47,18 +59,39 @@ class ArrivalStoreHouse extends WindowClass {
 					.AddWatch(sho=> sho.DomObject.addEventListener('change', event=> {
 						this.#cascadeList[i].value = isNaN(event.target.value) == true ? event.target.value : parseInt(event.target.value);
 						this.#HandleRulles();
+						if (this.#cascadeList[i].name == 'product') {
+							this.#arrivalTable.ClearHead();
+							let headers = this.#headers.find(item=> item.uid == this.#cascadeList[i].value);
+							for (let j = 0; j < headers.titles.length; j++) {
+								let newHeader = new Th().SetAttributes( ).Text( headers.titles[j].title ).AddWatch( ( el )=> {
+									el.DomObject.addEventListener('click', ( event ) => {this.#arrivalTable.SortByColIndex( el, i )})
+								});
+								this.#arrivalTable.AddHead( newHeader );
+							}
+						}
 					}))
 			])
-			// if (this.#cascadeList[i].rulles.length > 0) {
-			// 	this.#HandleRulles();
-			// }
 		}
+
+		// для вставки данных
+		// из буфера обмена
+		new Div({parent: cascade}).SetAttributes({class: 'form-group'}).AddChilds([
+			new Label().SetAttributes({class: 'col-sm-3 col-form-label'}).Text('Вставить из буфера обмена'),
+			new Input().SetAttributes({class: 'col-sm-9'})
+		]);
+		// из файла
+		new Div({parent: cascade}).SetAttributes({class: 'form-group'}).AddChilds([
+			new Label().SetAttributes({class: 'col-sm-3 col-form-label'}).Text('Вставить из файла'),
+			new Input().SetAttributes({type: 'file', class: 'col-sm-9'})
+		]);
+
+		this.#HandleRulles();
 	}
 	#SetHeaders(uid) {
 
 	}
 	#HandleRulles() {
-		console.log("this.#cascadeList==> ", this.#cascadeList);
+		// console.log("this.#cascadeList==> ", this.#cascadeList);
 		for (let i = 0; i < this.#cascadeList.length; i++) {
 			for (let j = 0; j < this.#cascadeList[i].rulles.length; j++ ) {
 				if (this.#cascadeList[i].rulles[j].type == "show" ) {
@@ -69,26 +102,28 @@ class ArrivalStoreHouse extends WindowClass {
 						} else this.#cascadeList[i].sho.ObjectParent.Show();
 					}
 				} else if (this.#cascadeList[i].rulles[j].type == "link") {
-					let itemCheck = this.#cascadeList.find(item => item.name == this.#cascadeList[i].rulles[j].check);
 					let dict = this.#dicts.find(item => item.name == this.#cascadeList[i].dict);
-					let check = itemCheck.value;
-					for (let k = 0; k <  this.#cascadeList[i].sho.Childs.length; k++) {
-						let attrs = this.#cascadeList[i].sho.Childs[k].Attributes;
+					let operatorItem = this.#cascadeList.find(item => item.name == this.#cascadeList[i].rulles[j].check);
+					let operator = operatorItem.value;
+					let bases = dict.list.find(item => item.operator == operator);
 
-						let item = dict.list.find(item => item.uid == attrs.value);
-						console.log("item=> ", item, " dict=> ", dict);
-						if (item.operator != itemCheck.value) this.#cascadeList[i].sho.Childs[k].Hide();
-						else this.#cascadeList[i].sho.Childs[k].Show()
+					for (let k = 0; k < this.#cascadeList[i].sho.Childs.length; k++) this.#cascadeList[i].sho.Childs[k].Show();
 
-						console.log("currentOption=> ", attrs.value);
+					for (let k = 0; k < this.#cascadeList[i].sho.Childs.length; k++) {
+						let base = this.#cascadeList[i].sho.Childs[k].Attributes.value;
+						let find = bases;
+						if (base == bases.uid) {
+							this.#cascadeList[i].sho.DomObject.selectedIndex = k;
+							this.#cascadeList[i].value = this.#cascadeList[i].sho.DomObject.value;
+						} else {
+							this.#cascadeList[i].sho.Childs[k].Hide();
+						}
 					}
-					console.log("itemCheck=> ", itemCheck);
-
-					// for (this.#cascadeList[i].rulles[j].sho.)
-
 				}
 			}
 		}
+
+		// console.log(this.#cascadeList);
 
 	}
 	Commands ( packet ) {

@@ -57,6 +57,10 @@ class ComplexTable extends Component {
 	// 		dom.append( this.DomObject );
 	// 	}
 	// };
+	//
+	ClearHead() {
+		this.#theadTr.RemoveChilds();
+	}
 	AddHead( th ) {
 		this.#theadTr.AddChilds( [ th ] );
 	};
