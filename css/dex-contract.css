@@ -106,6 +106,13 @@
     -moz-transition: all 1500ms linear;
     -webkit-transition: all 1500ms linear;
 }
+.window-two-block-app-body .col {
+    padding-right: 0px;
+}
+.window-two-block-app-body .form-group {
+    padding-top: 5px;
+    margin-bottom: 0px
+}
 
 .dex-contract-body::-webkit-scrollbar-track {border-radius: 1px;}
 .dex-contract-body::-webkit-scrollbar {width: 6px;}

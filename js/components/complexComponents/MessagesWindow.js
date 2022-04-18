@@ -1,10 +1,11 @@
 'use strict'
 class MessagesWindow extends Component {
-	#title;#body;#window;#onClose;#ifClose;
-	constructor ( application, parent, title, data ) {
+	#title;#body;#window;#onClose;#ifClose;#hideBtn;#btn;
+	constructor ( application, parent, title, data, hideBtn ) {
 		super( application, parent );
 		this.#title = title;
-		this.#Draw();
+		if (typeof hideBtn !== 'undefined' && hideBtn == true) this.#hideBtn = true
+ 		this.#Draw();
 		if (typeof data !== 'undefined') this.#initData(data);
 	};
 	// ГЕТТЕРЫ
@@ -21,19 +22,22 @@ class MessagesWindow extends Component {
 			}),
 			new Span().SetAttributes( {class: 'dex-app-window-title'} ).Text( `${ this.#title }` ),
 			this.#body = new Div().SetAttributes( {class: 'dex-app-window-body'} ),
-			new Button().SetAttributes( {class: 'bases-list-btn'} ).Text( 'Применить' ).AddWatch((el)=> {
+			this.#btn = new Button().SetAttributes( {class: 'bases-list-btn'} ).Text( 'Применить' ).AddWatch((el)=> {
 				el.DomObject.addEventListener( 'click', event => {this.#Accept(); this.Close()})
 			}),
 		])
+		if (this.#hideBtn == true) this.#btn.Hide();
 	};
 	#initData(data) {
 		for (let key in data) {
 			if (key == 'height' || key == 'width') {
 				let s = {height: 'margin-top', width: 'margin-left'};
+				// if (key != 'height') this.Container.DomObject.style[key] = `${data[key]}px`;
 				if (key != 'height') this.Container.DomObject.style[key] = `${data[key]}px`;
 				this.Container.DomObject.style[s[key]] = `-${data[key]/2}px`;
 			}
 		}
+		if (typeof data.height !== "undefined") this.#body.DomObject.style.height = `${data.height}px`;
 	}
 	#Accept() {
 		if (typeof this.#onClose !== 'undefined') this.#onClose();

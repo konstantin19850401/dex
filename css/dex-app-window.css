@@ -59,6 +59,7 @@
     height: calc(100%);
     margin-left: -1px;
     background: #fff;
+    overflow-y: auto;
 }
 .dex-table-container {
     width: 100%;
@@ -67,6 +68,32 @@
     /*display: block;*/
     /*margin-top: 500px;*/
 }
+.doc-types {
+    padding: 2px;
+
+}
+.doc-types:hover {
+    background: #6c757d80;
+}
+.window-two-block-app-body {
+    margin-left: 0px;
+    width: 100%;
+    height: calc(100%) ;
+    overflow-y: auto;
+    /*border: 1px solid #354251;*/
+
+    transition: all 1500ms linear;
+    -o-transition: all 1500ms linear;
+    -ms-transition: all 1500ms linear;
+    -moz-transition: all 1500ms linear;
+    -webkit-transition: all 1500ms linear;
+}
+
+.dex-app-window-body::-webkit-scrollbar-track {border-radius: 1px;}
+.dex-app-window-body::-webkit-scrollbar {width: 6px;height: 6px;}
+.dex-app-window-body::-webkit-scrollbar-thumb {border-radius: 1px;background: #f0f2f5;}
+.dex-app-window-body:hover::-webkit-scrollbar-thumb {background: #354251;}
+
 .dex-table-container::-webkit-scrollbar-track {border-radius: 1px;}
 .dex-table-container::-webkit-scrollbar {width: 6px;height: 6px;}
 .dex-table-container::-webkit-scrollbar-thumb {border-radius: 1px;background: #f0f2f5;}
@@ -126,5 +153,14 @@
     line-height: 20px;
     margin-top: 4px;
     margin-left: 10px;
+}
+.dex-app-window-status-create {
+    color: #0dcaf0;
+}
+.dex-app-window-status-complited {
+    color: #198754;
+}
+.dex-app-window-status-todelete {
+    color: #dc3545;
 }
 

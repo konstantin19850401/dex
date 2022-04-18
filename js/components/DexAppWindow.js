@@ -57,7 +57,7 @@ class DexAppWindow extends WindowClass {
 
 			// filterBox = new Div().SetAttributes( {class: 'dex-app-window-filter'} ).AddChilds([
 
-			new Div().SetAttributes( {class: 'dex-app-window-info'} ).AddChilds([
+			this.Info.AddChilds([
 				this.#totalDocsSho = new Span().SetAttributes( {class: 'dex-app-window-total'} ).Text( `Всего: ${ this.#totalDocs }` ),
 				this.#selectedDocsSho = new Span().SetAttributes( {class: 'dex-app-window-selected'} ).Text( `Выделено: ${ this.#selectedDocs }` )
 			]),
@@ -91,7 +91,7 @@ class DexAppWindow extends WindowClass {
 			shoObject.DomObject.addEventListener('click', event=> {
 				if (this.#ifIssetFilters.indexOf('periodJournal') == -1) {
 					this.#ifIssetFilters.push('periodJournal');
-					let mw = new MessagesWindow(this.Application, this.Container, 'Задайте период журнала', {width: 300, height: 125});
+					let mw = new MessagesWindow(this.Application, this.Container, 'Задайте период журнала', {width: 300});
 					let period = new Period( this.Application );
 					if (typeof this.#filter.start !== 'undefined') period.StartPeriod = this.#filter.start;
 					if (typeof this.#filter.end !== 'undefined') period.EndPeriod = this.#filter.end;
@@ -109,7 +109,7 @@ class DexAppWindow extends WindowClass {
 			shoObject.DomObject.addEventListener('click', event=> {
 				if (this.#ifIssetFilters.indexOf('filter') == -1) {
 					this.#ifIssetFilters.push('filter');
-					let mw = new MessagesWindow(this.Application, this.Container, 'Фильтр по документу', {width: 500, height: 115});
+					let mw = new MessagesWindow(this.Application, this.Container, 'Фильтр по документу', {width: 500});
 					// let search = new SearchBlock( this.Application );
 					// mw.AddBody(search);
 					let items = [
