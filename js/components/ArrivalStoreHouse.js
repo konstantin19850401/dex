@@ -1,7 +1,7 @@
 'use strict'
 class ArrivalStoreHouse extends WindowClass {
 	#transport;#dicts;
-	#right;#headers;#arrivalTable;#cascadeList;
+	#right;#headers;#valHeaders = 0;#arrivalTable;#cascadeList;
 	constructor ( application, parent ) {
 		super( application, parent );
 		this.#transport = this.Application.Transport;
@@ -9,7 +9,7 @@ class ArrivalStoreHouse extends WindowClass {
 		this.#GetDicts();
 	}
 	#GetDicts() {
-		let packet = { com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getNewDicts', dicts: ["operators",'typesProducts','stocks','dexBases']}, hash: this.Hash};
+		let packet = { com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getNewDicts', dicts: ["operators",'typesProducts','stocks','dexBases', 'regions']}, hash: this.Hash};
 		this.#transport.Get( packet );
 	}
 	#Init() {
@@ -25,7 +25,8 @@ class ArrivalStoreHouse extends WindowClass {
 			{name: 'base', sho: null, dict: 'dexBases', labelTitle: 'База', rulles: [
 				{type: 'show', if: 'product', vals: [0]},
 				{type: 'link', check: 'operator', fromDictField: 'operator'}
-			], value: null}
+			], value: null},
+			{name: 'region', sho: null, dict: 'regions', labelTitle: 'Регион', rulles: [], value: null}
 		]
 		new Div({parent: this.CBody}).SetAttributes({class: 'window-two-block-app-body row'}).AddChilds([
 			cascade = new Div().SetAttributes({class: 'col align-self-start col-sm-4'}),
@@ -49,19 +50,22 @@ class ArrivalStoreHouse extends WindowClass {
 						let arr = [];
 						let dict = this.#dicts.find(item => item.name == this.#cascadeList[i].dict);
 						for (let i = 0; i < dict.list.length; i++) {
-							let option = new Option().SetAttributes({'value': dict.list[i].uid}).Text(dict.list[i].title);
-							// if (i == 0) option.SetAttributes({'selected': 'selected'});
-							arr.push(option);
+							if (dict.list[i].status == 1) {
+								let option = new Option().SetAttributes({'value': dict.list[i].uid}).Text(dict.list[i].title);
+								// if (i == 0) option.SetAttributes({'selected': 'selected'});
+								arr.push(option);
+							}
 						}
 						this.#cascadeList[i].value = dict.list[0].uid;
 						return arr;
 					})())
 					.AddWatch(sho=> sho.DomObject.addEventListener('change', event=> {
 						this.#cascadeList[i].value = isNaN(event.target.value) == true ? event.target.value : parseInt(event.target.value);
-						this.#HandleRulles();
+						this.#HandleRulles(this.#cascadeList[i]);
 						if (this.#cascadeList[i].name == 'product') {
 							this.#arrivalTable.ClearHead();
 							let headers = this.#headers.find(item=> item.uid == this.#cascadeList[i].value);
+							this.#valHeaders = this.#cascadeList[i].value;
 							for (let j = 0; j < headers.titles.length; j++) {
 								let newHeader = new Th().SetAttributes( ).Text( headers.titles[j].title ).AddWatch( ( el )=> {
 									el.DomObject.addEventListener('click', ( event ) => {this.#arrivalTable.SortByColIndex( el, i )})
@@ -77,20 +81,42 @@ class ArrivalStoreHouse extends WindowClass {
 		// из буфера обмена
 		new Div({parent: cascade}).SetAttributes({class: 'form-group'}).AddChilds([
 			new Label().SetAttributes({class: 'col-sm-3 col-form-label'}).Text('Вставить из буфера обмена'),
-			new Input().SetAttributes({class: 'col-sm-9'})
+			new Textarea().SetAttributes({class: 'col-sm-9'}).AddWatch(sho=> {
+				sho.DomObject.addEventListener('input', event=> {
+					let rows = event.target.value.split(/\n/g);
+					console.log("rows=> ", rows);
+					if (rows != '') {
+						for (let i = 0; i < rows.length; i++) {
+							if (rows[i] != '') {
+								let temp = rows[i].split('\t');
+								let tdRows = [];
+								let attrs = {'uid_num': i};
+								let row = new Tr().SetAttributes( attrs );
+								tdRows.push(new Td().Text(i + 1));
+								for (let j = 0; j < temp.length; j++) {
+									tdRows.push(new Td().Text(temp[j]));
+									row.AddChilds(tdRows);
+									this.#arrivalTable.AddRow( row );
+								}
+							}
+						}
+					}
+					event.target.value = '';
+				})
+			})
 		]);
 		// из файла
-		new Div({parent: cascade}).SetAttributes({class: 'form-group'}).AddChilds([
-			new Label().SetAttributes({class: 'col-sm-3 col-form-label'}).Text('Вставить из файла'),
-			new Input().SetAttributes({type: 'file', class: 'col-sm-9'})
-		]);
+		// new Div({parent: cascade}).SetAttributes({class: 'form-group'}).AddChilds([
+		// 	new Label().SetAttributes({class: 'col-sm-3 col-form-label'}).Text('Вставить из файла'),
+		// 	new Input().SetAttributes({type: 'file', class: 'col-sm-9'})
+		// ]);
 
 		this.#HandleRulles();
 	}
 	#SetHeaders(uid) {
 
 	}
-	#HandleRulles() {
+	#HandleRulles(cascadeListItem) {
 		// console.log("this.#cascadeList==> ", this.#cascadeList);
 		for (let i = 0; i < this.#cascadeList.length; i++) {
 			for (let j = 0; j < this.#cascadeList[i].rulles.length; j++ ) {
@@ -102,21 +128,24 @@ class ArrivalStoreHouse extends WindowClass {
 						} else this.#cascadeList[i].sho.ObjectParent.Show();
 					}
 				} else if (this.#cascadeList[i].rulles[j].type == "link") {
-					let dict = this.#dicts.find(item => item.name == this.#cascadeList[i].dict);
-					let operatorItem = this.#cascadeList.find(item => item.name == this.#cascadeList[i].rulles[j].check);
-					let operator = operatorItem.value;
-					let bases = dict.list.find(item => item.operator == operator);
+					if (typeof cascadeListItem == 'undefined' || cascadeListItem.name != this.#cascadeList[i].name) {
+						let dict = this.#dicts.find(item => item.name == this.#cascadeList[i].dict);
+						let operatorItem = this.#cascadeList.find(item => item.name == this.#cascadeList[i].rulles[j].check);
+						let operator = operatorItem.value;
+						let bases = dict.list.find(item => item.operator == operator);
 
-					for (let k = 0; k < this.#cascadeList[i].sho.Childs.length; k++) this.#cascadeList[i].sho.Childs[k].Show();
+						for (let k = 0; k < this.#cascadeList[i].sho.Childs.length; k++) this.#cascadeList[i].sho.Childs[k].Show();
 
-					for (let k = 0; k < this.#cascadeList[i].sho.Childs.length; k++) {
-						let base = this.#cascadeList[i].sho.Childs[k].Attributes.value;
-						let find = bases;
-						if (base == bases.uid) {
-							this.#cascadeList[i].sho.DomObject.selectedIndex = k;
-							this.#cascadeList[i].value = this.#cascadeList[i].sho.DomObject.value;
-						} else {
-							this.#cascadeList[i].sho.Childs[k].Hide();
+						for (let k = 0; k < this.#cascadeList[i].sho.Childs.length; k++) {
+							let base = this.#cascadeList[i].sho.Childs[k].Attributes.value;
+							let find = bases;
+							if (base == bases.uid) {
+								this.#cascadeList[i].sho.DomObject.selectedIndex = k;
+								this.#cascadeList[i].value = this.#cascadeList[i].sho.DomObject.value;
+							} else {
+								let curOptionOperator = dict.list.find(item=> item.uid == base);
+								if (curOptionOperator.operator != operator) this.#cascadeList[i].sho.Childs[k].Hide();
+							}
 						}
 					}
 				}

@@ -16,16 +16,8 @@ class StoreHouse extends WindowClass {
 	#Init() {
 		let periodJournal, addNewDoc;
 		this.#documentsTable = new ComplexTable( this.Application, this.CBody);
-		this.#headers = [ {name: 'id', title: 'id'}, {name: 'status', title: ''}, {name: 'type', title: 'Документ'}, {name: 'creater', title: 'Автор'}, {name: "target", title: "Отделение"}, {name: 'date', title: 'Дата создания'} ];
-		this.#documentsTable.DomObject.style.height = `calc(${ this.CBody.DomObject.clientHeight }px - 5px)`;
 
-		for (let i = 0; i < this.#headers.length; i++) {
-			let newHeader = new Th().SetAttributes( ).Text( this.#headers[i].title ).AddWatch( ( el )=> {
-				el.DomObject.addEventListener('click', ( event ) => {this.#documentsTable.SortByColIndex( el, i )})
-			});
-			if (this.#hiddens.indexOf(this.#headers[i].name) != -1) newHeader.SetAttributes({class: 'dnone'});
-			this.#documentsTable.AddHead( newHeader );
-		}
+		this.#documentsTable.DomObject.style.height = `calc(${ this.CBody.DomObject.clientHeight }px - 5px)`;
 
 		this.Instruments.AddChilds([
 			new Div().SetAttributes( {class: 'dex-app-window-filter'} ).AddChilds([
@@ -67,6 +59,17 @@ class StoreHouse extends WindowClass {
 		]);
 	}
 	#DrawTable() {
+		if (typeof this.#documentsTable !== 'undefined') this.#documentsTable.ClearHead();
+		this.#headers = [ {name: 'id', title: 'id'}, {name: 'status', title: ''}, {name: 'type', title: 'Документ'}, {name: 'creater', title: 'Автор'}, {name: "target", title: "Отделение"}, {name: 'date', title: 'Дата создания'} ];
+
+		for (let i = 0; i < this.#headers.length; i++) {
+			let newHeader = new Th().SetAttributes( ).Text( this.#headers[i].title ).AddWatch( ( el )=> {
+				el.DomObject.addEventListener('click', ( event ) => {this.#documentsTable.SortByColIndex( el, i )})
+			});
+			if (this.#hiddens.indexOf(this.#headers[i].name) != -1) newHeader.SetAttributes({class: 'dnone'});
+			this.#documentsTable.AddHead( newHeader );
+		}
+
 		// let statusesLink = [{status: }];
 		for (let i=0; i< this.#documents.length; i++) {
 			let attrs = {'uid_num': this.#documents[i].uid};
