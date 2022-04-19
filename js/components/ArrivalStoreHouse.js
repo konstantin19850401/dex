@@ -94,6 +94,7 @@ class ArrivalStoreHouse extends WindowClass {
 								let row = new Tr().SetAttributes( attrs );
 								tdRows.push(new Td().Text(i + 1));
 								for (let j = 0; j < temp.length; j++) {
+
 									tdRows.push(new Td().Text(temp[j]));
 									row.AddChilds(tdRows);
 									this.#arrivalTable.AddRow( row );
