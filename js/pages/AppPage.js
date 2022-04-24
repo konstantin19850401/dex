@@ -53,7 +53,8 @@ class AppPage extends Page {
 				{ text: 'Справочник Группы пользователей', watch: () => this.#OpenDicts('userGroups') },
 				{ text: 'Справочник Отделения', watch: () => this.#OpenDicts('units') },
 				{ text: 'Справочник Торговые точки', watch: () => this.#OpenDicts('stores') },
-				{ text: 'Справочник Виды документов', watch: () => this.#OpenDicts('docTypes') }
+				{ text: 'Справочник Виды документов', watch: () => this.#OpenDicts('docTypes') },
+				{ text: 'Справочник Точки продаж МегаФон', watch: () => this.#OpenDicts('megaStores') }
 			]}
 		]
 		this.#menu = new this.Application.Components.Menu( this.Application, this );
@@ -111,7 +112,8 @@ class AppPage extends Page {
 		else if (dictname == 'userGroups') new UserGroups( this.Application, this );
 		else if (dictname == 'users') new Users( this.Application, this );
 		else if (dictname == 'stores') new Stores(this.Application, this);
-		else if (dictname == 'docTypes') {new DocTypes( this.Application, this )}
+		else if (dictname == 'docTypes') new DocTypes( this.Application, this )
+		else if (dictname == 'megaStores') new MegafonStores( this.Application, this );
 	}
 	// #InitDictionariesUnits () {
 	// 	new Units( this.Application, this );

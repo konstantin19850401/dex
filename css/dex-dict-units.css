@@ -1,5 +1,5 @@
 .dex-dict {
-    width: 600px;
+    width: 800px;
     height: 450px;
     border: 1px solid #354251;
     border-left: none;
@@ -8,7 +8,7 @@
     position: absolute;
     top: 1em;
     left: 50%;
-    margin-left: -300px;
+    margin-left: -400px;
     background: #fff;
     border-top-width: 40px;
     box-shadow: 1px 1px 15px 15px;

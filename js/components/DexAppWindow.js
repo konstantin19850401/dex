@@ -13,14 +13,14 @@ class DexAppWindow extends WindowClass {
 	constructor ( parent, base ) {
 		super( parent.Application, parent );
 		this.#base = base;
-		console.log("base====> ", base);
+		// console.log("base====> ", base);
 		// this.#windowsPanel = parent.WindowsPanel;
 		// this.#windowsPanel.AddMenuNewItem( this );
 		// this.Application.TaskBar.AddMenuNewItem(this);
 
 		this.#GetBaseDicts();
 
-		console.log("application=> ", parent.Application);
+		// console.log("application=> ", parent.Application);
 		// this.#InitComponent();
 		// this.#Resize();
 		// this.#ListenResizeWindow();

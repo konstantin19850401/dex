@@ -65,47 +65,49 @@ class ComplexTable extends Component {
 		this.#theadTr.AddChilds( [ th ] );
 	};
 	AddRow ( tr ) {
-		if ( this.#tbody.DomObject.children.length == 0 ) this.#startShift = tr;
-		this.#tbody.AddChilds( [ tr.AddWatch((el)=> {
-			el.DomObject.addEventListener( 'click', ( event )=> {
-				let nodes = Array.prototype.slice.call( el.DomObject.parentElement.children );
-				if ( event.shiftKey ) {
-					let start = this.#startShift;
-					let startIndex = nodes.indexOf( start.DomObject );
-					let end = el;
-					let endIndex = nodes.indexOf( end.DomObject );
-					this.#tbody.Childs.map(( child )=> {
-						let cindex = nodes.indexOf( child.DomObject );
-						if ( startIndex <= endIndex ) {
-							if ( cindex >= startIndex && cindex <= endIndex ) {
-								child.RemoveClass( 'selected-row' );
-								child.AddClass( 'selected-row' );
-								if ( this.#selectedRows.indexOf( child ) == -1 ) this.#selectedRows.push( child );
+		if (tr.Childs.length == this.#theadTr.Childs.length) {
+			if ( this.#tbody.DomObject.children.length == 0 ) this.#startShift = tr;
+			this.#tbody.AddChilds( [ tr.AddWatch((el)=> {
+				el.DomObject.addEventListener( 'click', ( event )=> {
+					let nodes = Array.prototype.slice.call( el.DomObject.parentElement.children );
+					if ( event.shiftKey ) {
+						let start = this.#startShift;
+						let startIndex = nodes.indexOf( start.DomObject );
+						let end = el;
+						let endIndex = nodes.indexOf( end.DomObject );
+						this.#tbody.Childs.map(( child )=> {
+							let cindex = nodes.indexOf( child.DomObject );
+							if ( startIndex <= endIndex ) {
+								if ( cindex >= startIndex && cindex <= endIndex ) {
+									child.RemoveClass( 'selected-row' );
+									child.AddClass( 'selected-row' );
+									if ( this.#selectedRows.indexOf( child ) == -1 ) this.#selectedRows.push( child );
+								}
+							} else {
+								if ( cindex <= startIndex && cindex >= endIndex ) {
+									child.RemoveClass( 'selected-row' );
+									child.AddClass( 'selected-row' );
+									if ( this.#selectedRows.indexOf( child ) == -1 ) this.#selectedRows.push( child );
+								}
 							}
-						} else {
-							if ( cindex <= startIndex && cindex >= endIndex ) {
-								child.RemoveClass( 'selected-row' );
-								child.AddClass( 'selected-row' );
-								if ( this.#selectedRows.indexOf( child ) == -1 ) this.#selectedRows.push( child );
-							}
-						}
-					});
-				} else {
-					this.#startShift = el;
-					this.#selectedRows.map(( item )=> item.RemoveClass( 'selected-row' ));
-					this.#selectedRows = [];
-					el.AddClass( 'selected-row' );
-					this.#selectedRows.push( el );
-				}
-				this.#HandleWatches();
-			} )
-		}) ] );
-		// если нажата правая клавиша мыши
-		tr.AddWatch( shoObject => {
-			shoObject.DomObject.addEventListener( 'mousedown', event => {
-				if ( event.which == 3 ) this.#HandleWatches( 'watchContextMenu', {x: event.clientX, y: event.clientY} );
+						});
+					} else {
+						this.#startShift = el;
+						this.#selectedRows.map(( item )=> item.RemoveClass( 'selected-row' ));
+						this.#selectedRows = [];
+						el.AddClass( 'selected-row' );
+						this.#selectedRows.push( el );
+					}
+					this.#HandleWatches();
+				} )
+			}) ] );
+			// если нажата правая клавиша мыши
+			tr.AddWatch( shoObject => {
+				shoObject.DomObject.addEventListener( 'mousedown', event => {
+					if ( event.which == 3 ) this.#HandleWatches( 'watchContextMenu', {x: event.clientX, y: event.clientY} );
+				})
 			})
-		})
+		}
 	};
 	Clear () {
 		this.#theadTr.RemoveChilds();

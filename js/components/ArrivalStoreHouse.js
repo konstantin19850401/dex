@@ -2,6 +2,7 @@
 class ArrivalStoreHouse extends WindowClass {
 	#transport;#dicts;
 	#right;#headers;#valHeaders = 0;#arrivalTable;#cascadeList;
+	#data = [];
 	constructor ( application, parent ) {
 		super( application, parent );
 		this.#transport = this.Application.Transport;
@@ -9,24 +10,37 @@ class ArrivalStoreHouse extends WindowClass {
 		this.#GetDicts();
 	}
 	#GetDicts() {
-		let packet = { com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getNewDicts', dicts: ["operators",'typesProducts','stocks','dexBases', 'regions']}, hash: this.Hash};
+		let packet = { com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getNewDicts', dicts: ["operators",'typesProducts','stocks','dexBases', 'regions', 'balance','simTypes','contractors']}, hash: this.Hash};
 		this.#transport.Get( packet );
 	}
 	#Init() {
 		let cascade;
+		this.#data = [];
+		this.Instruments.AddChilds([
+			new Div().SetAttributes( {class: 'dex-app-window-filter'} ).AddChilds([
+				new Div().SetAttributes({class: 'dex-filter-element'}).AddChilds([
+					new I().SetAttributes({class: 'fas fa-check-square'}),
+				]).AddWatch(sho=> sho.DomObject.addEventListener('click', event=> this.#Create()))
+			])
+		]);
 		this.#headers = [
 			{uid: 0, titles: [{name: 'num', title: 'п/п'}, {name: 'icc', title: 'ICC'}, {name: 'msidn', title:'MSISDN'}, {name: "tp", title: 'Тарифный план'}]},
-			{uid: 1, titles: [{name: 'num', title: 'п/п'}, {name: 'title', title: 'Наименование'}]}
+			{uid: 1, titles: [{name: 'num', title: 'п/п'}, {name: 'title', title: 'Наименование'}]},
+			{uid: 2, titles: [{name: 'num', title: 'п/п'}, {name: 'icc', title: 'ICC'}]},
 		];
 		this.#cascadeList = [
 			{name: 'stock', sho: null, dict: 'stocks', labelTitle: 'Склад', rulles: [], value: null},
+			{name: 'contractors', sho: null, dict: 'contractors', labelTitle: 'Поставщик', rulles: [], value: null},
 			{name: 'product', sho: null, dict: 'typesProducts', labelTitle: 'Тип товара', rulles: [], value: null},
+			{name: 'simTypes', sho: null, dict: 'simTypes', labelTitle: 'Тип SIM', rulles: [{type: 'show', if: 'product', vals: [0]}], value: null},
 			{name: 'operator', sho: null, dict: 'operators', labelTitle: 'Оператор', rulles: [{type: 'show', if: 'product', vals: [0]}], value: null},
 			{name: 'base', sho: null, dict: 'dexBases', labelTitle: 'База', rulles: [
 				{type: 'show', if: 'product', vals: [0]},
 				{type: 'link', check: 'operator', fromDictField: 'operator'}
 			], value: null},
-			{name: 'region', sho: null, dict: 'regions', labelTitle: 'Регион', rulles: [], value: null}
+			{name: 'region', sho: null, dict: 'regions', labelTitle: 'Регион', rulles: [], value: null},
+			{name: 'balance', sho: null, dict: 'balance', labelTitle: 'Баланс', rulles: [{type: 'show', if: 'product', vals: [0]}], value: null},
+
 		]
 		new Div({parent: this.CBody}).SetAttributes({class: 'window-two-block-app-body row'}).AddChilds([
 			cascade = new Div().SetAttributes({class: 'col align-self-start col-sm-4'}),
@@ -45,26 +59,40 @@ class ArrivalStoreHouse extends WindowClass {
 		for (let i = 0; i < this.#cascadeList.length; i++) {
 			new Div({parent: cascade}).SetAttributes({class: 'form-group'}).AddChilds([
 				new Label().SetAttributes({class: 'col-sm-3 col-form-label'}).Text(this.#cascadeList[i].labelTitle),
-				this.#cascadeList[i].sho = new Select().SetAttributes({class: 'col-sm-9'})
-					.AddChilds((()=> {
-						let arr = [];
-						let dict = this.#dicts.find(item => item.name == this.#cascadeList[i].dict);
-						for (let i = 0; i < dict.list.length; i++) {
-							if (dict.list[i].status == 1) {
-								let option = new Option().SetAttributes({'value': dict.list[i].uid}).Text(dict.list[i].title);
-								// if (i == 0) option.SetAttributes({'selected': 'selected'});
-								arr.push(option);
-							}
+				this.#cascadeList[i].sho = new Select()
+				.SetAttributes({class: 'col-sm-9'})
+				.AddChilds((()=> {
+					let arr = [];
+					let dict = this.#dicts.find(item => item.name == this.#cascadeList[i].dict);
+					for (let i = 0; i < dict.list.length; i++) {
+						if (dict.list[i].status == 1) {
+							let option = new Option().SetAttributes({'value': dict.list[i].uid}).Text(dict.list[i].title);
+							arr.push(option);
 						}
-						this.#cascadeList[i].value = dict.list[0].uid;
-						return arr;
-					})())
-					.AddWatch(sho=> sho.DomObject.addEventListener('change', event=> {
-						this.#cascadeList[i].value = isNaN(event.target.value) == true ? event.target.value : parseInt(event.target.value);
+					}
+					this.#cascadeList[i].value = dict.list[0].uid;
+					return arr;
+				})())
+				.AddWatch(sho=> sho.DomObject.addEventListener('change', event=> {
+					this.#cascadeList[i].value = isNaN(event.target.value) == true ? event.target.value : parseInt(event.target.value);
+					// if (typeof this.#cascadeList[i].rulles !== 'undefined' && this.#cascadeList[i].rulles.length > 0) {
 						this.#HandleRulles(this.#cascadeList[i]);
-						if (this.#cascadeList[i].name == 'product') {
-							this.#arrivalTable.ClearHead();
-							let headers = this.#headers.find(item=> item.uid == this.#cascadeList[i].value);
+						if (this.#cascadeList[i].name == 'product' || this.#cascadeList[i].name == 'simTypes') {
+							this.#arrivalTable.Clear();
+							let headers;
+							if (this.#cascadeList[i].name == 'simTypes') {
+								if (this.#cascadeList[i].value == '0' || this.#cascadeList[i].value == '1') {
+									headers = this.#headers.find(item=> item.uid == 0);
+								} else if (this.#cascadeList[i].value == '2') {
+									headers = this.#headers.find(item=> item.uid == 2);
+								}
+							} else {
+								let chech = this.#cascadeList.find(item=> item.name == 'simTypes');
+								// console.log("chech=> ", chech.value, ' this.#cascadeList[i].value=> ', this.#cascadeList[i].value );
+								if (chech.value != 2 && this.#cascadeList[i].value == 0) headers = this.#headers.find(item=> item.uid == 0);
+								else if (chech.value == 2 && this.#cascadeList[i].value == 0) headers = this.#headers.find(item=> item.uid == 2);
+								else headers = this.#headers.find(item=> item.uid == 1);
+							}
 							this.#valHeaders = this.#cascadeList[i].value;
 							for (let j = 0; j < headers.titles.length; j++) {
 								let newHeader = new Th().SetAttributes( ).Text( headers.titles[j].title ).AddWatch( ( el )=> {
@@ -73,7 +101,8 @@ class ArrivalStoreHouse extends WindowClass {
 								this.#arrivalTable.AddHead( newHeader );
 							}
 						}
-					}))
+					// }
+				}))
 			])
 		}
 
@@ -84,21 +113,23 @@ class ArrivalStoreHouse extends WindowClass {
 			new Textarea().SetAttributes({class: 'col-sm-9'}).AddWatch(sho=> {
 				sho.DomObject.addEventListener('input', event=> {
 					let rows = event.target.value.split(/\n/g);
-					console.log("rows=> ", rows);
 					if (rows != '') {
+						this.#data = [];
 						for (let i = 0; i < rows.length; i++) {
 							if (rows[i] != '') {
 								let temp = rows[i].split('\t');
 								let tdRows = [];
 								let attrs = {'uid_num': i};
 								let row = new Tr().SetAttributes( attrs );
+								let dataRow = {};
 								tdRows.push(new Td().Text(i + 1));
 								for (let j = 0; j < temp.length; j++) {
-
+									dataRow[this.#headers[this.#valHeaders].titles[j+1].name] = temp[j];
 									tdRows.push(new Td().Text(temp[j]));
 									row.AddChilds(tdRows);
-									this.#arrivalTable.AddRow( row );
 								}
+								this.#data.push(dataRow);
+								this.#arrivalTable.AddRow( row );
 							}
 						}
 					}
@@ -106,16 +137,7 @@ class ArrivalStoreHouse extends WindowClass {
 				})
 			})
 		]);
-		// из файла
-		// new Div({parent: cascade}).SetAttributes({class: 'form-group'}).AddChilds([
-		// 	new Label().SetAttributes({class: 'col-sm-3 col-form-label'}).Text('Вставить из файла'),
-		// 	new Input().SetAttributes({type: 'file', class: 'col-sm-9'})
-		// ]);
-
 		this.#HandleRulles();
-	}
-	#SetHeaders(uid) {
-
 	}
 	#HandleRulles(cascadeListItem) {
 		// console.log("this.#cascadeList==> ", this.#cascadeList);
@@ -154,7 +176,13 @@ class ArrivalStoreHouse extends WindowClass {
 		}
 
 		// console.log(this.#cascadeList);
-
+	}
+	#Create() {
+		let data = {};
+		for (let i = 0; i < this.#cascadeList.length; i++) {
+			data[this.#cascadeList[i].name] = this.#cascadeList[i].value;
+		}
+		console.log("fdata=> ", data, " data=> ", this.#data);
 	}
 	Commands ( packet ) {
 		// console.log(packet);
