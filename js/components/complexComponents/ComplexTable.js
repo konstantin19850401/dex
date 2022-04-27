@@ -66,37 +66,86 @@ class ComplexTable extends Component {
 	};
 	AddRow ( tr ) {
 		if (tr.Childs.length == this.#theadTr.Childs.length) {
-			if ( this.#tbody.DomObject.children.length == 0 ) this.#startShift = tr;
+			// if ( this.#tbody.DomObject.children.length == 0 ) this.#startShift = tr;
 			this.#tbody.AddChilds( [ tr.AddWatch((el)=> {
 				el.DomObject.addEventListener( 'click', ( event )=> {
 					let nodes = Array.prototype.slice.call( el.DomObject.parentElement.children );
 					if ( event.shiftKey ) {
+						this.#selectedRows = [];
+						let temp = [];
+						this.#startShift.RemoveClass( 'selected-row' );
 						let start = this.#startShift;
 						let startIndex = nodes.indexOf( start.DomObject );
 						let end = el;
 						let endIndex = nodes.indexOf( end.DomObject );
-						this.#tbody.Childs.map(( child )=> {
-							let cindex = nodes.indexOf( child.DomObject );
-							if ( startIndex <= endIndex ) {
-								if ( cindex >= startIndex && cindex <= endIndex ) {
-									child.RemoveClass( 'selected-row' );
-									child.AddClass( 'selected-row' );
-									if ( this.#selectedRows.indexOf( child ) == -1 ) this.#selectedRows.push( child );
-								}
-							} else {
-								if ( cindex <= startIndex && cindex >= endIndex ) {
-									child.RemoveClass( 'selected-row' );
-									child.AddClass( 'selected-row' );
-									if ( this.#selectedRows.indexOf( child ) == -1 ) this.#selectedRows.push( child );
+						if (endIndex < startIndex) {
+							let s = startIndex;
+							startIndex = endIndex;
+							endIndex = s;
+						}
+						this.#tbody.Childs.map(( child, index )=> {
+							if (index >= startIndex && index <= endIndex) temp.push(index);
+						});
+						// console.log("temp=> ", temp);
+						for (let i = 0; i < temp.length; i++) {
+
+							let element = this.#tbody.Childs.find(item=> item.DomObject == nodes[temp[i]]);
+							if (typeof element !== 'undefined') {
+								this.#selectedRows.push(element);
+								if (!nodes[temp[i]].classList.value.includes('selected-row')) {
+									nodes[temp[i]].classList.toggle('selected-row');
+									// console.log("Окрашиваем ", temp[i])
 								}
 							}
-						});
+						}
+						// console.log("this.#selectedRows=> ", this.#selectedRows);
+						// this.#tbody.Childs.map(( child, index )=> {
+						// 	let cindex = nodes.indexOf( child.DomObject );
+						// 	if (temp.indexOf(cindex) != -1) {
+						// 		child.AddClass( 'selected-row' );
+						// 		this.#selectedRows.push( child );
+						// 	} else {
+						// 		child.RemoveClass( 'selected-row' );
+						// 	}
+						// });
+
+
+						// let start = this.#startShift;
+						// let startIndex = nodes.indexOf( start.DomObject );
+						// let end = el;
+						// let endIndex = nodes.indexOf( end.DomObject );
+						// this.#tbody.Childs.map(( child )=> {
+						// 	let cindex = nodes.indexOf( child.DomObject );
+						// 	if ( startIndex <= endIndex ) {
+						// 		if ( cindex >= startIndex && cindex <= endIndex ) {
+						// 			child.RemoveClass( 'selected-row' );
+						// 			child.AddClass( 'selected-row' );
+						// 			if ( this.#selectedRows.indexOf( child ) == -1 ) {
+						// 				console.log("1 добавляем в выделенные ", child.ShadowCopy.digest);
+						// 				this.#selectedRows.push( child );
+						// 			}
+						// 		}
+						// 	} else {
+						// 		if ( cindex <= startIndex && cindex >= endIndex ) {
+						// 			child.RemoveClass( 'selected-row' );
+						// 			child.AddClass( 'selected-row' );
+						// 			if ( this.#selectedRows.indexOf( child ) == -1 ) {
+						// 				console.log("2 добавляем в выделенные ", child.ShadowCopy.digest);
+						// 				this.#selectedRows.push( child );
+						// 			}
+						// 		}
+						// 	}
+						// });
 					} else {
+						this.#tbody.Childs.map(( child, index )=> {
+							child.RemoveClass( 'selected-row' );
+						});
 						this.#startShift = el;
-						this.#selectedRows.map(( item )=> item.RemoveClass( 'selected-row' ));
+						// this.#selectedRows.map(( item )=> item.RemoveClass( 'selected-row' ));
 						this.#selectedRows = [];
 						el.AddClass( 'selected-row' );
 						this.#selectedRows.push( el );
+						// console.log("3 добавляем в выделенные ", el.ShadowCopy.digest);
 					}
 					this.#HandleWatches();
 				} )
@@ -115,6 +164,11 @@ class ComplexTable extends Component {
 	};
 	SortByColIndex ( shoObject, index ) {
 		let sortClasses = [ 'sort-up', 'sort-down' ];
+		// сборосить все селекты
+		for (let i = 0; i < this.#selectedRows.length; i++) this.#selectedRows[i].RemoveClass('selected-row');
+		this.#selectedRows = [];
+
+		console.log('сортируем по index = ', index);
 		if ( typeof this.#memories.sort === 'undefined' ) {
 			this.#memories.sort = { col: index, side: 0, shoEl: shoObject };
 			shoObject.AddClass( sortClasses[this.#memories.sort.side] );
@@ -134,19 +188,20 @@ class ComplexTable extends Component {
 			sortedRows.sort( ( rowA, rowB ) => rowA.cells[index].innerHTML < rowB.cells[index].innerHTML ? 1 : -1 );
 		}
 		this.#tbody.DomObject.append( ...sortedRows );
-		if ( this.#selectedRows.length > 1 ) {
-			let newSelected = [];
-			let sortedRows = Array.from( this.#tbody.DomObject.rows );
-			for ( let i = 0; i < sortedRows.length; i++ ) {
-				for ( let j = 0; j < this.#selectedRows.length; j++ ) {
-					if ( this.#selectedRows[j].DomObject.isEqualNode( sortedRows[i] ) ) {
-						newSelected.push( this.#selectedRows[j] );
-						break;
-					}
-				}
-			}
-			this.#selectedRows = newSelected;
-		}
+		// if ( this.#selectedRows.length > 1 ) {
+		// 	let newSelected = [];
+		// 	let sortedRows = Array.from( this.#tbody.DomObject.rows );
+		// 	for ( let i = 0; i < sortedRows.length; i++ ) {
+		// 		for ( let j = 0; j < this.#selectedRows.length; j++ ) {
+		// 			if ( this.#selectedRows[j].DomObject.isEqualNode( sortedRows[i] ) ) {
+		// 				newSelected.push( this.#selectedRows[j] );
+		// 				break;
+		// 			}
+		// 		}
+		// 	}
+		// 	this.#selectedRows = newSelected;
+		// }
+		this.#tbody.Childs.map(child => child.RemoveClass( 'selected-row' ));
 	};
 	AddWatcher ( conf ) {
 		let watcher = { name: conf.name, func: conf.func };

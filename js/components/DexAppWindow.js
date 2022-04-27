@@ -313,6 +313,8 @@ class DexAppWindow extends WindowClass {
  		} else {
  			data.list = data.list;
 			let transport = this.Application.Transport;
+			console.log('Документы на печать ', data);
+			console.log("selectedRows=> ", selectedRows);
 			transport.Get( {com: 'skyline.apps.adapters', subcom: 'appApi', data: data, hash: this.Hash} );
  		}
 	}
@@ -340,7 +342,7 @@ class DexAppWindow extends WindowClass {
 		transport.Get( packet );
 	}
 	#HandleHooks ( data ) {
-		// console.log("data=> ", data);
+		console.log("data=> ", data);
 		if ( typeof data.err === 'undefined' ) {
 			if ( data.subaction === 'document.print.doc' || data.subaction === 'document.replacement') window.open( `${ this.Application.Transport.Url }/adapters/printing/${ data.link }`);
 			else if ( data.subaction === 'document.open.doc' ) {
@@ -369,7 +371,7 @@ class DexAppWindow extends WindowClass {
 		this.#GetData();
 	}
 	Commands ( packet ) {
-		// console.log("!!!!!! ", packet);
+		console.log("пакет с сервера ", packet);
 		switch ( packet.com ) {
 			case 'skyline.apps.adapters':
 				switch ( packet.subcom ) {

@@ -154,8 +154,9 @@ class SimpleHtmlObject {
 	// добавить класс
 	AddClass ( newclass ) {
 		let arr = newclass.split(' ');
+		console.log("this.#domElement.classList=> ", this.#domElement.classList);
 		for (let i = 0; i < arr.length; i++) {
-			this.#domElement.classList.toggle( arr[i] );
+			if (!this.#domElement.classList.value.includes(arr[i])) this.#domElement.classList.toggle( arr[i] );
 		}
 	};
 	ToggleClass ( tclass ) {
@@ -165,7 +166,7 @@ class SimpleHtmlObject {
 		// console.log( 'удалить класс', className , ' для элемента ', this.#domElement );
 		let arr = className.split(' ');
 		for (let i = 0; i < arr.length; i++) {
-			this.#domElement.classList.remove( arr[i] );
+			if (this.#domElement.classList.value.includes(arr[i])) this.#domElement.classList.remove( arr[i] );
 		}
 	};
 	AddWatch ( func ) { func ( this ); return this; };

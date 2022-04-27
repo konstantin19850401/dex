@@ -60,8 +60,8 @@ class Menu extends Component {
 								let li = new Li().AddChilds([
 									new A().SetAttributes( {class: 'dex-dropdown-item'} ).Text( child.text ).AddWatch(shoObject => {
 										shoObject.DomObject.addEventListener('click', event => {
-											button.AddClass( 'active-dropdown' );
-											ul.AddClass( 'show' );
+											button.RemoveClass( 'active-dropdown' );
+											ul.RemoveClass( 'show' );
 											if ( child.watch ) child.watch();
 										})
 									})
