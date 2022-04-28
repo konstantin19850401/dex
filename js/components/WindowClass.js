@@ -2,6 +2,7 @@
 class WindowClass {
 	#parent;#container;#application;#hash;#wTitle = "";
 	#shoTitle;#instruments;#cbody;#info;
+	#funcOnClose;
 	constructor ( application, parent ) {
 		this.#application = application;
 		this.#parent = parent;
@@ -45,6 +46,7 @@ class WindowClass {
 		this.#application.TaskBar.DeleteWindow( this.#hash );
 		// this.Parent.DeleteWindow( this.#hash );
 		this.Container.DeleteObject();
+		if (typeof this.#funcOnClose !== 'undefined') this.#funcOnClose();
 	}
 	Minimize() {
 		this.#container.DomObject.style.width = '0px';
@@ -61,6 +63,9 @@ class WindowClass {
 	}
 	Show() {
 		this.#container.Show();
+	}
+	OnClose(func) {
+		this.#funcOnClose = func;
 	}
 
 }

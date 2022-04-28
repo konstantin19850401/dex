@@ -60,7 +60,7 @@ class StoreHouse extends WindowClass {
 	}
 	#DrawTable() {
 		if (typeof this.#documentsTable !== 'undefined') this.#documentsTable.ClearHead();
-		this.#headers = [ {name: 'id', title: 'id'}, {name: 'status', title: ''}, {name: 'type', title: 'Документ'}, {name: 'creater', title: 'Автор'}, {name: "target", title: "Отделение"}, {name: 'date', title: 'Дата создания'} ];
+		this.#headers = [ {name: 'id', title: 'id'}, {name: 'status', title: ''}, {name: 'type', title: 'Документ'}, {name: 'creater', title: 'Автор'}, {name: "sum", title: "Сумма"}, {name: 'date', title: 'Дата создания'} ];
 
 		for (let i = 0; i < this.#headers.length; i++) {
 			let newHeader = new Th().SetAttributes( ).Text( this.#headers[i].title ).AddWatch( ( el )=> {
@@ -72,24 +72,24 @@ class StoreHouse extends WindowClass {
 
 		// let statusesLink = [{status: }];
 		for (let i=0; i< this.#documents.length; i++) {
-			let attrs = {'uid_num': this.#documents[i].uid};
+			let attrs = {'uid_num': this.#documents[i].id};
 			// if (this.#documents[i].status == 0) attrs.class = "bg-secondary bg-gradient";
 			let row = new Tr().SetAttributes( attrs );
 			for (let j=0; j<this.#headers.length; j++) {
 				let td = new Td();
 				if (this.#hiddens.indexOf(this.#headers[j].name) != -1) td.SetAttributes({class: 'dnone'});
 				if (this.#headers[j].name == "status") {
-					let iclass = "fas fa-check dex-app-window-status-complited";
+					let iclass = "fas fa-file dex-app-window-status-create";
 					if (this.#documents[i].status == 100) iclass = 'fas fa-times dex-app-window-status-todelete';
-					else if (this.#documents[i].status == 102) iclass += 'fas fa-check-double dex-app-window-status-complited';
+					else if (this.#documents[i].status == 102) iclass = 'fas fa-check dex-app-window-status-complited';
 					new I({parent: td}).SetAttributes({class: iclass});
 					// td.AddClass("dex-app-window-status-create");
 				} else td.Text(this.#documents[i][this.#headers[j].name])
 				row.AddChilds([td]);
 			}
-			row.AddWatch(sho=> sho.DomObject.addEventListener('dblclick', event=> this.#GetDataById(this.#documents[i].uid)) );
+			row.AddWatch(sho=> sho.DomObject.addEventListener('dblclick', event=> this.#GetDataById(this.#documents[i].id)) );
 			this.#documentsTable.AddRow( row );
-			this.#csDocuments.push({uid: this.#documents[i].uid, sc: row});
+			this.#csDocuments.push({id: this.#documents[i].id, sc: row});
 		}
 	}
 	#SetTotalCnt ( list ) {
@@ -129,13 +129,15 @@ class StoreHouse extends WindowClass {
 	#CreateNewDoc(id, mw) {
 		console.log("id=> ", id);
 		if (id == 3) { // поступление
-			new ArrivalStoreHouse(this.Application, this.Parent );
+			let ash = new ArrivalStoreHouse(this.Application, this.Parent );
+			ash.OnClose(() => { this.#GetJournal() });
 		}
 		mw.Close();
 	}
 	#GetDataById(id) {
 	}
 	#GetJournal() {
+		console.log("запросить данные журнала");
 		let data = { action: 'getStoreJournal' };
 		for ( let key in this.#filter ) {
 			if ( typeof this.#filter[key] !== 'undefined') data[key] = this.#filter[key];

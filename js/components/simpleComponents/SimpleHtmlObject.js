@@ -154,7 +154,7 @@ class SimpleHtmlObject {
 	// добавить класс
 	AddClass ( newclass ) {
 		let arr = newclass.split(' ');
-		console.log("this.#domElement.classList=> ", this.#domElement.classList);
+		// console.log("this.#domElement.classList=> ", this.#domElement.classList);
 		for (let i = 0; i < arr.length; i++) {
 			if (!this.#domElement.classList.value.includes(arr[i])) this.#domElement.classList.toggle( arr[i] );
 		}

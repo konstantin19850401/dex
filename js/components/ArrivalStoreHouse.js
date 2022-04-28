@@ -18,15 +18,15 @@ class ArrivalStoreHouse extends WindowClass {
 		this.#data = [];
 		this.Instruments.AddChilds([
 			new Div().SetAttributes( {class: 'dex-app-window-filter'} ).AddChilds([
-				new Div().SetAttributes({class: 'dex-filter-element'}).AddChilds([
-					new I().SetAttributes({class: 'fas fa-check-square'}),
-				]).AddWatch(sho=> sho.DomObject.addEventListener('click', event=> this.#Create()))
+				new Button().SetAttributes({class: 'dex-menu-btn'})
+					.Text('Создать документ')
+					.AddWatch(sho=> sho.DomObject.addEventListener('click', event=> this.#Create()))
 			])
 		]);
 		this.#headers = [
 			{uid: 0, titles: [{name: 'num', title: 'п/п'}, {name: 'icc', title: 'ICC'}, {name: 'msidn', title:'MSISDN'}, {name: "tp", title: 'Тарифный план'}]},
 			{uid: 1, titles: [{name: 'num', title: 'п/п'}, {name: 'title', title: 'Наименование'}]},
-			{uid: 2, titles: [{name: 'num', title: 'п/п'}, {name: 'icc', title: 'ICC'}]},
+			{uid: 2, titles: [{name: 'num', title: 'п/п'}, {name: 'icc', title: 'ICC'}]}
 		];
 		this.#cascadeList = [
 			{name: 'stock', sho: null, dict: 'stocks', labelTitle: 'Склад', rulles: [], value: null},
@@ -64,13 +64,16 @@ class ArrivalStoreHouse extends WindowClass {
 				.AddChilds((()=> {
 					let arr = [];
 					let dict = this.#dicts.find(item => item.name == this.#cascadeList[i].dict);
+					let firts = null;
 					for (let i = 0; i < dict.list.length; i++) {
 						if (dict.list[i].status == 1) {
+							if (firts === null) firts = dict.list[i].uid;
 							let option = new Option().SetAttributes({'value': dict.list[i].uid}).Text(dict.list[i].title);
 							arr.push(option);
 						}
 					}
-					this.#cascadeList[i].value = dict.list[0].uid;
+					console.log("ставим для ", this.#cascadeList[i].dict, " => ", firts);
+					this.#cascadeList[i].value = firts;
 					return arr;
 				})())
 				.AddWatch(sho=> sho.DomObject.addEventListener('change', event=> {
@@ -183,6 +186,8 @@ class ArrivalStoreHouse extends WindowClass {
 			data[this.#cascadeList[i].name] = this.#cascadeList[i].value;
 		}
 		console.log("fdata=> ", data, " data=> ", this.#data);
+		let packet = { com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'createDocumentInStoreHouse', params: data, list: this.#data}, hash: this.Hash};
+		this.#transport.Get( packet );
 	}
 	Commands ( packet ) {
 		// console.log(packet);
@@ -200,6 +205,17 @@ class ArrivalStoreHouse extends WindowClass {
 									}
 								}
 								this.#Init();
+							break;
+							case 'createDocumentInStoreHouse':
+								console.log("createDocumentInStoreHouse=> ", packet);
+								if (packet.data.status == 200) this.Close();
+								else if (typeof packet.data.errs !== 'undefined' && packet.data.errs.length > 0) {
+									if (typeof packet.data.double !== 'undefined') {
+										for (let i = 0; i < this.#arrivalTable.Tbody.Childs.length; i++) {
+											if (packet.data.double.indexOf(i) != -1) this.#arrivalTable.Tbody.Childs[i].AddClass('bg-warning');
+										}
+									}
+								}
 							break;
 						}
 					break;
