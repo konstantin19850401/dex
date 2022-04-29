@@ -79,7 +79,8 @@ class StoreHouse extends WindowClass {
 				let td = new Td();
 				if (this.#hiddens.indexOf(this.#headers[j].name) != -1) td.SetAttributes({class: 'dnone'});
 				if (this.#headers[j].name == "status") {
-					let iclass = "fas fa-file dex-app-window-status-create";
+					td.AddClass('dex-table-status');
+					let iclass = "dex-app-window-status-create";
 					if (this.#documents[i].status == 100) iclass = 'fas fa-times dex-app-window-status-todelete';
 					else if (this.#documents[i].status == 102) iclass = 'fas fa-check dex-app-window-status-complited';
 					new I({parent: td}).SetAttributes({class: iclass});

@@ -3,6 +3,8 @@ class ArrivalStoreHouse extends WindowClass {
 	#transport;#dicts;
 	#right;#headers;#valHeaders = 0;#arrivalTable;#cascadeList;
 	#data = [];
+	#errorsRecords = [];
+	#btnErrs;
 	constructor ( application, parent ) {
 		super( application, parent );
 		this.#transport = this.Application.Transport;
@@ -19,10 +21,14 @@ class ArrivalStoreHouse extends WindowClass {
 		this.Instruments.AddChilds([
 			new Div().SetAttributes( {class: 'dex-app-window-filter'} ).AddChilds([
 				new Button().SetAttributes({class: 'dex-menu-btn'})
-					.Text('Создать документ')
-					.AddWatch(sho=> sho.DomObject.addEventListener('click', event=> this.#Create()))
+					.Text('Провести')
+					.AddWatch(sho=> sho.DomObject.addEventListener('click', event=> this.#Create())),
+				this.#btnErrs = new Button().SetAttributes({class: 'dex-menu-btn'})
+					.Text('Удалить ошибочные')
+					.AddWatch(sho=> sho.DomObject.addEventListener('click', event=> this.#DeleteWrongRecords())),
 			])
 		]);
+		this.#btnErrs.Hide();
 		this.#headers = [
 			{uid: 0, titles: [{name: 'num', title: 'п/п'}, {name: 'icc', title: 'ICC'}, {name: 'msidn', title:'MSISDN'}, {name: "tp", title: 'Тарифный план'}]},
 			{uid: 1, titles: [{name: 'num', title: 'п/п'}, {name: 'title', title: 'Наименование'}]},
@@ -189,6 +195,12 @@ class ArrivalStoreHouse extends WindowClass {
 		let packet = { com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'createDocumentInStoreHouse', params: data, list: this.#data}, hash: this.Hash};
 		this.#transport.Get( packet );
 	}
+	#DeleteWrongRecords() {
+		this.#arrivalTable.DeleteRowByIndex(this.#errorsRecords)
+		this.#data = this.#data.filter((value, index)=> this.#errorsRecords.indexOf(index) == -1 );
+		this.#errorsRecords = [];
+		this.#btnErrs.Hide();
+	}
 	Commands ( packet ) {
 		// console.log(packet);
 		switch ( packet.com ) {
@@ -210,9 +222,14 @@ class ArrivalStoreHouse extends WindowClass {
 								console.log("createDocumentInStoreHouse=> ", packet);
 								if (packet.data.status == 200) this.Close();
 								else if (typeof packet.data.errs !== 'undefined' && packet.data.errs.length > 0) {
+									this.#btnErrs.Show();
+									this.#errorsRecords = [];
 									if (typeof packet.data.double !== 'undefined') {
 										for (let i = 0; i < this.#arrivalTable.Tbody.Childs.length; i++) {
-											if (packet.data.double.indexOf(i) != -1) this.#arrivalTable.Tbody.Childs[i].AddClass('bg-warning');
+											if (packet.data.double.indexOf(i) != -1) {
+												this.#arrivalTable.Tbody.Childs[i].AddClass('bg-warning');
+												this.#errorsRecords.push(i);
+											}
 										}
 									}
 								}

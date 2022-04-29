@@ -66,3 +66,6 @@
 .dex-table-container table td:first-child {
     border-left:  none;
 }
+.dex-table-status {
+    width: 20px;
+}

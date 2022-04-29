@@ -220,4 +220,21 @@ class ComplexTable extends Component {
 		this.#contextMenu.DomObject.style.marginLeft = `${ coords.x }px`;
 		this.#contextMenu.Open();
 	};
+	DeleteRowByIndex(idx) {
+		let arr = [];
+		if (Array.isArray(idx)) {
+			for (let i = 0; i < idx.length; i++) {
+				let child = this.#tbody.Childs.find((item, index) => index == idx[i]);
+				if (typeof child !== 'undefined') arr.push(child);
+			}
+		} else {
+			let child = this.#tbody.Childs.find((item, index) => index == idx);
+			if (typeof child !== 'undefined') arr.push(child);
+		}
+
+	 	if (arr.length > 0) {
+	 		console.log(arr);
+	 		arr.map(item => item.DeleteObject());
+	 	}
+	};
 }
