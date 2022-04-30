@@ -1,6 +1,6 @@
 'use strict'
 class StoreHouse extends WindowClass {
-	#transport;#documents = [];#documentsTable;#headers;#hiddens = ["id"];
+	#transport;#documents = [];#documentsTable;#headers;#hiddens = [];
 	#csDocuments = [];
 	#totalDocsSho;#selectedDocsSho;#totalDocs=0;#selectedDocs=0;
 	#ifIssetFilters = [];
@@ -60,7 +60,7 @@ class StoreHouse extends WindowClass {
 	}
 	#DrawTable() {
 		if (typeof this.#documentsTable !== 'undefined') this.#documentsTable.ClearHead();
-		this.#headers = [ {name: 'id', title: 'id'}, {name: 'status', title: ''}, {name: 'type', title: 'Документ'}, {name: 'creater', title: 'Автор'}, {name: "sum", title: "Сумма"}, {name: 'date', title: 'Дата создания'} ];
+		this.#headers = [ {name: 'id', title: '№'}, {name: 'status', title: ''}, {name: 'type', title: 'Документ'}, {name: 'creater', title: 'Автор'}, {name: 'stock', title: 'На склад'}, {name: 'fromStock', title: 'Со склада'}, {name: "sum", title: "Сумма"}, {name: 'date', title: 'Дата создания'} ];
 
 		for (let i = 0; i < this.#headers.length; i++) {
 			let newHeader = new Th().SetAttributes( ).Text( this.#headers[i].title ).AddWatch( ( el )=> {
@@ -78,6 +78,7 @@ class StoreHouse extends WindowClass {
 			for (let j=0; j<this.#headers.length; j++) {
 				let td = new Td();
 				if (this.#hiddens.indexOf(this.#headers[j].name) != -1) td.SetAttributes({class: 'dnone'});
+				if (this.#headers[j].name == "id") td.AddClass('dex-table-number');
 				if (this.#headers[j].name == "status") {
 					td.AddClass('dex-table-status');
 					let iclass = "dex-app-window-status-create";
@@ -148,7 +149,7 @@ class StoreHouse extends WindowClass {
 	}
 
 	Commands ( packet ) {
-		// console.log(packet);
+		console.log(packet);
 		switch ( packet.com ) {
 			case 'skyline.apps.adapters':
 				switch ( packet.subcom ) {

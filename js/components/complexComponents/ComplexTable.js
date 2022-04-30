@@ -162,6 +162,9 @@ class ComplexTable extends Component {
 		this.#theadTr.RemoveChilds();
 		this.#tbody.RemoveChilds();
 	};
+	ClearBody() {
+		this.#tbody.RemoveChilds();
+	};
 	SortByColIndex ( shoObject, index ) {
 		let sortClasses = [ 'sort-up', 'sort-down' ];
 		// сборосить все селекты
@@ -231,10 +234,11 @@ class ComplexTable extends Component {
 			let child = this.#tbody.Childs.find((item, index) => index == idx);
 			if (typeof child !== 'undefined') arr.push(child);
 		}
-
-	 	if (arr.length > 0) {
-	 		console.log(arr);
-	 		arr.map(item => item.DeleteObject());
-	 	}
+	 	if (arr.length > 0) arr.map(item => item.DeleteObject());
+	};
+	RebuildRowNumbers() {
+		for (let i = 0; i < this.#tbody.Childs.length; i++) {
+			this.#tbody.Childs[i].Childs[0].Text(i + 1);
+		}
 	};
 }

@@ -30,9 +30,9 @@ class ArrivalStoreHouse extends WindowClass {
 		]);
 		this.#btnErrs.Hide();
 		this.#headers = [
-			{uid: 0, titles: [{name: 'num', title: 'п/п'}, {name: 'icc', title: 'ICC'}, {name: 'msidn', title:'MSISDN'}, {name: "tp", title: 'Тарифный план'}]},
-			{uid: 1, titles: [{name: 'num', title: 'п/п'}, {name: 'title', title: 'Наименование'}]},
-			{uid: 2, titles: [{name: 'num', title: 'п/п'}, {name: 'icc', title: 'ICC'}]}
+			{uid: 0, titles: [{name: 'num', title: '№'}, {name: 'icc', title: 'ICC'}, {name: 'msidn', title:'MSISDN'}, {name: "tp", title: 'Тарифный план'}]},
+			{uid: 1, titles: [{name: 'num', title: '№'}, {name: 'title', title: 'Наименование'}]},
+			{uid: 2, titles: [{name: 'num', title: '№'}, {name: 'icc', title: 'ICC'}]}
 		];
 		this.#cascadeList = [
 			{name: 'stock', sho: null, dict: 'stocks', labelTitle: 'Склад', rulles: [], value: null},
@@ -78,7 +78,7 @@ class ArrivalStoreHouse extends WindowClass {
 							arr.push(option);
 						}
 					}
-					console.log("ставим для ", this.#cascadeList[i].dict, " => ", firts);
+					// console.log("ставим для ", this.#cascadeList[i].dict, " => ", firts);
 					this.#cascadeList[i].value = firts;
 					return arr;
 				})())
@@ -123,6 +123,9 @@ class ArrivalStoreHouse extends WindowClass {
 				sho.DomObject.addEventListener('input', event=> {
 					let rows = event.target.value.split(/\n/g);
 					if (rows != '') {
+						this.#arrivalTable.ClearBody();
+						this.#errorsRecords = [];
+						this.#btnErrs.Hide();
 						this.#data = [];
 						for (let i = 0; i < rows.length; i++) {
 							if (rows[i] != '') {
@@ -192,14 +195,18 @@ class ArrivalStoreHouse extends WindowClass {
 			data[this.#cascadeList[i].name] = this.#cascadeList[i].value;
 		}
 		console.log("fdata=> ", data, " data=> ", this.#data);
-		let packet = { com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'createDocumentInStoreHouse', params: data, list: this.#data}, hash: this.Hash};
-		this.#transport.Get( packet );
+		if (this.#data.length > 5000) alert("В документ вы можете добавить не более 5000 записей");
+		else {
+			let packet = { com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'createDocumentInStoreHouse', params: data, list: this.#data}, hash: this.Hash};
+			this.#transport.Get( packet );
+		}
 	}
 	#DeleteWrongRecords() {
 		this.#arrivalTable.DeleteRowByIndex(this.#errorsRecords)
 		this.#data = this.#data.filter((value, index)=> this.#errorsRecords.indexOf(index) == -1 );
 		this.#errorsRecords = [];
 		this.#btnErrs.Hide();
+		this.#arrivalTable.RebuildRowNumbers();
 	}
 	Commands ( packet ) {
 		// console.log(packet);
@@ -222,15 +229,17 @@ class ArrivalStoreHouse extends WindowClass {
 								console.log("createDocumentInStoreHouse=> ", packet);
 								if (packet.data.status == 200) this.Close();
 								else if (typeof packet.data.errs !== 'undefined' && packet.data.errs.length > 0) {
-									this.#btnErrs.Show();
 									this.#errorsRecords = [];
 									if (typeof packet.data.double !== 'undefined') {
+										this.#btnErrs.Show();
 										for (let i = 0; i < this.#arrivalTable.Tbody.Childs.length; i++) {
 											if (packet.data.double.indexOf(i) != -1) {
 												this.#arrivalTable.Tbody.Childs[i].AddClass('bg-warning');
 												this.#errorsRecords.push(i);
 											}
 										}
+									} else {
+										alert(packet.data.errs.join('\n'));
 									}
 								}
 							break;
