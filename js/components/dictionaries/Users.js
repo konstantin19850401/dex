@@ -1,65 +1,103 @@
 'use strict'
 class Users extends Dictionaries {
-	#users = [];#groups = [];#cbody;#usersTable;#transport;#newElement;#headers;#apps = [];
+	#users = [];#groups = [];#cbody;#transport;#newElement;#headers;#apps = [];
 	#scUsers = [];
+	#usersTable;
 	constructor ( application, parent) {
 		super( application, parent );
+		this.Title = "Справочник пользователей";
 		this.#transport = this.Application.Transport;
-		this.#GetApps();
+		// this.#Init();
+		// this.#GetApps();
+
+		this.Init({actions: {
+			add: ()=> {this.#AddNewElement()},
+			delete: ()=> {this.#DeleteElement()},
+			getRecordById: (id)=> {this.#GetDataById(id)}
+		}});
+		this.#InitTitles();
+		this.GetDicts('userGroups');
+		this.#GetDict();
 	}
 	// ГЕТТЕРЫ
 
 	// СЕТТЕРЫ
-
+	// #Init() {
+	// 	// this.#usersTable = new ComplexTable( this.Application, this.CBody);
+	// 	this.Table = new ComplexTable( this.Application, this.CBody);
+	// 	this.Instruments.AddChilds([
+	// 		new Div().SetAttributes( {class: 'dex-app-window-filter'} ).AddChilds([
+	// 			new Div().SetAttributes({class: 'dex-filter-element'}).AddChilds([
+	// 				new I().SetAttributes( {class: 'fas fa-user-minus'} ).AddWatch(sho => {
+	// 					sho.DomObject.addEventListener( 'click', event => this.#DeleteElement() )
+	// 				})
+	// 			]),
+	// 			new Div().SetAttributes({class: 'dex-filter-element'}).AddChilds([
+	// 				new I().SetAttributes( {class: 'fas fa-user-plus'} ).AddWatch(sho => {
+	// 					sho.DomObject.addEventListener( 'click', event => this.#AddNewElement() )
+	// 				})
+	// 			])
+	// 		])
+	// 	]);
+	// }
 	// ПРИВАТНЫЕ МЕТОДЫ
-	#Show( data ) {
-		this.Container = new Div( {parent: this.Parent.Container} ).SetAttributes( {class: 'dex-dict'} ).AddChilds([
-			new I().SetAttributes( {class: 'dex-configuration-close fas fa-window-close'} ).AddWatch(sho => {
-				sho.DomObject.addEventListener( 'click', event => this.#Close() )
-			}),
-			new I().SetAttributes( {class: 'dex-configuration-delete fas fa-user-minus'} ).AddWatch(sho => {
-				sho.DomObject.addEventListener( 'click', event => this.#DeleteElement() )
-			}),
-			new I().SetAttributes( {class: 'dex-configuration-add fas fa-user-plus'} ).AddWatch(sho => {
-				sho.DomObject.addEventListener( 'click', event => this.#AddNewElement() )
-			}),
-			new Span().SetAttributes( {class: 'dex-configuration-title'} ).Text( `Справочник пользователей` ),
-			this.#cbody = new Div().SetAttributes( {class: 'dex-contract-body row'} )
-		]);
-		this.#CreateList();
+	// #Show( data ) {
+	// 	// this.Container = new Div( {parent: this.Parent.Container} ).SetAttributes( {class: 'dex-dict'} ).AddChilds([
+	// 	// 	new I().SetAttributes( {class: 'dex-configuration-close fas fa-window-close'} ).AddWatch(sho => {
+	// 	// 		sho.DomObject.addEventListener( 'click', event => this.#Close() )
+	// 	// 	}),
+	// 	// 	new I().SetAttributes( {class: 'dex-configuration-delete fas fa-user-minus'} ).AddWatch(sho => {
+	// 	// 		sho.DomObject.addEventListener( 'click', event => this.#DeleteElement() )
+	// 	// 	}),
+	// 	// 	new I().SetAttributes( {class: 'dex-configuration-add fas fa-user-plus'} ).AddWatch(sho => {
+	// 	// 		sho.DomObject.addEventListener( 'click', event => this.#AddNewElement() )
+	// 	// 	}),
+	// 	// 	new Span().SetAttributes( {class: 'dex-configuration-title'} ).Text( `Справочник пользователей` ),
+	// 	// 	this.#cbody = new Div().SetAttributes( {class: 'dex-contract-body row'} )
+	// 	// ]);
+	// 	this.#CreateList();
+	// }
+	#InitTitles( data ) {
+		this.#headers = [ {name: 'uid', title: 'id'}, {name:'username', title: 'Логин'}, {name: 'lastname', title: 'Фамилия'}, {name: 'firstname', title:'Имя'}, {name: 'user_group_id', title: 'Группа'}, {name: 'status', title: 'Статус'}];
+		this.TableTitles = this.#headers;
+		// this.#AddRows();
 	}
-	#CreateList() {
-		// this.#unitsTable = new ComplexTable( this.Application, this.#cbody ).AddWatcher({name: 'watchSelectedRows', func: ( rows )=> { this.#SetSelectedCnt( rows ) }});
-		this.#usersTable = new ComplexTable( this.Application, this.#cbody);
-		this.#headers = [ {name: 'uid', title: 'id'}, {name:'username', title: 'Логин'}, {name: 'lastname', title: 'Фамилия'}, {name: 'firstname', title:'Имя'}, {name: 'user_group_id', title: 'Группа'}];
-		this.#usersTable.DomObject.style.height = `calc(${ this.#cbody.DomObject.clientHeight }px - 5px)`;
-		for (let i = 0; i < this.#headers.length; i++) {
-			let newHeader = new Th().SetAttributes( ).Text( this.#headers[i].title ).AddWatch( ( el )=> {
-				el.DomObject.addEventListener('click', ( event ) => {this.#usersTable.SortByColIndex( el, i )})
-			});
-			this.#usersTable.AddHead( newHeader );
-		}
-		this.#AddRows();
-	}
-	#AddRows() {
-		for (let i=0; i< this.#users.length; i++) {
-			let row = new Tr().SetAttributes( {'uid_num': this.#users[i].uid} );
-			for (let j=0; j<this.#headers.length; j++) {
-				if (this.#headers[j].name == 'user_group_id') {
-					let d = this.#users[i][this.#headers[j].name];
-					let group = this.#groups.find(item=> item.user_group_id == d);
-					row.AddChilds([ new Td().Text( group.name ) ]);
-				} else row.AddChilds([ new Td().Text( this.#users[i][this.#headers[j].name] ) ]);
-			}
-			row.AddWatch(sho=> sho.DomObject.addEventListener('dblclick', event=> this.#GetDataById(this.#users[i].uid)) );
-			this.#usersTable.AddRow( row );
-			this.#scUsers.push({uid: this.#users[i].uid, sc: row});
-		}
-	}
-	#Close () {
-		this.Container.DeleteObject();
-		this.Application.DeleteHash( this.Hash );
-	};
+	// #CreateList() {
+	// 	// this.#unitsTable = new ComplexTable( this.Application, this.#cbody ).AddWatcher({name: 'watchSelectedRows', func: ( rows )=> { this.#SetSelectedCnt( rows ) }});
+	// 	// this.#usersTable = new ComplexTable( this.Application, this.#cbody);
+	// 	this.#headers = [ {name: 'uid', title: 'id'}, {name:'username', title: 'Логин'}, {name: 'lastname', title: 'Фамилия'}, {name: 'firstname', title:'Имя'}, {name: 'user_group_id', title: 'Группа'}];
+	// 	// this.#usersTable.DomObject.style.height = `calc(${ this.#cbody.DomObject.clientHeight }px - 5px)`;
+	// 	this.Table.DomObject.style.height = `calc(${ this.#cbody.DomObject.clientHeight }px - 5px)`;
+	// 	for (let i = 0; i < this.#headers.length; i++) {
+	// 		let newHeader = new Th().SetAttributes( ).Text( this.#headers[i].title ).AddWatch( ( el )=> {
+	// 			// el.DomObject.addEventListener('click', ( event ) => {this.#usersTable.SortByColIndex( el, i )})
+	// 			el.DomObject.addEventListener('click', ( event ) => {this.Table.SortByColIndex( el, i )})
+	// 		});
+	// 		// this.#usersTable.AddHead( newHeader );
+	// 		this.Table.AddHead( newHeader );
+	// 	}
+	// 	this.#AddRows();
+	// }
+	// #AddRows() {
+	// 	for (let i=0; i< this.#users.length; i++) {
+	// 		let row = new Tr().SetAttributes( {'uid_num': this.#users[i].uid} );
+	// 		for (let j=0; j<this.#headers.length; j++) {
+	// 			if (this.#headers[j].name == 'user_group_id') {
+	// 				let d = this.#users[i][this.#headers[j].name];
+	// 				let group = this.#groups.find(item=> item.user_group_id == d);
+	// 				row.AddChilds([ new Td().Text( group.name ) ]);
+	// 			} else row.AddChilds([ new Td().Text( this.#users[i][this.#headers[j].name] ) ]);
+	// 		}
+	// 		row.AddWatch(sho=> sho.DomObject.addEventListener('dblclick', event=> this.#GetDataById(this.#users[i].uid)) );
+	// 		// this.#usersTable.AddRow( row );
+	// 		this.Table.AddRow( row );
+	// 		this.#scUsers.push({uid: this.#users[i].uid, sc: row});
+	// 	}
+	// }
+	// #Close () {
+	// 	this.Container.DeleteObject();
+	// 	this.Application.DeleteHash( this.Hash );
+	// };
 	#CloseNewElement() {
 		this.#newElement.DeleteObject();
 	}
@@ -79,7 +117,8 @@ class Users extends Dictionaries {
 	//удаление елемента
 	#DeleteElement() {
 		let dels = [];
-		let arr = this.#usersTable.SelectedRows;
+		// let arr = this.#usersTable.SelectedRows;
+		let arr = this.Table.SelectedRows;
 		let acslength = 300;
 		if (arr.length > 0) {
 			if (arr.length < acslength) {
@@ -95,7 +134,7 @@ class Users extends Dictionaries {
 	}
 	//добавление нового элемента в справочник
 	#AddNewElement(element) {
-		// console.log('element=> ', element);
+		console.log('element=> ', element);
 		let formHash = this.Application.Toolbox.GenerateHash;
 		let domTitle;
 		let fields = {
@@ -191,16 +230,14 @@ class Users extends Dictionaries {
 	}
 	// ПУБЛИЧНЫЕ МЕТОДЫ
 	Commands ( packet ) {
-		// console.log( packet );
+		console.log( packet );
 		switch ( packet.com ) {
 			case 'skyline.apps.adapters':
 				switch ( packet.subcom ) {
 					case 'appApi':
 						switch ( packet.data.action ) {
 							case 'getUsers':
-								if (packet.data.list.length > 0) this.#users = packet.data.list;
-								if ( typeof this.#usersTable === 'undefined' ) this.#Show(packet.data);
-								else this.#AddRows();
+								if (packet.data.list.length > 0) this.TableData = packet.data.list;
 							break;
 							case 'getDictUserSingleId':
 								this.#AddNewElement(packet.data.list[0]);
@@ -220,18 +257,18 @@ class Users extends Dictionaries {
 								console.log('createNewUser=> ', packet);
 								if (packet.data.status == 200) {
 									this.#CloseNewElement();
-									for (let i = 0; i < this.#scUsers.length; i++) {
-										this.#scUsers[i].sc.DeleteObject();
+									for (let i = 0; i < this.ScDict.length; i++) {
+										this.ScDict[i].sc.DeleteObject();
 									}
-									this.#scUsers = [];
+									// this.ScDict = [];
 									this.#GetDict();
 								}
 							break;
 							case 'delElementsFromDict':
 								for (let i=0; i<packet.data.deleted.length; i++) {
-									let index = this.#scUsers.findIndex((item)=> item.uid == packet.data.deleted[i]);
+									let index = this.ScDict.findIndex((item)=> item.uid == packet.data.deleted[i]);
 									if (index != -1) {
-										let d = this.#scUsers.splice(index, 1);
+										let d = this.ScDict.splice(index, 1);
 										d[0].sc.DeleteObject();
 									}
 								}
@@ -239,12 +276,20 @@ class Users extends Dictionaries {
 							case 'editUser':
 								if (packet.data.status == 200) {
 									this.#CloseNewElement();
-									for (let i = 0; i < this.#scUsers.length; i++) {
-										this.#scUsers[i].sc.DeleteObject();
+									for (let i = 0; i < this.ScDict.length; i++) {
+										this.ScDict[i].sc.DeleteObject();
 									}
-									this.#scUsers = [];
+									// this.ScDict = [];
 									this.#GetDict();
 								}
+							break;
+							case 'getNewDicts':
+								console.log("пришли справочники ", packet);
+								if (packet.data.list.length > 0) {
+									let userGroups = packet.data.list.find(item=> item.name == 'userGroups');
+									if (typeof userGroups !== 'undefined') this.#groups = userGroups.list;
+								}
+								this.#GetDict();
 							break;
 						}
 					break;
