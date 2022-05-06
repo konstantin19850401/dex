@@ -1,7 +1,7 @@
 'use strict'
 class Units extends Dictionaries {
 	#units = [];#cbody;#unitsTable;#newElement;#regions = [];#headers;
-	#scUnits = [];#store;#scStores = [];#storeTable;#autoct;
+	#scUnits = [];#store;#scStores = [];#storeTable;#autoct = [];
 	constructor ( application, parent) {
 		super( application, parent );
 		this.Title = "Справочник отделений";
@@ -52,10 +52,10 @@ class Units extends Dictionaries {
 			this.Transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDictStoresSingleId', id: storeId}, hash: this.Hash});
 		}
 	}
-	#GetAddress(string) {
+	#GetAddress(string, item) {
 		// console.log("======> ", string);
 		if (typeof string !== 'undefined' && string != '') {
-			this.Transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getKladrByOneString', string: string}, hash: this.Hash});
+			this.Transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getKladrByOneString', string: string, item: item}, hash: this.Hash});
 		}
 	}
 	//удаление елемента
@@ -91,8 +91,15 @@ class Units extends Dictionaries {
 			secondname: 'Отчество',
 			inn: 'ИНН',
 			ogrn: 'ОГРН',
+			agreement_number: 'Номер договора',
+			docSeries: 'Серия паспорта',
+			docNumber: 'Номер паспорта',
+			docDate: 'Дата выдачи паспорта',
+			docOrg: 'Организация, выдавшая паспорт',
+			docOrgCode: 'Код организации, выдавшей паспорт',
 			region: 'Регион',
-			address: 'Адрес',
+			fiz_address: 'Физ. адрес',
+			legal_address: 'Юр. адрес',
 			status: 'Статус'
 		};
 		// console.log(this.Application);
@@ -144,12 +151,14 @@ class Units extends Dictionaries {
 								return select;
 							} else {
 								let input;
-								if (key == 'address') {
+								if (key == 'fiz_address' || key == 'legal_address') {
 									inputAttrs.class = "col-sm-12 autocomplete";
 									autocompleteInput = input = new Textarea().SetAttributes( inputAttrs );
 									// console.log("autocompleteInput=> ", autocompleteInput);
-									autocompleteInput.AddWatch(sho=> sho.DomObject.addEventListener('input', event=> this.#GetAddress(event.target.value)));
-									this.#autoct = new Autocomplete(autocompleteInput, [], true);
+									let ahash = this.Application.Toolbox.GenerateHash;
+									autocompleteInput.AddWatch(sho=> sho.DomObject.addEventListener('input', event=> this.#GetAddress(event.target.value, ahash)));
+									// this.#autoct = new Autocomplete(autocompleteInput, [], true);
+									this.#autoct.push({name: ahash, sho: new Autocomplete(autocompleteInput, [], true) });
 								} else {
 									input = new Input().SetAttributes( inputAttrs );
 								}
@@ -221,7 +230,7 @@ class Units extends Dictionaries {
 		}
 	}
 	#EditUnit(formHash, fields) {
-		console.log('Редактировать');
+
 		let data = {};
 		for (let key in fields) {
 			let element = document.getElementById(`${key}_${formHash}`);
@@ -230,6 +239,7 @@ class Units extends Dictionaries {
 				data[key] = element.value;
 			}
 		}
+		console.log('Редактировать ', data);
 		this.Transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'editUnit', fields: data}, hash: this.Hash});
 	}
 	#EditStore(formHash, fields) {
@@ -332,9 +342,10 @@ class Units extends Dictionaries {
 							if (key == 'address') {
 								inputAttrs.class = "col-sm-12 autocomplete";
 								autocompleteInput = input = new Textarea().SetAttributes( inputAttrs );
+								let ahash = this.Application.Toolbox.GenerateHash;
 								// console.log("autocompleteInput=> ", autocompleteInput);
-								autocompleteInput.AddWatch(sho=> sho.DomObject.addEventListener('input', event=> this.#GetAddress(event.target.value)));
-								this.#autoct = new Autocomplete(autocompleteInput, [], true);
+								autocompleteInput.AddWatch(sho=> sho.DomObject.addEventListener('input', event=> this.#GetAddress(event.target.value, ahash)));
+								this.#autoct.push({name: ahash, sho: new Autocomplete(autocompleteInput, [], true) });
 							} else {
 								input = new Input().SetAttributes( inputAttrs );
 							}
@@ -437,8 +448,11 @@ class Units extends Dictionaries {
 								this.#ShowUnitStore(packet.data.list[0]);
 							break;
 							case 'getKladrByOneString':
-								this.#autoct.List(packet.data.list);
-								this.#autoct.IfInput();
+								let autocompleteItem = this.#autoct.find(item=> item.name == packet.data.item);
+								autocompleteItem.sho.List(packet.data.list);
+								autocompleteItem.sho.IfInput();
+								// this.#autoct.List(packet.data.list);
+								// this.#autoct.IfInput();
 							break;
 							case 'getNewDicts':
 								console.log("пришли справочники ", packet);
@@ -447,6 +461,17 @@ class Units extends Dictionaries {
 									if (typeof regions !== 'undefined') this.#regions = regions.list;
 								}
 								this.#GetDict();
+							break;
+							case 'printAgreementUnits':
+								if (typeof packet.data.link !== 'undefined' && packet.data.status == 200) {
+									if (Array.isArray(packet.data.link)) {
+										for (let i = 0; i < packet.data.link.length; i++) {
+											window.open( `${ this.Application.Transport.Url }/adapters/printing/${ packet.data.link[i] }`);
+										}
+									} else {
+										window.open( `${ this.Application.Transport.Url }/adapters/printing/${ packet.data.link }`);
+									}
+								}
 							break;
 
 						}
