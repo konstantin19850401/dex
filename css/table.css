@@ -2,10 +2,11 @@
 	margin-top: 3px;
 	font-size: 11px;
 	overflow: auto;
+    font-size: 14px;
 }
 .dex-table-container thead th {
 	font-weight: 100;
-	font-size: 12px;
+	font-size: 14px;
 }
 .sort-up:before {
 	content: '\f0de';
