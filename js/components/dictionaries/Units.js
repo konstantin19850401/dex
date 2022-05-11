@@ -395,21 +395,17 @@ class Units extends Dictionaries {
 							// 	this.#GetDict();
 							// break;
 							case 'delElementsFromDict':
-								for (let i=0; i<packet.data.deleted.length; i++) {
-									let index = this.#scUnits.findIndex((item)=> item.uid == packet.data.deleted[i]);
-									if (index != -1) {
-										let d = this.#scUnits.splice(index, 1);
-										d[0].sc.DeleteObject();
-									}
-								}
+								for (let i = 0; i < this.ScDict.length; i++) this.ScDict[i].sc.DeleteObject();
+								this.ScDict = [];
+								this.Table.ClearBody();
+								this.#GetDict();
 							break;
 							case 'createNewUnit':
 								if (packet.data.status == 200) {
 									this.#CloseNewElement();
-									for (let i = 0; i < this.#scUnits.length; i++) {
-										this.#scUnits[i].sc.DeleteObject();
-									}
-									this.#scUnits = [];
+									for (let i = 0; i < this.ScDict.length; i++) this.ScDict[i].sc.DeleteObject();
+									this.ScDict = [];
+									this.Table.ClearBody();
 									this.#GetDict();
 								} else {
 									alert(packet.data.err.join('\n'));
@@ -419,10 +415,9 @@ class Units extends Dictionaries {
 							case 'editUnit':
 								if (packet.data.status == 200) {
 									this.#CloseNewElement();
-									for (let i = 0; i < this.#scUnits.length; i++) {
-										this.#scUnits[i].sc.DeleteObject();
-									}
-									this.#scUnits = [];
+									for (let i = 0; i < this.ScDict.length; i++) this.ScDict[i].sc.DeleteObject();
+									this.ScDict = [];
+									this.Table.ClearBody();
 									this.#GetDict();
 								}
 								console.log('пришел пакет ответ на редактирование элемента');

@@ -160,10 +160,11 @@ class ComplexTable extends Component {
 	};
 	Clear () {
 		this.#theadTr.RemoveChilds();
-		this.#tbody.RemoveChilds();
+		this.ClearBody();
 	};
 	ClearBody() {
 		this.#tbody.RemoveChilds();
+		this.#selectedRows = [];
 	};
 	SortByColIndex ( shoObject, index ) {
 		let sortClasses = [ 'sort-up', 'sort-down' ];
