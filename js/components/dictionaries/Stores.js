@@ -1,84 +1,35 @@
 'use strict'
 class Stores extends Dictionaries {
-	#units = [];#stores = [];#cbody;#unitsTable;#transport;#newElement;#regions = [];#headers;
-	#scStores = [];
+	#units = [];#stores = [];#cbody;#newElement;#regions = [];#headers;
 	constructor ( application, parent) {
 		super( application, parent );
-		this.#transport = this.Application.Transport;
-		this.#GetDictRegions();
+		this.Title = "Справочник торговых точек";
+		this.Init({actions: {
+			add: ()=> {this.#AddNewElement()},
+			delete: ()=> {this.#DeleteElement()},
+			getRecordById: (id)=> {this.#GetDataById(id)}
+		}});
+		this.#InitTitles();
+		this.GetDicts(['regions', 'units']);
 	}
-	// ГЕТТЕРЫ
-
-	// СЕТТЕРЫ
-
-	// ПРИВАТНЫЕ МЕТОДЫ
-	#Show( data ) {
-		this.Container = new Div( {parent: this.Parent.Container} ).SetAttributes( {class: 'dex-dict'} ).AddChilds([
-			new I().SetAttributes( {class: 'dex-configuration-close fas fa-window-close'} ).AddWatch(sho => {
-				sho.DomObject.addEventListener( 'click', event => this.#Close() )
-			}),
-			new I().SetAttributes( {class: 'dex-configuration-delete fas fa-user-minus'} ).AddWatch(sho => {
-				sho.DomObject.addEventListener( 'click', event => this.#DeleteElement() )
-			}),
-			new I().SetAttributes( {class: 'dex-configuration-add fas fa-user-plus'} ).AddWatch(sho => {
-				sho.DomObject.addEventListener( 'click', event => this.#AddNewElement() )
-			}),
-			new Span().SetAttributes( {class: 'dex-configuration-title'} ).Text( `Справочник торговых точек` ),
-			this.#cbody = new Div().SetAttributes( {class: 'dex-contract-body row'} )
-		]);
-		this.#CreateList();
+	#InitTitles( data ) {
+		this.#headers = [{name: 'uid', title: 'id'}, {name: 'dex_uid', title: 'dex id'}, {name: 'title', title: 'Торговая точка'}, {name: 'parent_title', title: 'Отделение'}];
+		this.TableTitles = this.#headers;
 	}
-	#CreateList() {
-		// this.#unitsTable = new ComplexTable( this.Application, this.#cbody ).AddWatcher({name: 'watchSelectedRows', func: ( rows )=> { this.#SetSelectedCnt( rows ) }});
-		this.#unitsTable = new ComplexTable( this.Application, this.#cbody);
-		this.#headers = [ {name: 'uid', title: 'id'}, {name: 'dex_uid', title: 'dex id'}, {name: 'title', title: 'Торговая точка'}, {name: 'parent_title', title: 'Отделение'} ];
-		this.#unitsTable.DomObject.style.height = `calc(${ this.#cbody.DomObject.clientHeight }px - 5px)`;
-
-		for (let i = 0; i < this.#headers.length; i++) {
-			let newHeader = new Th().SetAttributes( ).Text( this.#headers[i].title ).AddWatch( ( el )=> {
-				el.DomObject.addEventListener('click', ( event ) => {this.#unitsTable.SortByColIndex( el, i )})
-			});
-			this.#unitsTable.AddHead( newHeader );
-		}
-		this.#AddRows();
-	}
-	#AddRows() {
-		for (let i=0; i< this.#stores.length; i++) {
-			let attrs = {'uid_num': this.#stores[i].uid};
-			if (this.#stores[i].status == 0) attrs.class = "bg-secondary bg-gradient";
-			let row = new Tr().SetAttributes( attrs );
-			for (let j=0; j<this.#headers.length; j++) {
-				row.AddChilds([ new Td().Text( this.#stores[i][this.#headers[j].name] ) ]);
-			}
-			row.AddWatch(sho=> sho.DomObject.addEventListener('dblclick', event=> this.#GetDataById(this.#stores[i].uid)) );
-			this.#unitsTable.AddRow( row );
-			this.#scStores.push({uid: this.#stores[i].uid, sc: row});
-		}
-	}
-	#Close () {
-		this.Container.DeleteObject();
-		this.Application.DeleteHash( this.Hash );
-	};
 	#CloseNewElement() {
 		this.#newElement.DeleteObject();
 	}
 	#GetDataById(id) {
 		// console.log("id=> ", id);
-		if (id) this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDictStoresSingleId', id: id}, hash: this.Hash});
+		if (id) this.Transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDictStoresSingleId', id: id}, hash: this.Hash});
 	}
 	#GetDict() {
-		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDictStores'}, hash: this.Hash});
-	}
-	#GetDictRegions() {
-		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getAppDictById', dict: 'regions'}, hash: this.Hash});
-	}
-	#GetDictUnits() {
-		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getAppDictById', dict: 'units'}, hash: this.Hash});
+		this.Transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDictStores'}, hash: this.Hash});
 	}
 	//удаление елемента
 	#DeleteElement() {
 		let dels = [];
-		let arr = this.#unitsTable.SelectedRows;
+		let arr = this.Table.SelectedRows;;
 		let acslength = 300;
 		if (arr.length > 0) {
 			if (arr.length < acslength) {
@@ -86,7 +37,7 @@ class Stores extends Dictionaries {
 				let c = confirm(`Вы правда желаете удалить выделенные поля? uids=> [${dels}]`);
 				if (c) {
 					// console.log( 'dels=> ', dels);
-					this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'delElementsFromDict', dict: 'stores', elements: dels}, hash: this.Hash});
+					this.Transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'delElementsFromDict', dict: 'stores', elements: dels}, hash: this.Hash});
 				}
 			} else {
 				alert(`Вы можете удалить не более ${acslength} элементов`);
@@ -201,36 +152,23 @@ class Stores extends Dictionaries {
 			}
 		}
 	}
-	#EditUnit(formHash, fields) {
-		console.log('Редактировать');
+	#CreatePacketData(formHash, fields) {
 		let data = {};
 		for (let key in fields) {
 			let element = document.getElementById(`${key}_${formHash}`);
-			// console.log('element=> ', element);
-			if (typeof element !== 'undefined') {
-				data[key] = element.value;
-			}
+			if (typeof element !== 'undefined') data[key] = element.value;
 		}
-		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'editStore', fields: data}, hash: this.Hash});
+		return data;
+	}
+	#EditUnit(formHash, fields) {
+		console.log('Редактировать');
+		let data = this.#CreatePacketData(formHash, fields);
+		this.Transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'editStore', fields: data}, hash: this.Hash});
 	}
 	#CreateNewUnit(formHash, fields) {
 		console.log('создание нового элемента ', formHash);
-		let data = {};
-		for (let key in fields) {
-			// if (key != 'uid') {
-				let element = document.getElementById(`${key}_${formHash}`);
-				if ( typeof element !== 'undefined' ) {
-					data[key] = element.value;
-				}
-			// }
-		}
-
-		let packet = {com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'createNewStore', fields: data}, hash: this.Hash};
-		//if (confirm('Создается новое отделение. Будем создавать пользователя для входа в приложение?')) {
-		//	packet.data.createNewUser = true;
-		//} else packet.data.createNewUser = false;
-		console.log('packet на сервер=> ', packet);
-		this.#transport.Get(packet);
+		let data = this.#CreatePacketData(formHash, fields);
+		this.Transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'createNewStore', fields: data}, hash: this.Hash});
 	}
 	// ПУБЛИЧНЫЕ МЕТОДЫ
 	Commands ( packet ) {
@@ -240,45 +178,20 @@ class Stores extends Dictionaries {
 				switch ( packet.subcom ) {
 					case 'appApi':
 						switch ( packet.data.action ) {
-							case 'getAppDictById':
-								console.log('packet=> ', packet);
-								//if (packet.data.list.length > 0) {
-									if (packet.data.dictname == 'regions') {
-										packet.data.list.map(item => this.#regions.push(item));
-										this.#GetDictUnits();
-									} else if (packet.data.dictname == 'units') {
-										console.log("Пришли отделения");
-										this.#units = packet.data.list;
-										this.#GetDict();
-									}
-								//}
-
-							break;
 							case 'getDictStores':
-								if (packet.data.list.length > 0) this.#stores = packet.data.list;
-								if ( typeof this.#unitsTable === 'undefined' ) this.#Show(packet.data);
-								else this.#AddRows();
+								if (packet.data.list.length > 0) this.TableData = packet.data.list;
 							break;
 							case 'getDictStoresSingleId':
-								// console.log("пакет===> ", packet.data);
 								this.#AddNewElement(packet.data.list[0]);
 							break;
 							case 'delElementsFromDict':
-								for (let i=0; i<packet.data.deleted.length; i++) {
-									let index = this.#scStores.findIndex((item)=> item.uid == packet.data.deleted[i]);
-									if (index != -1) {
-										let d = this.#scStores.splice(index, 1);
-										d[0].sc.DeleteObject();
-									}
-								}
+								this.CrearScDict();
+								this.#GetDict();
 							break;
 							case 'createNewStore':
 								if (packet.data.status == 200) {
 									this.#CloseNewElement();
-									for (let i = 0; i < this.#scStores.length; i++) {
-										this.#scStores[i].sc.DeleteObject();
-									}
-									this.#scStores = [];
+									this.CrearScDict();
 									this.#GetDict();
 								} else {
 									alert(packet.data.err.join('\n'));
@@ -287,14 +200,21 @@ class Stores extends Dictionaries {
 							case 'editStore':
 								if (packet.data.status == 200) {
 									this.#CloseNewElement();
-									for (let i = 0; i < this.#scStores.length; i++) {
-										this.#scStores[i].sc.DeleteObject();
-									}
-									this.#scStores = [];
+									this.CrearScDict();
 									this.#GetDict();
 								} else {
 									alert(packet.data.err.join('\n'));
 								}
+							break;
+							case 'getNewDicts':
+								console.log("пришли справочники ", packet);
+								if (packet.data.list.length > 0) {
+									let regions = packet.data.list.find(item=> item.name == 'regions');
+									if (typeof regions !== 'undefined') this.#regions = regions.list;
+									let units = packet.data.list.find(item=> item.name == 'units');
+									if (typeof units !== 'undefined') this.#units = units.list;
+								}
+								this.#GetDict();
 							break;
 						}
 					break;

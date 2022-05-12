@@ -4,46 +4,18 @@ class DocTypes extends Dictionaries {
 	#scDocTypes = [];
 	constructor ( application, parent) {
 		super( application, parent );
-		this.#transport = this.Application.Transport;
+		this.Title = "Справочник типов документов";
+		this.Init({actions: {
+			add: ()=> {this.#AddNewElement()},
+			delete: ()=> {this.#DeleteElement()},
+			getRecordById: (id)=> {this.#GetDataById(id)}
+		}});
+		this.#InitTitles();
 		this.#GetDict();
 	}
-	// ГЕТТЕРЫ
-
-	// СЕТТЕРЫ
-
-	// ПРИВАТНЫЕ МЕТОДЫ
-	#Show( data ) {
-		if (typeof this.Container !== 'undefined' && this.Container != null) {
-			this.Container.DeleteObject();
-		}
-		this.Container = new Div( {parent: this.Parent.Container} ).SetAttributes( {class: 'dex-dict'} ).AddChilds([
-			new I().SetAttributes( {class: 'dex-configuration-close fas fa-window-close'} ).AddWatch(sho => {
-				sho.DomObject.addEventListener( 'click', event => this.#Close() )
-			}),
-			new I().SetAttributes( {class: 'dex-configuration-delete fas fa-user-minus'} ).AddWatch(sho => {
-				sho.DomObject.addEventListener( 'click', event => this.#DeleteElement() )
-			}),
-			new I().SetAttributes( {class: 'dex-configuration-add fas fa-user-plus'} ).AddWatch(sho => {
-				sho.DomObject.addEventListener( 'click', event => this.#AddNewElement() )
-			}),
-			new Span().SetAttributes( {class: 'dex-configuration-title'} ).Text( `Справочник типов документов` ),
-			this.#cbody = new Div().SetAttributes( {class: 'dex-contract-body row'} )
-		]);
-		this.#CreateList();
-	}
-	#CreateList() {
-		// this.#docTypesTable = new ComplexTable( this.Application, this.#cbody ).AddWatcher({name: 'watchSelectedRows', func: ( rows )=> { this.#SetSelectedCnt( rows ) }});
-		this.#docTypesTable = new ComplexTable( this.Application, this.#cbody);
-		this.#headers = [ {name: 'uid', title: 'id'}, {name: 'title', title: 'Наименование типа документа'}];
-		this.#docTypesTable.DomObject.style.height = `calc(${ this.#cbody.DomObject.clientHeight }px - 5px)`;
-
-		for (let i = 0; i < this.#headers.length; i++) {
-			let newHeader = new Th().SetAttributes( ).Text( this.#headers[i].title ).AddWatch( ( el )=> {
-				el.DomObject.addEventListener('click', ( event ) => {this.#docTypesTable.SortByColIndex( el, i )})
-			});
-			this.#docTypesTable.AddHead( newHeader );
-		}
-		this.#AddRows();
+	#InitTitles( data ) {
+		this.#headers = [{name: 'uid', title: 'id'}, {name: 'title', title: 'Наименование типа документа'}];
+		this.TableTitles = this.#headers;
 	}
 	#AddRows() {
 		for (let i=0; i< this.#docTypes.length; i++) {
@@ -58,32 +30,26 @@ class DocTypes extends Dictionaries {
 			this.#scDocTypes.push({uid: this.#docTypes[i].uid, sc: row});
 		}
 	}
-	#Close () {
-		this.Container.DeleteObject();
-		this.Application.DeleteHash( this.Hash );
-	};
 	#CloseNewElement() {
 		this.#newElement.DeleteObject();
 	}
 	#GetDataById(id) {
-		// console.log("id=> ", id);
-		if (id) this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDictDocTypesSingleId', id: id}, hash: this.Hash});
+		if (id) this.Transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDictDocTypesSingleId', id: id}, hash: this.Hash});
 	}
 	#GetDict() {
-		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDictDocTypes'}, hash: this.Hash});
+		this.Transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDictDocTypes'}, hash: this.Hash});
 	}
 	//удаление елемента
 	#DeleteElement() {
 		let dels = [];
-		let arr = this.#docTypesTable.SelectedRows;
+		let arr = this.Table.SelectedRows;
 		let acslength = 300;
 		if (arr.length > 0) {
 			if (arr.length < acslength) {
 				arr.map(item=> dels.push(item.Attributes.uid_num));
 				let c = confirm(`Вы правда желаете удалить выделенные поля? uids=> [${dels}]`);
 				if (c) {
-					// console.log( 'dels=> ', dels);
-					this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'delElementsFromDict', dict: 'docTypes', elements: dels}, hash: this.Hash});
+					this.Transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'delElementsFromDict', dict: 'docTypes', elements: dels}, hash: this.Hash});
 				}
 			} else {
 				alert(`Вы можете удалить не более ${acslength} элементов`);
@@ -161,37 +127,21 @@ class DocTypes extends Dictionaries {
 			}
 		}
 	}
-	#EditUnit(formHash, fields) {
-		console.log('Редактировать');
+	#CreatePacketData(formHash, fields) {
 		let data = {};
 		for (let key in fields) {
 			let element = document.getElementById(`${key}_${formHash}`);
-			// console.log('element=> ', element);
-			if (typeof element !== 'undefined') {
-				data[key] = element.value;
-			}
+			if (typeof element !== 'undefined') data[key] = element.value;
 		}
-		console.log("==> ", data);
-		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'editDocType', fields: data}, hash: this.Hash});
+		return data;
+	}
+	#EditUnit(formHash, fields) {
+		let data = this.#CreatePacketData(formHash, fields);
+		this.Transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'editDocType', fields: data}, hash: this.Hash});
 	}
 	#CreateNewUnit(formHash, fields) {
-		console.log('создание нового элемента ', formHash);
-		let data = {};
-		for (let key in fields) {
-			// if (key != 'uid') {
-				let element = document.getElementById(`${key}_${formHash}`);
-				if ( typeof element !== 'undefined' ) {
-					data[key] = element.value;
-				}
-			// }
-		}
-
-		let packet = {com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'createNewDocType', fields: data}, hash: this.Hash};
-		//if (confirm('Создается новое отделение. Будем создавать пользователя для входа в приложение?')) {
-		//	packet.data.createNewUser = true;
-		//} else packet.data.createNewUser = false;
-		console.log('packet на сервер=> ', packet);
-		this.#transport.Get(packet);
+		let data = this.#CreatePacketData(formHash, fields);
+		this.Transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'createNewDocType', fields: data}, hash: this.Hash});
 	}
 	// ПУБЛИЧНЫЕ МЕТОДЫ
 	Commands ( packet ) {
@@ -202,22 +152,16 @@ class DocTypes extends Dictionaries {
 					case 'appApi':
 						switch ( packet.data.action ) {
 							case "getDictDocTypes":
-								if (packet.data.list.length > 0) this.#docTypes = packet.data.list;
-								if ( typeof this.#docTypesTable === 'undefined' ) this.#Show(packet.data);
-								else this.#AddRows();
+								if (packet.data.list.length > 0) this.TableData = packet.data.list;
 							break;
 							case 'createNewDocType':
 								if (packet.data.status == 200) {
 									this.#CloseNewElement();
-									for (let i = 0; i < this.#scDocTypes.length; i++) {
-										this.#scDocTypes[i].sc.DeleteObject();
-									}
-									this.#scDocTypes = [];
+									this.CrearScDict();
 									this.#GetDict();
 								} else {
 									alert(packet.data.err.join('\n'));
 								}
-								console.log('пришел пакет ответ на создание нового элемента');
 							break;
 							case "getDictDocTypesSingleId":
 								this.#AddNewElement(packet.data.list[0]);
@@ -225,23 +169,22 @@ class DocTypes extends Dictionaries {
 							case "editDocType":
 								if (packet.data.status == 200) {
 									this.#CloseNewElement();
-									for (let i = 0; i < this.#scDocTypes.length; i++) {
-										this.#scDocTypes[i].sc.DeleteObject();
-									}
-									this.#scDocTypes = [];
+									this.CrearScDict();
 									this.#GetDict();
 								} else {
 									alert(packet.data.err.join('\n'));
 								}
 							break;
 							case 'delElementsFromDict':
-								for (let i=0; i<packet.data.deleted.length; i++) {
-									let index = this.#scDocTypes.findIndex((item)=> item.uid == packet.data.deleted[i]);
-									if (index != -1) {
-										let d = this.#scDocTypes.splice(index, 1);
-										d[0].sc.DeleteObject();
-									}
-								}
+								// for (let i=0; i<packet.data.deleted.length; i++) {
+								// 	let index = this.ScDict.findIndex((item)=> item.uid == packet.data.deleted[i]);
+								// 	if (index != -1) {
+								// 		let d = this.ScDict.splice(index, 1);
+								// 		d[0].sc.DeleteObject();
+								// 	}
+								// }
+								this.CrearScDict();
+								this.#GetDict();
 							break;
 						}
 					break;

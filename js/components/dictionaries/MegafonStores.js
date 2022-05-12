@@ -5,47 +5,63 @@ class MegafonStores extends Dictionaries {
 	#dicts = [];
 	constructor ( application, parent) {
 		super( application, parent );
+		this.Title = "Справочник точек продаж МегаФон";
 		this.#transport = this.Application.Transport;
-		this.#GetDicts();
+		this.Init({actions: {
+			getRecordById: (id)=> {this.#GetDataById(id)}
+		}});
+		this.#InitTitles();
+		this.GetDicts('stores');
 	}
 	// ГЕТТЕРЫ
 
 	// СЕТТЕРЫ
 
 	// ПРИВАТНЫЕ МЕТОДЫ
-	#Show( data ) {
-		if (typeof this.Container !== 'undefined' && this.Container != null) {
-			this.Container.DeleteObject();
-		}
-		this.Container = new Div( {parent: this.Parent.Container} ).SetAttributes( {class: 'dex-dict'} ).AddChilds([
-			new I().SetAttributes( {class: 'dex-configuration-close fas fa-window-close'} ).AddWatch(sho => {
-				sho.DomObject.addEventListener( 'click', event => this.#Close() )
-			}),
-			new Span().SetAttributes( {class: 'dex-configuration-title'} ).Text( `Справочник точек продаж МегаФон` ),
-			this.#cbody = new Div().SetAttributes( {class: 'dex-contract-body row'} )
-		]);
-		this.#CreateList();
-	}
-	#CreateList() {
-		this.#megafonStoresTable = new ComplexTable( this.Application, this.#cbody);
+	#InitTitles() {
 		this.#headers = [
 			{name: 'id', title: 'id'},
 			{name: 'megafon_code', title: 'Имя точки'},
 			{name: 'megafon_sale_point_id', title: 'Код точки'},
 			{name: 'dex_store', title: 'Отделение'},
 			{name: 'dex_megafon_profile', title: 'Профиль отправки'},
-			{name: 'status', title: 'Статус'},
+			{name: 'status', title: 'Статус'}
 		];
-		this.#megafonStoresTable.DomObject.style.height = `calc(${ this.#cbody.DomObject.clientHeight }px - 5px)`;
-
-		for (let i = 0; i < this.#headers.length; i++) {
-			let newHeader = new Th().SetAttributes( ).Text( this.#headers[i].title ).AddWatch( ( el )=> {
-				el.DomObject.addEventListener('click', ( event ) => {this.#megafonStoresTable.SortByColIndex( el, i )})
-			});
-			this.#megafonStoresTable.AddHead( newHeader );
-		}
-		this.#AddRows();
+		this.TableTitles = this.#headers;
 	}
+	// #Show( data ) {
+	// 	if (typeof this.Container !== 'undefined' && this.Container != null) {
+	// 		this.Container.DeleteObject();
+	// 	}
+	// 	this.Container = new Div( {parent: this.Parent.Container} ).SetAttributes( {class: 'dex-dict'} ).AddChilds([
+	// 		new I().SetAttributes( {class: 'dex-configuration-close fas fa-window-close'} ).AddWatch(sho => {
+	// 			sho.DomObject.addEventListener( 'click', event => this.#Close() )
+	// 		}),
+	// 		new Span().SetAttributes( {class: 'dex-configuration-title'} ).Text( `Справочник точек продаж МегаФон` ),
+	// 		this.#cbody = new Div().SetAttributes( {class: 'dex-contract-body row'} )
+	// 	]);
+	// 	this.#CreateList();
+	// }
+	// #CreateList() {
+	// 	this.#megafonStoresTable = new ComplexTable( this.Application, this.#cbody);
+	// 	this.#headers = [
+	// 		{name: 'id', title: 'id'},
+	// 		{name: 'megafon_code', title: 'Имя точки'},
+	// 		{name: 'megafon_sale_point_id', title: 'Код точки'},
+	// 		{name: 'dex_store', title: 'Отделение'},
+	// 		{name: 'dex_megafon_profile', title: 'Профиль отправки'},
+	// 		{name: 'status', title: 'Статус'},
+	// 	];
+	// 	this.#megafonStoresTable.DomObject.style.height = `calc(${ this.#cbody.DomObject.clientHeight }px - 5px)`;
+
+	// 	for (let i = 0; i < this.#headers.length; i++) {
+	// 		let newHeader = new Th().SetAttributes( ).Text( this.#headers[i].title ).AddWatch( ( el )=> {
+	// 			el.DomObject.addEventListener('click', ( event ) => {this.#megafonStoresTable.SortByColIndex( el, i )})
+	// 		});
+	// 		this.#megafonStoresTable.AddHead( newHeader );
+	// 	}
+	// 	this.#AddRows();
+	// }
 	#AddRows() {
 		for (let i=0; i< this.#megafonStores.length; i++) {
 			let attrs = {'uid_num': this.#megafonStores[i].id};
@@ -67,14 +83,15 @@ class MegafonStores extends Dictionaries {
 		this.#newElement.DeleteObject();
 	}
 	#GetDataById(id) {
+		console.log('запрошиваем id = ', id);
 		if (id) this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDictMegafonStoresSingleId', id: id}, hash: this.Hash});
 	}
-	#GetMegafonStores() {
+	#GetDict() {
 		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDictMegafonStores'}, hash: this.Hash});
 	}
-	#GetDicts() {
-		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getNewDicts', dicts: ['stores']}, hash: this.Hash});
-	}
+	// #GetDicts() {
+	// 	this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getNewDicts', dicts: ['stores']}, hash: this.Hash});
+	// }
 	//удаление елемента
 	#DeleteElement() {
 		let dels = [];
@@ -175,7 +192,7 @@ class MegafonStores extends Dictionaries {
 				data[key] = element.value;
 			}
 		}
-		// console.log("==> ", data);
+		console.log("==> ", data);
 		this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'editMegafonStore', fields: data}, hash: this.Hash});
 	}
 	// ПУБЛИЧНЫЕ МЕТОДЫ
@@ -187,14 +204,16 @@ class MegafonStores extends Dictionaries {
 					case 'appApi':
 						switch ( packet.data.action ) {
 							case "getDictMegafonStores":
-								if (packet.data.list.length > 0) this.#megafonStores = packet.data.list;
-								if ( typeof this.#megafonStoresTable === 'undefined' ) this.#Show(packet.data);
-								else this.#AddRows();
+								// if (packet.data.list.length > 0) this.#megafonStores = packet.data.list;
+								// if ( typeof this.#megafonStoresTable === 'undefined' ) this.#Show(packet.data);
+								// else this.#AddRows();
+								if (packet.data.list.length > 0) this.TableData = packet.data.list;
 							break;
 							case 'getNewDicts':
 								if (typeof packet.data.list !== 'undefined')
 								this.#dicts = packet.data.list;
-								this.#GetMegafonStores();
+								// this.#GetMegafonStores();
+								this.#GetDict();
 							break;
 							case 'getDictMegafonStoresSingleId':
 								this.#AddNewElement(packet.data.list[0]);
@@ -205,7 +224,7 @@ class MegafonStores extends Dictionaries {
 									this.#scMegafonStores[i].sc.DeleteObject();
 								}
 								this.#scMegafonStores = [];
-								this.#GetMegafonStores();
+								this.#GetDict();
 							break;
 						}
 					break;

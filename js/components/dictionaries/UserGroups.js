@@ -88,7 +88,7 @@ class UserGroups extends Dictionaries {
 	//удаление елемента
 	#DeleteElement() {
 		let dels = [];
-		let arr = this.Table.SelectedRows;;
+		let arr = this.Table.SelectedRows;
 		let acslength = 300;
 		if (arr.length > 0) {
 			if (arr.length < acslength) {

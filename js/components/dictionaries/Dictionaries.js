@@ -73,6 +73,10 @@ class Dictionaries extends WindowClass {
 		}
 		if (d.length > 0) this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getNewDicts', dicts: d}, hash: this.Hash});
 	}
+	CrearScDict() {
+		for (let i = 0; i < this.#scDict.length; i++) this.#scDict[i].sc.DeleteObject();
+		this.#scDict = [];
+	}
 	ClearTableBody() {if (typeof this.#table !== 'undefined') this.#table.ClearBody();}
 	ClearTable () {if (typeof this.#table !== 'undefined') this.#table.Clear();}
 	CloseNewRecordForm() { this.#newRecordForm.DeleteObject();}
@@ -89,7 +93,11 @@ class Dictionaries extends WindowClass {
 				break;
 			}
 		}
-		row.AddWatch(sho=> sho.DomObject.addEventListener('dblclick', event=> action(data.uid)));
+		if (typeof data.uid === 'undefined') {
+			if (typeof data.id !== 'undefined') row.AddWatch(sho=> sho.DomObject.addEventListener('dblclick', event=> action(data.id)));
+			else row.AddWatch(sho=> sho.DomObject.addEventListener('dblclick', event=> action('')));
+		}
+		else row.AddWatch(sho=> sho.DomObject.addEventListener('dblclick', event=> action(data.uid)));
 		this.#scDict.push({uid: data.uid, sc: row});
 		this.#table.AddRow(row);
 		return row;
