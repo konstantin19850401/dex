@@ -55,6 +55,7 @@ class AppPage extends Page {
 				{ text: 'Справочник Торговые точки', watch: () => this.#OpenDicts('stores') },
 				{ text: 'Справочник Виды документов', watch: () => this.#OpenDicts('docTypes') },
 				{ text: 'Справочник Точки продаж МегаФон', watch: () => this.#OpenDicts('megaStores') },
+				{ text: 'Справочник Регионы РФ', watch: () => this.#OpenDicts('regions') },
 				{ text: 'Справочник Статусы пользователей', watch: () => this.#OpenDicts('statuses') }
 			]}
 		]
@@ -116,6 +117,8 @@ class AppPage extends Page {
 		else if (dictname == 'docTypes') new DocTypes( this.Application, this )
 		else if (dictname == 'megaStores') new MegafonStores( this.Application, this );
 		else if (dictname == 'statuses') new Statuses( this.Application, this );
+		else if (dictname == 'regions') new Regions( this.Application, this );
+
 	}
 	// #InitDictionariesUnits () {
 	// 	new Units( this.Application, this );

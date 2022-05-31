@@ -6,6 +6,7 @@ class Dictionaries extends WindowClass {
 	#table;#tableTitles;#tableData;#scDict = [];
 	#actions;
 	#contextMenu;
+	#dictName;
 	constructor ( application, parent) {
 		super( application, parent );
 		this.#transport = application.Transport;
@@ -38,6 +39,7 @@ class Dictionaries extends WindowClass {
 		this.#tableTitles = titles;
 	}
 	set ScDict(dict) {this.#scDict = dict;}
+	set DictName(dict) {this.#dictName = dict;}
 	Init(data) {
 		let arrInstruments = [
 			{name: 'add', icon: 'fas fa-user-plus'},
@@ -72,6 +74,14 @@ class Dictionaries extends WindowClass {
 			if (typeof dicts !== 'undefined' && dicts != '') d.push(dicts);
 		}
 		if (d.length > 0) this.#transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getNewDicts', dicts: d}, hash: this.Hash});
+	}
+	GetDictRecords() {
+		this.Transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDictRecords', dict: this.#dictName}, hash: this.Hash});
+	}
+	GetRecordById(id) {
+		if (typeof id !== 'undefined') {
+			this.Transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDictSingleId', dict: this.#dictName, id: id}, hash: this.Hash});
+		}
 	}
 	CrearScDict() {
 		for (let i = 0; i < this.#scDict.length; i++) this.#scDict[i].sc.DeleteObject();

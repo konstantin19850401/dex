@@ -1,10 +1,10 @@
 'use strict'
-class Statuses extends Dictionaries {
+class Regions extends Dictionaries {
 	#newElement;
 	constructor ( application, parent) {
 		super( application, parent );
-		this.Title = "Справочник статусов пользователей";
-		this.DictName = 'statuses';
+		this.Title = "Справочник регионов РФ";
+		this.DictName = 'regions';
 		this.Init({actions: {
 			add: ()=> {this.#AddNewElement()},
 			delete: ()=> {this.#DeleteElement()},
@@ -14,17 +14,10 @@ class Statuses extends Dictionaries {
 		this.GetDictRecords();
 	}
 	#InitTitles( data ) {
-		this.TableTitles = [{name: 'uid', title: 'uid'}, {name: 'title', title: 'Наименование статуса'}];
+		this.TableTitles = [{name: 'id', title: 'id'}, {name: 'uid', title: 'Код'}, {name: 'title', title: 'Наименование статуса'}, {name: 'short_title', title: 'Короткое имя'}, {name: 'def_bases', title: 'Базы'}, {name: 'status', title: 'Статус'}];
 	}
 	#CloseNewElement() {
 		this.#newElement.DeleteObject();
-	}
-	// #GetDataById(id) {
-	// 	// console.log("id=> ", id);
-	// 	if (id) this.Transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDictStatusesSingleId', id: id}, hash: this.Hash});
-	// }
-	#GetDict() {
-		this.Transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'getDictStatuses'}, hash: this.Hash});
 	}
 	//удаление елемента
 	#DeleteElement() {
@@ -36,6 +29,7 @@ class Statuses extends Dictionaries {
 				arr.map(item=> dels.push(item.Attributes.uid_num));
 				let c = confirm(`Вы правда желаете удалить выделенные поля? uids=> [${dels}]`);
 				if (c) {
+					// console.log( 'dels=> ', dels);
 					this.Transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'delElementsFromDict', dict: 'statuses', elements: dels}, hash: this.Hash});
 				}
 			} else {
@@ -123,12 +117,6 @@ class Statuses extends Dictionaries {
 				switch ( packet.subcom ) {
 					case 'appApi':
 						switch ( packet.data.action ) {
-							// case 'getDictStatuses':
-							// 	if (packet.data.list.length > 0) this.TableData = packet.data.list;
-							// break;
-							// case 'getDictStatusesSingleId':
-							// 	this.#AddNewElement(packet.data.list[0]);
-							// break;
 							case 'getDictRecords':
 								if (packet.data.list.length > 0) this.TableData = packet.data.list;
 							break;
@@ -137,13 +125,13 @@ class Statuses extends Dictionaries {
 							break;
 							case 'delElementsFromDict':
 								this.CrearScDict();
-								this.#GetDict();
+								this.GetDictRecords();
 							break;
 							case 'createNewStatus':
 								if (packet.data.status == 200) {
 									this.#CloseNewElement();
 									this.CrearScDict();
-									this.#GetDict();
+									this.GetDictRecords();
 								} else {
 									alert(packet.data.errs.join('\n'));
 								}
@@ -152,7 +140,7 @@ class Statuses extends Dictionaries {
 								if (packet.data.status == 200) {
 									this.#CloseNewElement();
 									this.CrearScDict();
-									this.#GetDict();
+									this.GetDictRecords();
 								} else {
 									alert(packet.data.err.join('\n'));
 								}
