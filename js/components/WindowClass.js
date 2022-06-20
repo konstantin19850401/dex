@@ -1,72 +1,65 @@
 'use strict'
 class WindowClass {
-	#parent;#container;#application;#hash;#wTitle = "";
-	#shoTitle;#instruments;#cbody;#info;
-	#funcOnClose;
-	constructor ( application, parent ) {
+	#application;#transport;
+	#hash;#container;#parent;
+	#windowBody;#windowFooter;//#windowHeader;
+	#windowTitle;
+	#actions = [];
+	#tableSelectedRows;
+	#tableTotalRows;
+	constructor (application, parent) {
 		this.#application = application;
+		this.#hash = application.Toolbox.GenerateHash;
+		this.#application.InsertHashInHashes(this.#hash, this);
+		this.#transport = application.Transport;
 		this.#parent = parent;
-		this.#hash = this.#application.Toolbox.GenerateHash;
-		this.#application.InsertHashInHashes( this.#hash, this );
-		this.#Initialization();
+		this.#InitWindow();
 	}
-	#Initialization() {
-		this.#container = new Div({parent: this.Parent.Wrapper})
-			.SetAttributes({class: 'dex-app-window'})
-			.AddChilds([
-				new I().SetAttributes({class: 'dex-app-window-close fas fa-window-close'})
-					.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.Close())),
-				this.#shoTitle = new Span().SetAttributes({class: 'dex-app-window-title'}).Text(`${this.#wTitle}`),
-				this.#instruments = new Div().SetAttributes({class: "dex-app-window-instruments"}),
-				this.#info = new Div().SetAttributes({class: "dex-app-window-info"}),
-				this.#cbody = new Div().SetAttributes( {class: 'dex-app-window-body'} )
-			]);
-		this.#application.TaskBar.AddMenuNewItem( this );
-	}
-
+	get Hash () { return this.#hash; };
+	get Application () { return this.#application; };
+	get Container () { return this.#container; }
+	get Transport() {return this.#transport;}
 	get Parent() {return this.#parent;}
-	get Application() {return this.#application;}
-	get Hash() {return this.#hash;}
-	get Container () {return this.#container;}
-	get Title() {return this.#wTitle;}
-	get Instruments() {return this.#instruments;}
-	get Info() {return this.#info;}
-	get CBody() {return this.#cbody;}
-
-	set Container(shoObject) {this.#container = shoObject;}
-	set Title(title) {
-		this.#wTitle = title;
-		this.#application.TaskBar.ChangeWindowTitle(this.#hash, title);
-		this.#shoTitle.Text(title);
-		let width = this.#shoTitle.DomObject.offsetWidth;
-		this.#instruments.DomObject.style.left = `${width + 5}px`;
+	get WindowBody() {return this.#windowBody;}
+	set Title(title) { this.#parent.Title = `[ ${title} ]`; }
+	#InitWindow() {
+		if (typeof this.#parent !== "undefined") this.#container = new Div({parent: this.#parent.Container});
+		else this.#container = new Div();
+		this.#container.SetAttributes({class: "dexol-window dexol-window-container"}).AddChilds([
+			this.#windowBody = new Div().SetAttributes({class: "dexol-window-body"}),
+			this.#windowFooter = new Div().SetAttributes({class: "dexol-window-footer"}).AddChilds([
+				new Div().SetAttributes({class: "dexol-window-footer-table-info"}).AddChilds([
+					new Div().SetAttributes({class: "dexol-window-footer-table-info-item"}).Text("Выделено: ").AddChilds([
+						this.#tableSelectedRows = new Span().Text("0")
+					]),
+					new Div().SetAttributes({class: "dexol-window-footer-table-info-item"}).Text("Всего: ").AddChilds([
+						this.#tableTotalRows = new Span().Text("0")
+					])
+				])
+			]),
+		]);
 	}
-
-	Close() {
-		this.#application.TaskBar.DeleteWindow( this.#hash );
-		// this.Parent.DeleteWindow( this.#hash );
+	AddControlAction(action) {
+		this.#actions.push(action);
+		this.#parent.AddAction(action);
+	}
+	set SetCntTotalRows(cnt) { this.#tableTotalRows.Text(cnt); }
+	set SetCntSelectedRows(cnt) { this.#tableSelectedRows.Text(cnt); }
+	AddTab(tab) {
+		let allTabs = this.#parent.GetTabs();
+		let t = allTabs.find(item=> item.hash == tab.hash);
+		if (typeof t === "undefined") this.#parent.AddTab(tab);
+	}
+	HideControlls() {
+		for (let i = 0; i < this.#actions.length; i++) this.#actions[i].Hide();
+	}
+	ShowControls() {
+		for (let i = 0; i < this.#actions.length; i++) this.#actions[i].Show();
+	}
+	RemovePage () {
 		this.Container.DeleteObject();
-		if (typeof this.#funcOnClose !== 'undefined') this.#funcOnClose();
+		this.#application.DeleteHash( this.#hash );
+		
 	}
-	Minimize() {
-		this.#container.DomObject.style.width = '0px';
-		// this.#container.DomObject.style.display = 'none';
-		this.Hide();
-	}
-	Maximize() {
-		// this.#container.DomObject.style.display = 'block';
-		this.#container.DomObject.style.width = '100%';
-		this.Show();
-	}
-	Hide() {
-		this.#container.Hide();
-	}
-	Show() {
-		this.#container.Show();
-	}
-	OnClose(func) {
-		this.#funcOnClose = func;
-	}
-
 }
 

@@ -1,7 +1,7 @@
 'use strict'
 class SimpleHtmlObject {
 	#sho = true;#parent = null;#type = null;#domElement = null;#attributes = {};#childs = [];#hash;
-	#mayHaveChild = ['DIV', 'SELECT', 'H5', 'H2', 'SPAN', 'FORM', 'BUTTON', 'INPUT', 'LABEL', 'NAV', 'UL', 'LI', 'A', 'I', 'SMALL', 'TABLE', 'TR', 'TH', 'SELECT', 'TBODY', 'THEAD', 'TD', 'TEXTAREA'];
+	#mayHaveChild = ['DIV', 'SELECT', 'H5', 'H2', 'H3', 'SPAN', 'FORM', 'BUTTON', 'INPUT', 'LABEL', 'NAV', 'UL', 'LI', 'A', 'I', 'SMALL', 'TABLE', 'TR', 'TH', 'SELECT', 'TBODY', 'THEAD', 'TD', 'TEXTAREA', 'DEXDATE'];
 	constructor ( object, type ) {
 		// console.log( object, type  );
 		if ( typeof type !== 'undefined' ) this.#type = type;
@@ -94,6 +94,7 @@ class SimpleHtmlObject {
 	};
 	// добавление потомка
 	AddChild ( newChild ) {
+		// console.log("newChild=> ", newChild);
 		let mayHaveChild = this.MayHaveChild;
 		if ( mayHaveChild.indexOf( newChild.ObjectType ) != -1 ) {
 			let ifIsset = this.#childs.find( item => item.Hash == newChild.Hash );
@@ -115,6 +116,9 @@ class SimpleHtmlObject {
 				this.AddChild( newChilds[i] );
 			} else if ( newChilds[i].ObjectType == 'cho' ) {
 				// console.log('cho');
+				this.AddChild( newChilds[i] );
+			} else if ( newChilds[i].ObjectType == "DEXDATE") {
+				console.log("добавим dexdate");
 				this.AddChild( newChilds[i] );
 			}
 
@@ -144,7 +148,9 @@ class SimpleHtmlObject {
 	}
 	// удаление всех потомков элемента
 	RemoveChilds () {
-		this.#domElement.textContent = '';
+		for (let i = 0; i < this.#childs.length; i++) this.#childs[i].DomObject.parentNode.removeChild(this.#childs[i].DomObject);
+
+		// this.#domElement.textContent = '';
 		this.#childs.length = 0;
 	};
 	RemoveChildByIndex(index) {

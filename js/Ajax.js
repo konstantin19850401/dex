@@ -84,6 +84,10 @@ class Ajax {
 					if (packet.subcom != 'initsession') {
 						this.#application.DeleteAllHash();
 						new Login( this.#application );
+					} else {
+						if ( typeof this.#application.Hashes[ response.hash ] !== 'undefined' ) {
+							this.#application.Hashes[ response.hash ].Commands( response );
+						}
 					}
 				} else {
 					if ( typeof response.subcom !== 'undefined' && response.subcom == 'initsession' ) {

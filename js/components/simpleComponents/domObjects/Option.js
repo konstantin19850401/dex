@@ -8,8 +8,7 @@ class Option extends SimpleHtmlObject {
 	get Value () { return this.DomObject.value; };
 	get Text () { return this.#textContent; };
 
-
-	Value ( value ) {
+	set Value ( value ) {
 		this.DomObject.value = value;
 		this.#value = value;
 		return this;

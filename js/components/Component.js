@@ -37,8 +37,8 @@ class Component {
 		if (typeof this.#parent === 'undefined' ) {
 			this.#parent = parent;
 			this.#parent.AddChild( this );
-			// console.log( 'this.parent===> ', this.Container.DomObject );
 			let dom = this.#parent.DomObject;
+			// console.log( 'this.parent===> ', this.Container.DomObject, " dom=> ", dom );
 			dom.append( this.Container.DomObject );
 		}
 	};

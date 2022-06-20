@@ -26,7 +26,7 @@ class Application {
 
 		if ( this.#errs.length == 0 ) {
 			this.#container = new Div( {parent: document.body} );
-			this.#container.SetAttributes( {class: 'w-100 h-100 d-flex justify-content-center'} );
+			//this.#container.SetAttributes( {class: 'w-100 h-100 d-flex justify-content-center'} );
 			// this.#currentPage = new Login( this );
 			new Login( this );
 		}
@@ -52,14 +52,49 @@ class Application {
 
 	// ПРИВАТНЫЕ МЕТОДЫ
 	#BodyWatcher() {
-		document.body.addEventListener( 'click', ( event ) => {
-			this.#complexElements.map( ( item )=> {
-				if ( (item.element.ComplexType == 'comboBox' && event.target != item.element.DomEvents) && (item.element.ComplexType == 'comboBox' && event.target != item.element.DomObject)) {
-					item.element.Close();
-				} else {
-					item.element.Close();
+		document.body.addEventListener( 'click', event => {
+			// this.#complexElements.map( ( item )=> {
+			// 	if ( (item.element.ComplexType == 'comboBox' && event.target != item.element.DomEvents) && (item.element.ComplexType == 'comboBox' && event.target != item.element.DomObject)) {
+			// 		item.element.Close();
+			// 	} else {
+			// 		item.element.Close();
+			// 	}
+			// } );
+
+			if (!event.target.matches('.dropbtn')) {
+				let dropdowns = document.getElementsByClassName("dropdown-content");
+				for (let i = 0; i < dropdowns.length; i++) {
+					let openDropdown = dropdowns[i];
+					if (openDropdown.classList.contains('show')) openDropdown.classList.remove('show');
 				}
-			} );
+			}
+			if (!event.target.matches('.navbar-toggler-icon') && !event.target.matches('.offcanvas-start')) {
+				let offcanvasList = document.getElementsByClassName("offcanvas");
+				for (let i = 0; i < offcanvasList.length; i++) {
+					let offcanvas = offcanvasList[i];
+					if (offcanvas.classList.contains('show')) offcanvas.classList.remove('show');
+				}
+			}
+			if (!event.target.matches('.context-menu')) {
+				let offcanvasList = document.getElementsByClassName("context-menu");
+				for (let i = 0; i < offcanvasList.length; i++) {
+					let offcanvas = offcanvasList[i];
+					if (offcanvas.classList.contains('show-menu')) offcanvas.classList.remove('show-menu');
+				}
+			}
+			if (event.target.parentNode) {
+				if (!event.target.matches(".selected-date")
+					&& !event.target.matches(".dates")
+					&& !event.target.parentNode.matches(".month")
+					&& !event.target.parentNode.matches(".days") ) {
+					let datesPickers = document.getElementsByClassName("dates");
+					for (let i = 0; i < datesPickers.length; i++) {
+						let datePicker = datesPickers[i];
+						if (datePicker.classList.contains('active')) datePicker.classList.remove('active');
+					}
+				}
+			}
+
 		} );
 		window.getSelection().removeAllRanges();
 	}

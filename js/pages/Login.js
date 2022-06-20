@@ -6,8 +6,10 @@ class Login extends Page {
 		super( application );
 		// this.#data.login = '';
 		// this.#data.password = '';
-		this.#data.login = 'admin';
-		this.#data.password = '12473513';
+		// this.#data.login = 'admin';
+		// this.#data.password = '12473513';
+		this.#data.login = 'ermakova';
+		this.#data.password = '62584124736';
 		// this.#data.login = 'user169';
 		// this.#data.password = 'qmE142G7';
 		// this.#data.login = 'geldt';
@@ -74,23 +76,31 @@ class Login extends Page {
 				])
 			])
 		])
+
+
+		// let dexDate = new DexDate(this.Application, this.Container);
 	}
 	#SignIn () {
-		this.Application.Transport.Get(
-			{com: 'skyline.core.auth', subcom: 'initsession', data: {login: this.#data.login, password: this.#data.password}, hash: this.Hash }
-		);
+		this.Transport.Get({com: 'skyline.core.auth', subcom: 'initsession', data: {login: this.#data.login, password: this.#data.password}, hash: this.Hash });
 	}
 	// ПУБЛИЧНЫЕ МЕТОДЫ
 	Commands ( packet ) {
-		console.log(packet);
-		switch ( packet.status ) {
-			case 200:
-				this.RemovePage();
-				new AppsList( this.Application );
+		console.log("Пакет для login ", packet);
+		switch (packet.com) {
+			case "skyline.core.auth":
+				switch (packet.status) {
+					case 200:
+						if (typeof packet.data.availableApps !== "undefined") {
+							this.RemovePage();
+							new AppsList(this.Application);
+						} else this.#errors.Text("Вам не доступны приложения. Обратитесь к администратору!");
+					break;
+					case 401:
+						this.#errors.Text(packet.data.err.join("<br>"));
+					break;
+				}
 			break;
-			case 401:
-				this.#errors.Text( packet.data.err.join('<br>') );
-			break;
+			default: console.log('неизвестная команда ', packet)
 		}
 	}
 }

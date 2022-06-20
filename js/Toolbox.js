@@ -39,6 +39,18 @@ class Toolbox {
 		let m = moment( inputDate );
 		return m;
 	}
+	// из 20220619120000000 в 19.06.2022
+	JdocDateToDate( typejdocdate ) {
+		let year = typejdocdate.substring(0, 4);
+		let month = typejdocdate.substring(4, 6);
+		let day = typejdocdate.substring(6, 8);
+		return `${day}.${month}.${year}`;
+	}
+	// из 19.06.2022 в 20220619
+	ClientDateToServer(clientDate) {
+		let date = moment(clientDate, "DD.MM.YYYY");
+		return date.format("YYYYMMDD");
+	}
 	RemoveSymbols ( string ) {
 		let m = string.replace(/[&\/\\#,+()$~%.'":*?<>{}-]/g, '');
 		return m;
