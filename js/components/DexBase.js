@@ -33,7 +33,7 @@ class DexBase extends WindowClass {
 		} else this.#table.ClearBody();
 		let colors = this.Parent.GetDictByName("colors");
 		let dexColorStatuses = this.Parent.GetDictByName("dex_document_statuses");
-		console.log();
+		// console.log();
 		// // наполним талицу значениями
 		this.#data.map(item=> {
 			let row = new Tr().SetAttributes({'uid_num': item.id}).AddWatch(sho=> {
@@ -45,7 +45,7 @@ class DexBase extends WindowClass {
 					let cls = colors.list.find(itm=> itm.id == dcs.color);
 					if (typeof cls !== "undefined" && typeof cls.code !== "undefined") {
 						// row.DomObject.style.background = `#${cls}`;
-						console.log("cls=> ", cls);
+						// console.log("cls=> ", cls);
 						row.AddClass(cls.code);
 					}
 				}
@@ -137,7 +137,7 @@ class DexBase extends WindowClass {
 		contextMenu.AddItems(items);
 	}
 	#SearchData(element) {
-		console.log("==> ", element.value);
+		this.#filter.search = element.value;
 	}
 	#InitControls() {
 		let ctrs = [
@@ -155,10 +155,19 @@ class DexBase extends WindowClass {
 					new I().SetAttributes({class: ctrs[i].iconClass, title: ctrs[i].title})
 				]).AddWatch(sho=> sho.DomObject.addEventListener("click", event=> ctrs[i].action()));
 			} else if (ctrs[i].type == "search") {
-				c = new Div().SetAttributes({class: "window-module-controls-item dex-search-block"}).AddChilds([
-					new Span().SetAttributes({class: "col-sm-2"}).Text("Найти"),
-					new Input().SetAttributes({class: "col-sm-10"})
-				]).AddWatch(sho=> sho.DomObject.addEventListener("input", event=> ctrs[i].action(event.target)));
+				c = new Div().SetAttributes({class: "window-module-controls-item input-group dex-search-block"}).AddChilds([
+					new Div().SetAttributes({class: "form-outline"}).AddChilds([
+						new Input().SetAttributes({type: "search", class: "form-control"})
+							.AddWatch(sho=> sho.DomObject.addEventListener("input", event=> ctrs[i].action(event.target)))
+							.AddWatch(sho=> sho.DomObject.addEventListener("keydown", event=> {
+								if (event.keyCode === 13) this.#GetData()
+							})),
+						new Label().SetAttributes({class: "form-label"})
+					]),
+					new Button().SetAttributes({type: "button", class: "btn btn-light"}).AddChilds([
+						new I().SetAttributes({class: "fas fa-search"})
+					]).AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#GetData()))
+				]);
 			} else if (ctrs[i].type == "period") {
 				let period = new Period(this.Application);
 				period.Container.AddClass("window-module-controls-item");
