@@ -99,7 +99,7 @@ class SimpleHtmlObject {
 			let ifIsset = this.#childs.find( item => item.Hash == newChild.Hash );
 			if ( typeof ifIsset === 'undefined' ) this.#childs.push( newChild );
 		} else {
-			// console.log( 'Не может быть добавлен' );
+			console.log( 'Не может быть добавлен' );
 		}
 		if ( newChild && newChild.ObjectParent == null ) newChild.InitParent( this );
 		return this;

@@ -5,8 +5,9 @@ class Option extends SimpleHtmlObject {
 	constructor( object ) {
 		super( object, 'OPTION' );
 	};
-	get Value () { return this.#value; };
+	get Value () { return this.DomObject.value; };
 	get Text () { return this.#textContent; };
+
 
 	Value ( value ) {
 		this.DomObject.value = value;
