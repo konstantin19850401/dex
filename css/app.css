@@ -276,11 +276,27 @@
                 display: flex;
                 flex-wrap: wrap;
                 float: right;
-                order: 999;
                 margin-right: 10px;
+            }
+            .dexol-window-footer-table-info-filter {
+                margin-left: 0px;
             }
             .dexol-window-footer-table-info-item {
                 margin-left: 10px;
+            }
+            .dexol-window-footer-table-info-journal {
+                margin-left: 10px;
+            }
+            .dexol-window-footer-table-info-journal span {
+                margin-right: 5px;
+            }
+            .dex-table-tinfo {
+                margin-left: 5px;
+            }
+            .dex-table-tinfo-item {
+                float: right;
+                margin-left: 5px;
+                margin-top: -4px;
             }
             .dex-table-container {
                 margin-top: 1px;
@@ -455,7 +471,7 @@
                 height:  140px;
             }
             .dex-search-block {
-                min-width: 300px;
+                min-width: 230px;
                 cursor: default;
             }
             .dex-search-block input {
@@ -674,7 +690,7 @@
         }
 /*date*/
     .dex-period-container {
-        width: 280px;
+        width: 260px;
         margin-top: 5px;
 
     }
@@ -815,4 +831,73 @@
     }
     .bg-dex-color-blue {
         background: #0dcaf0;
+    }
+
+
+    .dex-custom-select {
+        position: relative;
+        font-family: Arial;
+        width: 200px;
+    }
+    .dex-custom-select select {
+      display: none; /*hide original SELECT element:*/
+    }
+
+    .dex-custom-select-selected {
+      background-color: DodgerBlue;
+    }
+
+    /*style the arrow inside the select element:*/
+    .dex-custom-select-selected:after {
+      position: absolute;
+      content: "";
+      top: 14px;
+      right: 10px;
+      width: 0;
+      height: 0;
+      border: 6px solid transparent;
+      border-color: #fff transparent transparent transparent;
+    }
+
+    /*point the arrow upwards when the select box is open (active):*/
+    .dex-custom-select-selected.select-arrow-active:after {
+      border-color: transparent transparent #fff transparent;
+      top: 7px;
+    }
+
+    /*style the items (options), including the selected item:*/
+    .select-items div,.dex-custom-select-selected {
+      color: #ffffff;
+      padding: 4px 10px;
+      border: 1px solid transparent;
+      border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+      cursor: pointer;
+      user-select: none;
+      font-size: 13px;
+    }
+
+    /*style items (options):*/
+    .select-items {
+      position: absolute;
+      background-color: DodgerBlue;
+      top: 100%;
+      left: 0;
+      right: 0;
+      z-index: 99;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    /*кастомизация скрола*/
+    .select-items::-webkit-scrollbar-track {border-radius: 4px;}
+    .select-items::-webkit-scrollbar {width: 6px;}
+    .select-items::-webkit-scrollbar-thumb {border-radius: 4px;background: #f0f2f5;}
+    .select-items:hover::-webkit-scrollbar-thumb {background: #6a7d9b;}
+
+    /*hide the items when the select box is closed:*/
+    .select-hide {
+      display: none;
+    }
+
+    .select-items div:hover, .same-as-selected {
+      background-color: rgba(0, 0, 0, 0.1);
     }

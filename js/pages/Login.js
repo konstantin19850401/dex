@@ -4,16 +4,6 @@ class Login extends Page {
 	#errors;
 	constructor( application ) {
 		super( application );
-		// this.#data.login = '';
-		// this.#data.password = '';
-		// this.#data.login = 'admin';
-		// this.#data.password = '12473513';
-		this.#data.login = 'ermakova';
-		this.#data.password = '62584124736';
-		// this.#data.login = 'user169';
-		// this.#data.password = 'qmE142G7';
-		// this.#data.login = 'geldt';
-		// this.#data.password = '17342514';
 		this.#InitPage();
 	}
 	// ПРИВАТНЫЕ МЕТОДЫ
@@ -79,6 +69,12 @@ class Login extends Page {
 
 
 		// let dexDate = new DexDate(this.Application, this.Container);
+
+		// let o = [];
+		// for (let i = 0; i < 20; i ++) o.push({value: i, text: `Элемент № ${i}`});
+		// let cs = new CustomSelect(this.Application, this.Container, o);
+		// let cb = new ComboBox(this.Application, this.Container, o);
+		// this.Container.AddChilds([cb]);
 	}
 	#SignIn () {
 		this.Transport.Get({com: 'skyline.core.auth', subcom: 'initsession', data: {login: this.#data.login, password: this.#data.password}, hash: this.Hash });

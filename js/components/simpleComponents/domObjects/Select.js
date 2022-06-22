@@ -6,7 +6,14 @@ class Select extends SimpleHtmlObject {
 		super( object, 'SELECT' );
 		this.#OnChangeData();
 	};
-	get Value () { return this.#value; };
+	get Value () {
+		if (typeof this.#value !== "undefined") return this.#value;
+		else {
+			if (this.Childs.length > 0) {
+				return this.DomObject.value;
+			} else return this.#value
+		}
+	};
 
 	set Value ( value ) {
 		let childs = this.Childs;
@@ -19,6 +26,21 @@ class Select extends SimpleHtmlObject {
 			}
 		}
 	};
+
+	get Text() {
+		if (typeof this.#value === "undefined") return null;
+		else {
+			if (this.Childs.length > 0) {
+				let childs = this.Childs;
+				for ( let i = 0; i < childs.length; i++ ) {
+					if ( childs[i].Value == this.#value ) {
+						console.log("нашли");
+						return childs[i].Text;
+					}
+				}
+			} else return null
+		}
+	}
 
 	get MayHaveChild () { return this.#mayHaveChild; };
 

@@ -7,6 +7,7 @@ class WindowClass {
 	#actions = [];
 	#tableSelectedRows;
 	#tableTotalRows;
+	#footerDataType;#customSelect;
 	constructor (application, parent) {
 		this.#application = application;
 		this.#hash = application.Toolbox.GenerateHash;
@@ -22,22 +23,36 @@ class WindowClass {
 	get Parent() {return this.#parent;}
 	get WindowBody() {return this.#windowBody;}
 	set Title(title) { this.#parent.Title = `[ ${title} ]`; }
+	get CustomSelect() {return this.#customSelect; }
+
 	#InitWindow() {
 		if (typeof this.#parent !== "undefined") this.#container = new Div({parent: this.#parent.Container});
 		else this.#container = new Div();
 		this.#container.SetAttributes({class: "dexol-window dexol-window-container"}).AddChilds([
 			this.#windowBody = new Div().SetAttributes({class: "dexol-window-body"}),
 			this.#windowFooter = new Div().SetAttributes({class: "dexol-window-footer"}).AddChilds([
-				new Div().SetAttributes({class: "dexol-window-footer-table-info"}).AddChilds([
-					new Div().SetAttributes({class: "dexol-window-footer-table-info-item"}).Text("Выделено: ").AddChilds([
-						this.#tableSelectedRows = new Span().Text("0")
+				// new Div().SetAttributes({class: "dexol-window-footer-table-info dexol-window-footer-table-info-filter"}).Text("Примененные фильтры: "),
+				// new Div().SetAttributes({class: "dexol-window-footer-table-info dexol-window-footer-table-info-history"}).Text("История документа"),
+				new Div().SetAttributes({class: "dexol-window-footer-table-info dexol-window-footer-table-info-journal"}).AddChilds([
+						new Span().Text(""),
+						this.#footerDataType = new Div()
 					]),
-					new Div().SetAttributes({class: "dexol-window-footer-table-info-item"}).Text("Всего: ").AddChilds([
-						this.#tableTotalRows = new Span().Text("0")
-					])
+				new Div().SetAttributes({class: "dexol-window-footer-table-info dex-table-tinfo"}).AddChilds([
+						new Div().SetAttributes({class: "dex-table-tinfo-item"}).Text("Выделено: ").AddChilds([
+						this.#tableSelectedRows = new Span().Text("0")
+						]),
+						new Div().SetAttributes({class: "dex-table-tinfo-item"}).Text("Всего: ").AddChilds([
+							this.#tableTotalRows = new Span().Text("0")
+						])
 				])
 			]),
 		]);
+		let o = [
+			{value: "journal", text: "Журнал"},
+			{value: "archive", text: "Архив"}
+		];
+		this.#customSelect = new CustomSelect(this.#application, this.#footerDataType, o);
+		this.#customSelect.SelectItem("journal");
 	}
 	AddControlAction(action) {
 		this.#actions.push(action);

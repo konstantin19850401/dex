@@ -94,6 +94,19 @@ class Application {
 					}
 				}
 			}
+			if (!event.target.matches('.dex-custom-select-selected')) {
+				let comboBoxList = document.getElementsByClassName("dex-custom-select-selected");
+				for (let i = 0; i < comboBoxList.length; i++) {
+					let comboBox = comboBoxList[i];
+					if (comboBox.classList.contains('select-arrow-active')) {
+						comboBox.classList.remove('select-arrow-active');
+						let selectItems = comboBox.parentNode.getElementsByClassName("select-items");
+						for (let i = 0; i < selectItems.length; i++) {
+							selectItems[0].classList.add("select-hide");
+						}
+					}
+				}
+			}
 
 		} );
 		window.getSelection().removeAllRanges();

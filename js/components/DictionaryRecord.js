@@ -68,7 +68,7 @@ class DictionaryRecord {
 								if (item.multy != true) {
 									let option = new Option();
 									option.Value = -1;
-									option.Text("??????????");
+									option.Text = "??????????";
 									option.SetAttributes({selected: true});
 									arr.push(option);
 								}
@@ -83,7 +83,7 @@ class DictionaryRecord {
 										) {
 										let option = new Option();
 										option.Value = itm[foreign[1]];
-										option.Text(itm.title);
+										option.Text = itm.title;
 										arr.push(option);
 									}
 								});

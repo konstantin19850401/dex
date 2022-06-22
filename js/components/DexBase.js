@@ -105,6 +105,12 @@ class DexBase extends WindowClass {
 
 		//добавить в контекстное меню элементы
 		this.#AddElementsInContextMenu();
+
+		// повесить событие на выбор типа журнала
+		this.CustomSelect.OnChange((selectedItem)=> {
+			this.#filter.table = selectedItem.value;
+			this.#GetData();
+		});
 	}
 	#AddElementsInContextMenu() {
 		let contextMenu = this.#table.ContextMenu;
@@ -141,7 +147,7 @@ class DexBase extends WindowClass {
 	}
 	#InitControls() {
 		let ctrs = [
-			{type: "period", name: "period", action: (element)=> {this.#SearchData(element)}},
+			{type: "period", name: "period", action: (element)=> {}},
 			{type: "search", name: "search", action: (element)=> {this.#SearchData(element)}},
 			{type: "btn", name: "add", iconClass: "fas fa-user-plus", title: "Добавить новую запись", action: ()=> {this.#ShowAddForm()}},
 			{type: "btn", name: "filter", iconClass: "fas fa-filter", title: "Множественный фильтр", action: ()=> {this.#ShowAddForm()}},
@@ -172,15 +178,12 @@ class DexBase extends WindowClass {
 				let period = new Period(this.Application);
 				period.Container.AddClass("window-module-controls-item");
 				period.OnChange(()=> {
-					console.log(period.Data);
 					this.#filter.start = this.Application.Toolbox.ClientDateToServer(period.Data.start);
 					this.#filter.end = this.Application.Toolbox.ClientDateToServer(period.Data.end);
-					console.log("filter=> ", this.#filter);
 					this.#GetData();
 				});
 				c = period.Container;
 			}
-
 			this.AddControlAction(c);
 		}
 		this.#initControls = true;
