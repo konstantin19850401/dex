@@ -7,7 +7,7 @@ class WindowClass {
 	#actions = [];
 	#tableSelectedRows;
 	#tableTotalRows;
-	#footerDataType;#customSelect;
+	#footerDataType;
 	constructor (application, parent) {
 		this.#application = application;
 		this.#hash = application.Toolbox.GenerateHash;
@@ -23,7 +23,7 @@ class WindowClass {
 	get Parent() {return this.#parent;}
 	get WindowBody() {return this.#windowBody;}
 	set Title(title) { this.#parent.Title = `[ ${title} ]`; }
-	get CustomSelect() {return this.#customSelect; }
+	get FooterDataType() {return this.#footerDataType; }
 
 	#InitWindow() {
 		if (typeof this.#parent !== "undefined") this.#container = new Div({parent: this.#parent.Container});
@@ -35,6 +35,7 @@ class WindowClass {
 				// new Div().SetAttributes({class: "dexol-window-footer-table-info dexol-window-footer-table-info-history"}).Text("История документа"),
 				new Div().SetAttributes({class: "dexol-window-footer-table-info dexol-window-footer-table-info-journal"}).AddChilds([
 						new Span().Text(""),
+						// this.#footerDataType = new Div()
 						this.#footerDataType = new Div()
 					]),
 				new Div().SetAttributes({class: "dexol-window-footer-table-info dex-table-tinfo"}).AddChilds([
@@ -47,12 +48,6 @@ class WindowClass {
 				])
 			]),
 		]);
-		let o = [
-			{value: "journal", text: "Журнал"},
-			{value: "archive", text: "Архив"}
-		];
-		this.#customSelect = new CustomSelect(this.#application, this.#footerDataType, o);
-		this.#customSelect.SelectItem("journal");
 	}
 	AddControlAction(action) {
 		this.#actions.push(action);

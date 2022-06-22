@@ -75,6 +75,7 @@ class Login extends Page {
 		// let cs = new CustomSelect(this.Application, this.Container, o);
 		// let cb = new ComboBox(this.Application, this.Container, o);
 		// this.Container.AddChilds([cb]);
+		// new Div({parent: this.Container}).SetAttributes({class: "dex-preloader"})
 	}
 	#SignIn () {
 		this.Transport.Get({com: 'skyline.core.auth', subcom: 'initsession', data: {login: this.#data.login, password: this.#data.password}, hash: this.Hash });

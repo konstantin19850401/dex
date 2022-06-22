@@ -5,7 +5,7 @@ class DexBase extends WindowClass {
 	#type = "dexbase";
 	#addForm;
 	#initControls = false;#show = false;
-	#operator;
+	#operator;#preloader;
 	constructor (application, parent, data) {
 		super(application, parent);
 		this.#name = data.id;
@@ -98,19 +98,15 @@ class DexBase extends WindowClass {
 		});
 		if (!this.#show) this.Show();
 
-		this.#table.AddContextMenu(new ContextMenu(this.Application, this));
+
 
 
 		this.SetCntTotalRows = this.#data.length;
 
 		//добавить в контекстное меню элементы
 		this.#AddElementsInContextMenu();
-
-		// повесить событие на выбор типа журнала
-		this.CustomSelect.OnChange((selectedItem)=> {
-			this.#filter.table = selectedItem.value;
-			this.#GetData();
-		});
+		// скроем прелоадер
+		this.#HidePreloader();
 	}
 	#AddElementsInContextMenu() {
 		let contextMenu = this.#table.ContextMenu;
@@ -186,9 +182,33 @@ class DexBase extends WindowClass {
 			}
 			this.AddControlAction(c);
 		}
+
+		this.#table.AddContextMenu(new ContextMenu(this.Application, this));
+
+		// из какой таблицы берем данные
+		let o = [
+			{value: "journal", text: "Журнал"},
+			{value: "archive", text: "Архив"}
+		];
+		let customSelect = new CustomSelect(this.Application, this.FooterDataType, o);
+		customSelect.SelectItem("journal");
+
+		// повесить событие на выбор типа журнала
+		customSelect.OnChange((selectedItem)=> {
+			this.#filter.table = selectedItem.value;
+			this.#GetData();
+		});
+
 		this.#initControls = true;
+
+		// добавим прелоадер
+		this.#preloader = new Div({parent: this.WindowBody}).SetAttributes({class: "dex-preloader-container preloader-hide"}).AddChilds([
+		// this.#preloader = new Div({parent: this.WindowBody}).SetAttributes({class: "dex-preloader-container"}).AddChilds([
+			new Div().SetAttributes({class: "dex-preloader"})
+		]);
 	}
 	#GetData() {
+		this.#ShowPreloader();
 		let packet = {com: "skyline.apps.adapters", subcom: "appApi", data: { action: 'listV1', subaction: 'period', base: this.#name, filter: this.#filter}, hash: this.Hash}
 		console.log("packet=====> ", packet);
 		this.Transport.Get(packet);
@@ -196,6 +216,12 @@ class DexBase extends WindowClass {
 	#ShowAddForm(element) {
 		// let dr = new DictionaryRecord(this, element);
 		// dr.OnClose = ()=> { this.#GetDictData() };
+	}
+	#ShowPreloader() {
+		if (typeof this.#preloader !== "undefined") this.#preloader.RemoveClass("preloader-hide");
+	}
+	#HidePreloader() {
+		if (typeof this.#preloader !== "undefined") this.#preloader.AddClass("preloader-hide");
 	}
 	#DeleteRecord() {
 		// let dels = [];
@@ -213,11 +239,17 @@ class DexBase extends WindowClass {
 		// 	}
 		// }
 	}
+	#CalculatePreloader() {
+		this.#preloader.DomObject.style.top = `${this.WindowBody.DomObject.getBoundingClientRect().top}px`;
+		this.#preloader.DomObject.style.height = `${this.WindowBody.DomObject.offsetHeight}px`;
+		console.log("this.WindowBody.DomObject.height=> ", this.WindowBody.DomObject.offsetHeight);
+	}
 	Show() {
 		this.#show = true;
 		this.Title = this.#description;
 		this.Container.ToggleClass("show");
 		this.ShowControls();
+		this.#CalculatePreloader();
 	}
 	Hide() {
 		this.#show = false;
