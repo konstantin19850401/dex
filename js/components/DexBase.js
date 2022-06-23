@@ -34,54 +34,63 @@ class DexBase extends WindowClass {
 		let colors = this.Parent.GetDictByName("colors");
 		let dexColorStatuses = this.Parent.GetDictByName("dex_document_statuses");
 		// console.log();
-		// // наполним талицу значениями
-		this.#data.map(item=> {
-			let row = new Tr().SetAttributes({'uid_num': item.id}).AddWatch(sho=> {
-				// sho.DomObject.addEventListener("dblclick", event=> this.#ShowAddForm(item.id))
-			});
-			if (typeof item.status !== "undefined") {
-				let dcs = dexColorStatuses.list.find(itm=> itm.uid == item.status);
-				if (typeof dcs !== "undefined") {
-					let cls = colors.list.find(itm=> itm.id == dcs.color);
-					if (typeof cls !== "undefined" && typeof cls.code !== "undefined") {
-						// row.DomObject.style.background = `#${cls}`;
-						// console.log("cls=> ", cls);
-						row.AddClass(cls.code);
-					}
-				}
-			}
-			for (let i = 0; i < this.#schema.length; i++) {
-				let text = item[this.#schema[i].name];
-				if (typeof this.#schema[i].foreignKey !== "undefined") {
-					// console.log("this.#schema[i].foreignKey=> ", this.#schema[i].foreignKey);
-					let arr = this.#schema[i].foreignKey.split(".");
-					let dict = this.Parent.GetDictByName(arr[0]);
-					// console.log("dict=> ", dict);
-					if (typeof dict !== "undefined") {
-						if (typeof this.#schema[i].multy !== "undefined" && this.#schema[i].multy == true) {
-							let t = text.split(",");
-							let s = [];
-							for (let j = 0; j < t.length; j++) {
-								let itm = dict.list.find(itm => itm[ arr[1] ] == t[j]);
-								if (typeof itm !== "undefined") s.push(itm.title);
-							}
-							text = s.join(", ");
-						} else {
-							let itm = dict.list.find(itm => itm[arr[1]] == text);
-							if (typeof itm !== "undefined") text = itm.title;
+		// // наполним талицу значениями. Используем не блокирующий цикл, чтобы пользователь мог работать
+		this.Application.Toolbox.Loop({
+			length: this.#data.length,
+			data: this.#data,
+			toLoop: (loop, i)=> {
+				// console.log("i=>", i);
+				let item = this.#data[i];
+				let row = new Tr().SetAttributes({'uid_num': item.id}).AddWatch(sho=> {
+					// sho.DomObject.addEventListener("dblclick", event=> this.#ShowAddForm(item.id))
+				});
+				if (typeof item.status !== "undefined") {
+					let dcs = dexColorStatuses.list.find(itm=> itm.uid == item.status);
+					if (typeof dcs !== "undefined") {
+						let cls = colors.list.find(itm=> itm.id == dcs.color);
+						if (typeof cls !== "undefined" && typeof cls.code !== "undefined") {
+							// row.DomObject.style.background = `#${cls}`;
+							// console.log("cls=> ", cls);
+							row.AddClass(cls.code);
 						}
 					}
 				}
-				else if (this.#schema[i].type == "date" && this.#schema[i].name == "jdocdate") {
-					text = this.Application.Toolbox.JdocDateToDate(text);
+				for (let i = 0; i < this.#schema.length; i++) {
+					let text = item[this.#schema[i].name];
+					if (typeof this.#schema[i].foreignKey !== "undefined") {
+						// console.log("this.#schema[i].foreignKey=> ", this.#schema[i].foreignKey);
+						let arr = this.#schema[i].foreignKey.split(".");
+						let dict = this.Parent.GetDictByName(arr[0]);
+						// console.log("dict=> ", dict);
+						if (typeof dict !== "undefined") {
+							if (typeof this.#schema[i].multy !== "undefined" && this.#schema[i].multy == true) {
+								let t = text.split(",");
+								let s = [];
+								for (let j = 0; j < t.length; j++) {
+									let itm = dict.list.find(itm => itm[ arr[1] ] == t[j]);
+									if (typeof itm !== "undefined") s.push(itm.title);
+								}
+								text = s.join(", ");
+							} else {
+								let itm = dict.list.find(itm => itm[arr[1]] == text);
+								if (typeof itm !== "undefined") text = itm.title;
+							}
+						}
+					}
+					else if (this.#schema[i].type == "date" && this.#schema[i].name == "jdocdate") {
+						text = this.Application.Toolbox.JdocDateToDate(text);
+					}
+					row.AddChilds([ new Td().Text(text) ]);
 				}
-
-
-				row.AddChilds([ new Td().Text(text) ]);
+				this.#table.AddRow(row);
+				loop();
+			},
+			callback: ()=> {
+				// скроем прелоадер
+				this.#HidePreloader();
 			}
+		});
 
-			this.#table.AddRow(row);
-		})
 		//controls
 		if (!this.#initControls) this.#InitControls();
 		// добавим ссылку на окно в табы
@@ -105,8 +114,7 @@ class DexBase extends WindowClass {
 
 		//добавить в контекстное меню элементы
 		this.#AddElementsInContextMenu();
-		// скроем прелоадер
-		this.#HidePreloader();
+
 	}
 	#AddElementsInContextMenu() {
 		let contextMenu = this.#table.ContextMenu;
@@ -242,7 +250,6 @@ class DexBase extends WindowClass {
 	#CalculatePreloader() {
 		this.#preloader.DomObject.style.top = `${this.WindowBody.DomObject.getBoundingClientRect().top}px`;
 		this.#preloader.DomObject.style.height = `${this.WindowBody.DomObject.offsetHeight}px`;
-		console.log("this.WindowBody.DomObject.height=> ", this.WindowBody.DomObject.offsetHeight);
 	}
 	Show() {
 		this.#show = true;

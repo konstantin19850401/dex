@@ -55,5 +55,16 @@ class Toolbox {
 		let m = string.replace(/[&\/\\#,+()$~%.'":*?<>{}-]/g, '');
 		return m;
 	}
+	// не блокирующий цикл
+	Loop(o) {
+		let i = -1;
+		let loop = ()=> {
+			i++;
+			if (i == o.length) {o.callback(); return;}
+			if (i % 100 == 0) o.toLoop(() => {setTimeout(loop, 0)}, i);
+			else o.toLoop(loop, i);
+		}
+		loop();
+	}
 }
 
