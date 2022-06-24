@@ -67,6 +67,17 @@ class Application {
 					let openDropdown = dropdowns[i];
 					if (openDropdown.classList.contains('show')) openDropdown.classList.remove('show');
 				}
+			} else {
+				let btns = document.getElementsByClassName("dropbtn");
+				for (let i = 0; i < btns.length; i++) {
+					let btn = btns[i];
+					if (!event.target.isEqualNode(btn)) {
+						let dc = btn.parentNode.getElementsByClassName("dropdown-content");
+						for (let i = 0; i < dc.length; i++) {
+							dc[i].classList.remove('show');
+						}
+					}
+				}
 			}
 			if (!event.target.matches('.navbar-toggler-icon') && !event.target.matches('.offcanvas-start')) {
 				let offcanvasList = document.getElementsByClassName("offcanvas");

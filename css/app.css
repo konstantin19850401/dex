@@ -189,7 +189,7 @@
         display: flex;
     }
     .dropdown a:hover {background-color: #ddd;}
-    .show {display: block;transform: none;visibility: visible;}
+    .show {display: block;transform: none;visibility: visible;z-index: 10;}
     .window-module {
         color:  #fff;
         /*width: calc(72vw);*/

@@ -18,6 +18,7 @@ class DexBase extends WindowClass {
 	get Name() {return this.#name;}
 	get Description() {return this.#description; }
 	#Initialization() {
+		console.log("this.Parent.MenuDropDownList=> ", this.Parent.MenuDropDownList);
 		// заголовки таблицы
 		if (typeof this.#table === "undefined") {
 			this.#table = new ComplexTable(this.Application, this.WindowBody)
@@ -168,7 +169,11 @@ class DexBase extends WindowClass {
 				c = new Div().SetAttributes({class: "window-module-controls-item input-group dex-search-block"}).AddChilds([
 					new Div().SetAttributes({class: "form-outline"}).AddChilds([
 						new Input().SetAttributes({type: "search", class: "form-control"})
-							.AddWatch(sho=> sho.DomObject.addEventListener("input", event=> ctrs[i].action(event.target)))
+							.AddWatch(sho=> sho.DomObject.addEventListener("input", event=> {
+								ctrs[i].action(event.target);
+								// а надо ли автоматически запрашивать данные если поле очистили по крестику?
+								// if (this.#filter !== "undefined" && this.#filter.search == "" && typeof event.inputType === "undefined") this.#GetData();
+							}))
 							.AddWatch(sho=> sho.DomObject.addEventListener("keydown", event=> {
 								if (event.keyCode === 13) this.#GetData()
 							})),
@@ -214,6 +219,39 @@ class DexBase extends WindowClass {
 		// this.#preloader = new Div({parent: this.WindowBody}).SetAttributes({class: "dex-preloader-container"}).AddChilds([
 			new Div().SetAttributes({class: "dex-preloader"})
 		]);
+
+		// добавим отчеты
+		let reports, reportsBlock;
+		reportsBlock = new Div().SetAttributes({class: "btn-group dropdown"}).AddChilds([
+			new Button().SetAttributes({class: "dropbtn", type: "button"}).AddChilds([
+				new I().SetAttributes({class: "fas fa-user"})
+			]).Text("Отчеты").AddWatch(sho=> {
+				sho.DomObject.addEventListener("click", event=> reports.ToggleClass("show"))
+			}),
+			reports = new Div().SetAttributes({class: "dropdown-content"}).AddChilds([
+				new A().SetAttributes({class: "dropdown-item"}).Text("Отчет по долгам"),
+				new A().SetAttributes({class: "dropdown-item"}).Text("Периодичный реестр договоров"),
+				new A().SetAttributes({class: "dropdown-item"}).Text("Сверка по ТП и документам"),
+				new A().SetAttributes({class: "dropdown-item"}).Text("Сверка по активации"),
+				new A().SetAttributes({class: "dropdown-item"}).Text("Дата документа и отгрузки SIM-карты")
+			])
+		]);
+		this.AddControlAction(reportsBlock);
+		// добавим функции
+		let func, funcBlock;
+		funcBlock = new Div().SetAttributes({class: "btn-group dropdown"}).AddChilds([
+			new Button().SetAttributes({class: "dropbtn", type: "button"}).AddChilds([
+				new I().SetAttributes({class: "fas fa-user"})
+			]).Text("Функции").AddWatch(sho=> {
+				sho.DomObject.addEventListener("click", event=> func.ToggleClass("show"))
+			}),
+			func = new Div().SetAttributes({class: "dropdown-content"}).AddChilds([
+				new A().SetAttributes({class: "dropdown-item"}).Text("Архивирование документов"),
+				new A().SetAttributes({class: "dropdown-item"}).Text("Формирование группы документов"),
+				new A().SetAttributes({class: "dropdown-item"}).Text("Построение базы автодока")
+			])
+		]);
+		this.AddControlAction(funcBlock);
 	}
 	#GetData() {
 		this.#ShowPreloader();

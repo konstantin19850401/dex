@@ -1,9 +1,10 @@
 'use strict'
 class DexolPage extends Page {
 	#dicts;#bases;
-	#shoDicts;#shoBases;
+	#shoDicts;#shoBases;#shoReports;#shoFunctions;
 	#title;#actionsBlock;#tabs = [];#tabsSho;
 	#pageWindows = [];#currentWindow;
+	#menuDropList;
 	constructor(application) {
 		super(application);
 		this.#GetDicts();
@@ -14,6 +15,7 @@ class DexolPage extends Page {
 		this.#tabsSho.AddChilds([tab.sho]);
 		this.#tabs.push(tab);
 	}
+	get MenuDropDownList() {return this.#menuDropList;}
 	SetCurrentWindows(hash) {
 		let w = this.#pageWindows.find(item=> item.Hash == hash);
 		if (typeof w !== "undefined") {
@@ -27,7 +29,7 @@ class DexolPage extends Page {
 	GetTabs() { return this.#tabs; }
 	// ПРИВАТНЫЕ МЕТОДЫ
 	#InitPage () {
-		let menuDropList;let offCanvas;let actionsBlock;
+		let prop; let offCanvas;let actionsBlock;
 		this.Application.Container.SetAttributes({'class': 'application'});
 		this.Container.AddChilds([
 			new Div().SetAttributes({class: "navbar navbar-dark bg-dark"}).AddChilds([
@@ -41,15 +43,15 @@ class DexolPage extends Page {
 						this.#title = new Div().SetAttributes({class: "navbar-window-title nav-item"}),
 
 					]),
-					new Div().AddChilds([
+					this.#menuDropList = new Div().AddChilds([
 						this.#actionsBlock = new Div().SetAttributes({class: "window-module-controls"}),
 						new Div().SetAttributes({class: "btn-group dropdown"}).AddChilds([
 							new Button().SetAttributes({class: "dropbtn", type: "button"}).AddChilds([
 								new I().SetAttributes({class: "fas fa-user"})
 							]).Text("Настройки").AddWatch(sho=> {
-								sho.DomObject.addEventListener("click", event=> menuDropList.ToggleClass("show"))
+								sho.DomObject.addEventListener("click", event=> prop.ToggleClass("show"))
 							}),
-							menuDropList = new Div().SetAttributes({class: "dropdown-content"}).AddChilds([
+							prop = new Div().SetAttributes({class: "dropdown-content"}).AddChilds([
 								new A().SetAttributes({class: "dropdown-item"}).Text("Блокировать"),
 								new A().SetAttributes({class: "dropdown-item"}).Text("Выход")
 							])
