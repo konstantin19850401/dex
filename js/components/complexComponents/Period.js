@@ -43,8 +43,6 @@ class Period extends Component {
 		if ( this.#end.isBefore( this.#start ) ) this.#end = this.#start;
 
 
-
-
 		let startDexDate = new DexDate(this.Application);
 		let endDexDate = new DexDate(this.Application);
 

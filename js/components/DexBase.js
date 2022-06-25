@@ -18,7 +18,7 @@ class DexBase extends WindowClass {
 	get Name() {return this.#name;}
 	get Description() {return this.#description; }
 	#Initialization() {
-		console.log("this.Parent.MenuDropDownList=> ", this.Parent.MenuDropDownList);
+		// console.log("this.Parent.MenuDropDownList=> ", this.Parent.MenuDropDownList);
 		// заголовки таблицы
 		if (typeof this.#table === "undefined") {
 			this.#table = new ComplexTable(this.Application, this.WindowBody)

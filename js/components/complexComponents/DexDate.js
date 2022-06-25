@@ -4,7 +4,7 @@ class DexDate extends Component {
 	#months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 	#weekDays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
 	#selectedDate;
-	#datesElement;#selectedDateElement;#mth;#days;
+	#datesElement;#selectedDateElement;#mth;#days;#currentDateSho;#currentDate;
 	#type = "DEXDATE";
 	#onOpen;#onSelect;
 	constructor( application, parent ) {
@@ -16,7 +16,6 @@ class DexDate extends Component {
 	#Init () {
 		if (typeof this.Parent !== "undefined") this.Container = new Div({parent: this.Parent});
 		else this.Container = new Div();
-
 		this.Container.SetAttributes({class: "dex-date-picker"}).AddChilds([
 			this.#selectedDateElement = new Div().SetAttributes({class: "selected-date"}),
 			this.#datesElement = new Div().SetAttributes({class: "dates"}).AddChilds([
@@ -40,7 +39,15 @@ class DexDate extends Component {
 					for (let i = 0; i < this.#weekDays.length; i++) arr.push(new Div().Text(this.#weekDays[i]));
 					return arr;
 				})()),
-				this.#days = new Div().SetAttributes({class: "days"})
+				this.#days = new Div().SetAttributes({class: "days"}),
+				new Div().SetAttributes({class: "dex-date-current-date"}).AddChilds([
+					new Div().SetAttributes({class: "dex-date-current-date-item dex-date-current-date-label"}).Text("Текущая дата:"),
+					this.#currentDateSho = new Div().SetAttributes({class: "dex-date-current-date-item dex-date-current-date-date"})
+						.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> {
+							this.SetDate(this.#currentDate);
+							if (typeof this.#onSelect !== "undefined") this.#onSelect(this.#selectedDate);
+						}))
+				])
 			])
 		]);
 		this.Container.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> {
@@ -49,15 +56,9 @@ class DexDate extends Component {
 				if (typeof this.#onOpen !== "undefined") this.#onOpen();
 			}
 		}));
-		let date = new Date();
-		// this.#day = date.getDate();
-		// this.#month = date.getMonth();
-		// this.#year = date.getFullYear();
-		// this.#selectedDate = this.#FormatDate(date);
-		// this.#selectedDateElement.Text(this.#selectedDate);
-		this.SetDate(date);
-		// this.#SetMth();
-		// this.#FillMonths();
+		this.#currentDate = new Date();
+		this.#currentDateSho.Text(this.#FormatDate(this.#currentDate));
+		this.SetDate(this.#currentDate);
 	}
 	#FormatDate(date) {
 		let day = date.getDate();

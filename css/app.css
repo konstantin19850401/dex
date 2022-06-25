@@ -218,6 +218,7 @@
 /*.offcanvas*/
     .offcanvas-start {
         width: 400px;
+        z-index: 9999;
     }
     .offcanvas-start .list-group-item {
         padding: 0.1rem 1rem;
@@ -803,6 +804,25 @@
     }
     .dex-date-picker .days .days-items:hover {
         background: #0aa89e;
+    }
+    .dex-date-current-date {
+        padding: 0px 10px;
+        cursor: default;
+        display: flex;
+        flex-wrap: inherit;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .dex-date-current-date-item {
+        margin-left: 5px;
+        margin-right: 0px;
+    }
+    .dex-date-current-date-label {
+        margin-right: 5px;
+        margin-left: auto;
+    }
+    .dex-date-current-date-date {
+        cursor: pointer;
     }
 
 
