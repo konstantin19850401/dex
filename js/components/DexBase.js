@@ -6,6 +6,7 @@ class DexBase extends WindowClass {
 	#addForm;
 	#initControls = false;#show = false;
 	#operator;#preloader;
+	#tasksSho;#tasksCnt = 0;#tasksCntInProcess = 0;#tasksCntSho;#tasksCntInProcessSho;#tasksListSho;
 	constructor (application, parent, data) {
 		super(application, parent);
 		this.#name = data.id;
@@ -17,6 +18,21 @@ class DexBase extends WindowClass {
 	get Type() {return this.#type;}
 	get Name() {return this.#name;}
 	get Description() {return this.#description; }
+	set NewTask(task) {
+		this.#tasksCnt++;
+		this.#tasksCntInProcess++;
+		this.#tasksCntSho.Text(this.#tasksCnt);
+		this.#tasksCntInProcessSho.Text(this.#tasksCntInProcess);
+		this.#tasksListSho.AddChilds([task]);
+	}
+	CompleteTask() {
+		this.#tasksCntInProcess--;
+		this.#tasksCntInProcessSho.Text(this.#tasksCntInProcess);
+	}
+	DeleteTask() {
+		this.#tasksCnt--;
+		this.#tasksCntSho.Text(this.#tasksCnt);
+	}
 	#Initialization() {
 		// console.log("this.Parent.MenuDropDownList=> ", this.Parent.MenuDropDownList);
 		// заголовки таблицы
@@ -117,6 +133,7 @@ class DexBase extends WindowClass {
 		this.#AddElementsInContextMenu();
 
 	}
+	// get TasksSho() {return this.#tasksSho; }
 	#AddElementsInContextMenu() {
 		let contextMenu = this.#table.ContextMenu;
 		let items = [
@@ -229,11 +246,12 @@ class DexBase extends WindowClass {
 				sho.DomObject.addEventListener("click", event=> reports.ToggleClass("show"))
 			}),
 			reports = new Div().SetAttributes({class: "dropdown-content"}).AddChilds([
-				new A().SetAttributes({class: "dropdown-item"}).Text("Отчет по долгам"),
-				new A().SetAttributes({class: "dropdown-item"}).Text("Периодичный реестр договоров"),
-				new A().SetAttributes({class: "dropdown-item"}).Text("Сверка по ТП и документам"),
-				new A().SetAttributes({class: "dropdown-item"}).Text("Сверка по активации"),
-				new A().SetAttributes({class: "dropdown-item"}).Text("Дата документа и отгрузки SIM-карты")
+				new A().SetAttributes({class: "dropdown-item"}).Text("Отчет по долгам")
+					.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#CreateReport("dutyDocs"))),
+				// new A().SetAttributes({class: "dropdown-item"}).Text("Периодичный реестр договоров"),
+				// new A().SetAttributes({class: "dropdown-item"}).Text("Сверка по ТП и документам"),
+				// new A().SetAttributes({class: "dropdown-item"}).Text("Сверка по активации"),
+				// new A().SetAttributes({class: "dropdown-item"}).Text("Дата документа и отгрузки SIM-карты")
 			])
 		]);
 		this.AddControlAction(reportsBlock);
@@ -246,11 +264,30 @@ class DexBase extends WindowClass {
 				sho.DomObject.addEventListener("click", event=> func.ToggleClass("show"))
 			}),
 			func = new Div().SetAttributes({class: "dropdown-content"}).AddChilds([
-				new A().SetAttributes({class: "dropdown-item"}).Text("Архивирование документов"),
-				new A().SetAttributes({class: "dropdown-item"}).Text("Формирование группы документов"),
-				new A().SetAttributes({class: "dropdown-item"}).Text("Построение базы автодока")
+				// new A().SetAttributes({class: "dropdown-item"}).Text("Архивирование документов"),
+				// new A().SetAttributes({class: "dropdown-item"}).Text("Формирование группы документов"),
+				// new A().SetAttributes({class: "dropdown-item"}).Text("Построение базы автодока")
 			])
 		]);
+
+		// добавим ссылку на задачи
+		this.FooterTasks.AddChilds([
+			new Div().SetAttributes({class: "btn-group dropdown float-start", "data-icon": "fas fa-check-circle"}).AddChilds([
+				new Button().SetAttributes({class: "dropbtn", type: "button"}).AddChilds([
+					new I().SetAttributes({class: "fas fa-user"})
+				]).Text("Список задач").AddWatch(sho=> {
+					sho.DomObject.addEventListener("click", event=> this.#tasksListSho.ToggleClass("show"))
+				}),
+				this.#tasksListSho = new Div().SetAttributes({class: "dropdown-content dex-dropdown-up"})
+			]),
+			new Div().SetAttributes({class: "dex-tasks-label"}).Text("В процессе: ").AddChilds([
+				this.#tasksCntInProcessSho = new Span().Text(this.#tasksCntInProcess),
+			]),
+			new Div().SetAttributes({class: "dex-tasks-label"}).Text("Всего: ").AddChilds([
+				this.#tasksCntSho = new Span().Text(this.#tasksCnt),
+			])
+		]);
+
 		this.AddControlAction(funcBlock);
 	}
 	#GetData() {
@@ -372,6 +409,14 @@ class DexBase extends WindowClass {
 		}
 		// this.Transport.Get({com: "skyline.apps.adapters", subcom: "appApi", data: {action: "createNewRecordInDictV1", dict: this.#dictName, fields: data}, hash: this.Hash});
 	}
+	#CreateReport(reportId) {
+		let report = new ReportDutyDocs(this.Application, this);
+		report.ShowQuestion();
+		// let filter = {start: "20220601", end: "20220625"};
+		// let packet = {com: "skyline.apps.adapters", subcom: "appApi", data: { action: 'reports', subaction: 'dutyDocs', base: this.#name, filter: filter}, hash: this.Hash}
+		// console.log("packet=====> ", packet);
+		// this.Transport.Get(packet);
+	}
 	#HandleHooks(data) {
 		if ( data.subaction === 'document.print.doc' || data.subaction === 'document.replacement')
 			window.open( `${ this.Application.Transport.Url }/adapters/printing/${ data.link }`);
@@ -398,6 +443,9 @@ class DexBase extends WindowClass {
 								if (packet.data.status == 200) {
 									this.#HandleHooks(packet.data);
 								}
+							break;
+							case "reports":
+
 							break;
 						}
 					break;

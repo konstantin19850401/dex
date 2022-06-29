@@ -1,7 +1,7 @@
 'use strict'
 class SimpleHtmlObject {
 	#sho = true;#parent = null;#type = null;#domElement = null;#attributes = {};#childs = [];#hash;
-	#mayHaveChild = ['DIV', 'SELECT', 'H5', 'H2', 'H3', 'SPAN', 'FORM', 'BUTTON', 'INPUT', 'LABEL', 'NAV', 'UL', 'LI', 'A', 'I', 'SMALL', 'TABLE', 'TR', 'TH', 'SELECT', 'TBODY', 'THEAD', 'TD', 'TEXTAREA', 'DEXDATE', 'DEXCOMBOBOX'];
+	#mayHaveChild = ['DIV', 'SELECT', 'H5', 'H2', 'H3', 'SPAN', 'FORM', 'BUTTON', 'INPUT', 'LABEL', 'NAV', 'UL', 'LI', 'A', 'I', 'SMALL', 'TABLE', 'TR', 'TH', 'SELECT', 'TBODY', 'THEAD', 'TD', 'TEXTAREA', 'STRONG', 'DEXDATE', 'DEXCOMBOBOX'];
 	constructor ( object, type ) {
 		// console.log( object, type  );
 		if ( typeof type !== 'undefined' ) this.#type = type;

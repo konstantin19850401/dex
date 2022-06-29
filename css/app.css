@@ -292,6 +292,13 @@
             .dexol-window-footer-table-info-journal span {
                 margin-right: 5px;
             }
+            .dexol-window-footer-table-info-tasks {
+
+            }
+            .dexol-window-footer-data-type-width {
+                width:  200px;
+                margin-left: 5px;
+            }
             .dex-table-tinfo {
                 margin-left: 0px;
                 padding-left: 0px;
@@ -405,7 +412,7 @@
                 background: #fff;
                 border-top-width: 40px;
                 box-shadow: 1px 1px 15px 15px;
-                z-index: 10;
+                z-index: 9999;
                 transition: all 150ms linear;
                 -o-transition: all 150ms linear;
                 -ms-transition: all 150ms linear;
@@ -468,6 +475,7 @@
                 /* border-radius: 3px; */
                 background: rgb(81,92,102) linear-gradient(rgb(81,92,102), rgb(69,78,87));
                 box-shadow: inset 0 1px rgb(101 114 126), inset 0 0 1px rgb(140 150 170 / 80%), 0 1px rgb(83 94 104), 0 0 1px rgb(86 96 106);
+                margin-bottom: 10px;
             }
             .dex-dict-action-form_multy-select {
                 font-size: 12px;
@@ -699,6 +707,7 @@
     }
     .dex-date-picker-span {
         padding: 0px 6px;
+        cursor: default;
     }
     .dex-period-container .dex-date-picker, .dex-period-container .dex-date-picker-span {
         float: left;
@@ -859,14 +868,14 @@
     .dex-custom-select {
         position: relative;
         font-family: Arial;
-        width: 200px;
+        /*width: 200px;*/
     }
     .dex-custom-select select {
       display: none; /*hide original SELECT element:*/
     }
 
     .dex-custom-select-selected {
-      background-color: DodgerBlue;
+      background-color: #505c6a;
     }
 
     /*style the arrow inside the select element:*/
@@ -901,7 +910,7 @@
     /*style items (options):*/
     .select-items {
       position: absolute;
-      background-color: DodgerBlue;
+      background-color: #505c6a;
       top: 100%;
       left: 0;
       right: 0;
@@ -978,4 +987,82 @@
         left: 0px;
         width: 100%;
         height: 100%;
+    }
+/*reports*/
+    .dex-report-question {
+        position: absolute;
+        z-index: 9999;
+        display: block;
+        width: 550px;
+        height: auto;
+        /*min-height: 300px;*/
+        top: 45%;
+        left: 50%;
+        margin: -150px -275px;
+        font-size: 14px;
+        box-shadow: 0px 0px 10px 0px;
+    }
+    .dex-report-question-body {
+        overflow: unset;
+    }
+    .dex-report-question-body-period {
+        width: auto;
+        padding-left: 0;
+        margin-left: 5px;
+    }
+    .dex-report-label {
+        padding: 5px;
+    }
+    .dex-report-item {
+        padding-top: 10px;
+    }
+    .dex-report-action-item {
+        margin-right: 0px;
+        margin-left: auto;
+    }
+    .dex-dropdown-up {
+        inset: auto auto 100% 0px;
+    }
+    .dex-tasks-width {
+        width: auto;
+    }
+    .dex-tasks-mr {
+        margin-right: 10px;
+    }
+    .dex-tasks-label {
+        margin-top: 2px;
+        float: left;
+    }
+    .dex-report-process {
+        margin-left: 3px;
+        margin-top: 3px;
+        color: #fd7e14;
+    }
+    .dex-report-ok {
+        margin-left: 3px;
+        margin-top: 3px;
+        color: #198754;
+    }
+    .dex-report-result {
+        width: 900px;
+        height: 400px;
+        margin: -200px -450px;
+    }
+    .dex-report-result-body {
+        height: calc(100% - 20px - 25px);
+        overflow: hidden;
+        width: 100%;
+        padding: 0px 5px;
+    }
+    .dex-report-result-body-empty-lable {
+        top: 55px;
+        position: absolute;
+        width: 100%;
+        text-align: center;
+        padding-left: 0;
+        margin-left: 0;
+    }
+    .dex-report-container {
+        height:  calc((100vh - 270px) - 2px);
+        position: absolute;
     }

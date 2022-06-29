@@ -117,6 +117,18 @@ class Application {
 						}
 					}
 				}
+			} else {
+				let comboBoxList = document.getElementsByClassName("dex-custom-select-selected");
+				for (let i = 0; i < comboBoxList.length; i++) {
+					let comboBox = comboBoxList[i];
+					if (!event.target.isEqualNode(comboBox)) {
+						comboBox.classList.remove('select-arrow-active');
+						let selectItems = comboBox.parentNode.getElementsByClassName("select-items");
+						for (let i = 0; i < selectItems.length; i++) {
+							selectItems[0].classList.add("select-hide");
+						}
+					}
+				}
 			}
 
 		} );

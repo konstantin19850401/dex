@@ -7,7 +7,7 @@ class WindowClass {
 	#actions = [];
 	#tableSelectedRows;
 	#tableTotalRows;
-	#footerDataType;
+	#footerDataType;#footerTasks;
 	constructor (application, parent) {
 		this.#application = application;
 		this.#hash = application.Toolbox.GenerateHash;
@@ -24,6 +24,7 @@ class WindowClass {
 	get WindowBody() {return this.#windowBody;}
 	set Title(title) { this.#parent.Title = `[ ${title} ]`; }
 	get FooterDataType() {return this.#footerDataType; }
+	get FooterTasks() {return this.#footerTasks; }
 
 	#InitWindow() {
 		if (typeof this.#parent !== "undefined") this.#container = new Div({parent: this.#parent.Container});
@@ -33,10 +34,34 @@ class WindowClass {
 			this.#windowFooter = new Div().SetAttributes({class: "dexol-window-footer"}).AddChilds([
 				// new Div().SetAttributes({class: "dexol-window-footer-table-info dexol-window-footer-table-info-filter"}).Text("Примененные фильтры: "),
 				// new Div().SetAttributes({class: "dexol-window-footer-table-info dexol-window-footer-table-info-history"}).Text("История документа"),
+				// new Div().SetAttributes({class: "dexol-window-footer-table-info dexol-window-footer-table-info-tasks"}).AddChilds([
+				// 	new Span().Text("Задачи"),
+				// 	// this.#footerDataType = new Div()
+				// 	this.#footerTasks = new Div().SetAttributes({class: "dexol-window-footer-data-type-width"})
+				// ]),
 				new Div().SetAttributes({class: "dexol-window-footer-table-info dexol-window-footer-table-info-journal"}).AddChilds([
-						new Span().Text(""),
 						// this.#footerDataType = new Div()
-						this.#footerDataType = new Div()
+						this.#footerTasks = new Div().SetAttributes({class: "dexol-window-footer-data-type-width dex-tasks-width dex-tasks-mr"}),
+						// new Div().SetAttributes({class: "dexol-window-footer-data-type-width dex-tasks-width dex-tasks-mr"}).AddChilds([
+						// 	new Div().SetAttributes({class: "dex-tasks-label"}).Text("Текущие задачи: ").AddChilds([
+						// 		new Span().Text("0")
+						// 	]),
+						// 	new Div().SetAttributes({class: "btn-group dropdown"}).AddChilds([
+						// 		new Button().SetAttributes({class: "dropbtn", type: "button"}).AddChilds([
+						// 			new I().SetAttributes({class: "fas fa-user"})
+						// 		]).Text("Список задач").AddWatch(sho=> {
+						// 			sho.DomObject.addEventListener("click", event=> this.#footerTasks.ToggleClass("show"))
+						// 		}),
+						// 		this.#footerTasks = new Div().SetAttributes({class: "dropdown-content dex-dropdown-up"}).AddChilds([
+						// 			// new A().SetAttributes({class: "dropdown-item"}).Text("Отчет по долгам"),
+						// 			// new A().SetAttributes({class: "dropdown-item"}).Text("Периодичный реестр договоров"),
+						// 			// new A().SetAttributes({class: "dropdown-item"}).Text("Сверка по ТП и документам"),
+						// 			// new A().SetAttributes({class: "dropdown-item"}).Text("Сверка по активации"),
+						// 			// new A().SetAttributes({class: "dropdown-item"}).Text("Дата документа и отгрузки SIM-карты")
+						// 		])
+						// 	])
+						// ]),
+						this.#footerDataType = new Div().SetAttributes({class: "dexol-window-footer-data-type-width"})
 					]),
 				new Div().SetAttributes({class: "dexol-window-footer-table-info dex-table-tinfo"}).AddChilds([
 						new Div().SetAttributes({class: "dex-table-tinfo-item"}).Text("Выделено: ").AddChilds([
