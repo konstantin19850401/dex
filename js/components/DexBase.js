@@ -411,7 +411,7 @@ class DexBase extends WindowClass {
 	}
 	#CreateReport(reportId) {
 		let report = new ReportDutyDocs(this.Application, this);
-		report.ShowQuestion();
+		// report.ShowQuestion();
 		// let filter = {start: "20220601", end: "20220625"};
 		// let packet = {com: "skyline.apps.adapters", subcom: "appApi", data: { action: 'reports', subaction: 'dutyDocs', base: this.#name, filter: filter}, hash: this.Hash}
 		// console.log("packet=====> ", packet);

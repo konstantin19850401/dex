@@ -1,92 +1,93 @@
 'use strict'
-class ReportDutyDocs {
+class ReportDutyDocs extends Report {
 	#application;#parent;#hash;#base;#descriptionBase;#transport;
 	#filter = {};
 	#containerQuestion;#containerResult;#tableContainer;#table;
 	#footerTaskSho;#footerTaskSpinSho;
 	constructor (application, parent) {
-		this.#application = application;
-		this.#parent = parent;
-		this.#hash = application.Toolbox.GenerateHash;
-		this.#transport = application.Transport;
-		this.#application.InsertHashInHashes(this.#hash, this);
-		if (typeof parent !== "undefined") {
-			this.#base = parent.Name;
-			this.#descriptionBase = parent.Description;
-		}
+		super(application, parent);
+		this.ShowQuestion();
 	}
 	ShowQuestion() {
-		let units;let formBody;let blockUnits;
-		this.#containerQuestion = new Div({parent: this.#parent.Container}).SetAttributes({class: "dex-dict-action-form dex-report-question"}).AddChilds([
-			new I().SetAttributes({class: "dex-dict-action-form-close fas fa-window-close"}).AddWatch(sho => {
-				sho.DomObject.addEventListener("click", event => this.Close())
-			}),
-			new Span().SetAttributes({class: "dex-dict-action-form-title"})
-				.Text(`Укажите данные для формирования отчета по долгам`),
-			new Div().SetAttributes({class: "dex-dict-action-form-body row dex-report-question-body"}).AddChilds([
-				formBody = new Div()
-			]),
-			new Div().SetAttributes({class: "dex-configuration-footer"}).AddChilds([
-				new Button().SetAttributes({class: "dex-dict-action-form_button"}).Text("Ok").AddWatch(sho => {
-					sho.DomObject.addEventListener("click", ()=> this.#CreateReport())
-				})
-			])
-		]);
 		// период
-		let period = new Period(this.#application);
+		let blockUnits;
+		this.QuestionTitle = "Укажите данные для формирования отчета по долгам";
+		this.ReportName = "Отчет по долгам";
+		let period = new Period(this.Application);
 		period.Container.AddClass("window-module-controls-item text-dark dex-report-question-body-period");
-		let blockPeriod = new Div({parent: formBody}).SetAttributes({class: "form-group row"}).AddChilds([
+		let blockPeriod = new Div({parent: this.QuestionBody}).SetAttributes({class: "form-group row"}).AddChilds([
 			new Label().SetAttributes({class: "col-4 col-form-label"}).Text("Укажите период"),
 			period.Container
 		]);
 		period.OnChange(()=> {
-			this.#filter.start = this.#application.Toolbox.ClientDateToServer(period.Data.start);
-			this.#filter.end = this.#application.Toolbox.ClientDateToServer(period.Data.end);
+			this.#filter.start = this.Application.Toolbox.ClientDateToServer(period.Data.start);
+			this.#filter.end = this.Application.Toolbox.ClientDateToServer(period.Data.end);
 		});
-		this.#filter.start = this.#application.Toolbox.ClientDateToServer(period.Data.start);
-		this.#filter.end = this.#application.Toolbox.ClientDateToServer(period.Data.end);
+		this.#filter.start = this.Application.Toolbox.ClientDateToServer(period.Data.start);
+		this.#filter.end = this.Application.Toolbox.ClientDateToServer(period.Data.end);
 
 		// торговые точки
-		units = this.#parent.GetDictByName("stores");
+		let units = this.Parent.GetDictByName("stores");
 		if (typeof units !== "undefined") {
 			let o = [];
-			for (let i = 0; i < units.list.length; i++) {
-				o.push({value: units.list[i].dex_uid, text: units.list[i].title});
-			}
-			new Div({parent: formBody}).SetAttributes({class: "form-group row"}).AddChilds([
+			new Div({parent: this.QuestionBody}).SetAttributes({class: "form-group row"}).AddChilds([
 				new Label().SetAttributes({class: "col-4 col-form-label"}).Text("Укажите отделение"),
 				blockUnits = new Div().SetAttributes({class: "dex-report-action-item col-8"})
 			]);
-			let customSelect = new CustomSelect(this.#application, blockUnits, o);
+			let customSelect = new CustomSelect(this.Application, blockUnits);
 			customSelect.OnChange((selectedItem)=> this.#filter.unit = selectedItem.value);
-		}
+			this.Application.Toolbox.Loop({
+				length: units.list.length,
+				toLoop: (loop, i)=> {
+					customSelect.AddOption({value: units.list[i].dex_uid, text: units.list[i].title});
+					loop();
+				},
+				callback: ()=> {
+					console.log("Построение списка окончено");
+				}
+			});
 
+
+			// let customSelect = new CustomSelect(this.Application, blockUnits, o);
+			// for (let i = 0; i < units.list.length; i++) {
+			// 	o.push({value: units.list[i].dex_uid, text: units.list[i].title});
+			// }
+			// new Div({parent: this.QuestionBody}).SetAttributes({class: "form-group row"}).AddChilds([
+			// 	new Label().SetAttributes({class: "col-4 col-form-label"}).Text("Укажите отделение"),
+			// 	blockUnits = new Div().SetAttributes({class: "dex-report-action-item col-8"})
+			// ]);
+			// let customSelect = new CustomSelect(this.Application, blockUnits, o);
+			// customSelect.OnChange((selectedItem)=> this.#filter.unit = selectedItem.value);
+		}
+		this.ContainerQuestion.RemoveClass("d-none");
 	}
-	#CreateReport() {
+	CreateReport() {
 		console.log("filter=> ", this.#filter);
-		this.#footerTaskSho = new A().SetAttributes({class: "dropdown-item"}).Text(`Отчет по долгам ${this.#descriptionBase}`).AddChilds([
+		this.FooterTaskSho = new A().SetAttributes({class: "dropdown-item"}).Text(`Отчет по долгам ${this.Description}`).AddChilds([
 			this.#footerTaskSpinSho = new Div().SetAttributes({class: "dex-report-process fas fa-spinner fa-pulse fa-spin"})
-		]).AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#containerResult.RemoveClass("d-none")));
-		this.#parent.NewTask = this.#footerTaskSho;
-		this.#containerQuestion.Hide();
-		let packet = {com: "skyline.apps.adapters", subcom: "appApi", data: { action: 'reports', subaction: 'dutyDocs', base: this.#base, filter: this.#filter}, hash: this.#hash};
-		this.#transport.Get(packet);
+		]).AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.ContainerResult.RemoveClass("d-none")));
+		this.Parent.NewTask = this.FooterTaskSho;
+		this.ContainerQuestion.Hide();
+		let packet = {com: "skyline.apps.adapters", subcom: "appApi", data: { action: 'reports', subaction: 'dutyDocs', base: this.Base, filter: this.#filter}, hash: this.Hash};
+		this.Transport.Get(packet);
 	}
 	CreateResult(data) {
-		this.#containerResult = new Div({parent: this.#parent.Container}).SetAttributes({class: "dex-dict-action-form dex-report-question d-none dex-report-result"})
+		this.ContainerResult = new Div({parent: this.Parent.Container}).SetAttributes({class: "dex-dict-action-form dex-report-question d-none dex-report-result"})
 			.AddChilds([
-				new I().SetAttributes({class: "dex-dict-action-form-close fas fa-window-close"}).AddWatch(sho => {
+				new I().SetAttributes({class: "dex-dict-action-form-close fas fa-window-close", title: "Закрыть"}).AddWatch(sho => {
 					sho.DomObject.addEventListener("click", event => this.Close())
 				}),
-				new Span().SetAttributes({class: "dex-dict-action-form-title"}).Text(`Отчет по долгам для ${this.#descriptionBase}`),
+				new I().SetAttributes({class: "dex-dict-action-form-close fas fa-window-minimize", title: "Свернуть"}).AddWatch(sho => {
+					sho.DomObject.addEventListener("click", event => this.MinimizeReport())
+				}),
+				new I().SetAttributes({class: "dex-dict-action-form-close fas fa-file-csv dex-export-to-excel", title: "Экспорт в файл excel"}).AddWatch(sho => {
+					sho.DomObject.addEventListener("click", event => this.ExportFile(data.link))
+				}),
+				new Span().SetAttributes({class: "dex-dict-action-form-title dex-report-total"}).Text(`Всего строк: ${data.list.length}`),
+				new Span().SetAttributes({class: "dex-dict-action-form-title"}).Text(`Отчет по долгам для ${this.Description}`),
 				this.#tableContainer = new Div().SetAttributes({class: "dex-report-result-body dex-report-container"}),
-				new Div().SetAttributes({class: "dex-configuration-footer"}).AddChilds([
-					new Button().SetAttributes({class: "dex-dict-action-form_button"}).Text("Свернуть").AddWatch(sho => {
-						sho.DomObject.addEventListener("click", ()=> this.MinimizeReport())
-					})
-				])
 			]);
-		this.#table = new ComplexTable(this.#application, this.#tableContainer);
+		this.#table = new ComplexTable(this.Application, this.#tableContainer);
 		if (typeof data.schema !== "undefined") {
 			for (let i = 0; i < data.schema.length; i++) {
 				let th = new Th().Text(data.schema[i].title);
@@ -98,9 +99,9 @@ class ReportDutyDocs {
 			this.#tableContainer.AddChilds([new Div().SetAttributes({class: "dex-report-result-body-empty-lable"}).Text("Нет данных для отображения")]);
 			this.#footerTaskSpinSho.RemoveClass("dex-report-process fas fa-spinner fa-pulse fa-spin");
 			this.#footerTaskSpinSho.AddClass("dex-report-ok fas fa-check-circle");
-			this.#parent.CompleteTask();
+			this.Parent.CompleteTask();
 		} else {
-			this.#application.Toolbox.Loop({
+			this.Application.Toolbox.Loop({
 				length: data.list.length,
 				toLoop: (loop, i)=> {
 					let item = data.list[i];
@@ -116,23 +117,13 @@ class ReportDutyDocs {
 					console.log("Построение отчета окончено");
 					this.#footerTaskSpinSho.RemoveClass("dex-report-process fas fa-spinner fa-pulse fa-spin");
 					this.#footerTaskSpinSho.AddClass("dex-report-ok fas fa-check-circle");
-					this.#parent.CompleteTask();
+					this.Parent.CompleteTask();
 				}
 			});
 		}
 	}
-	MinimizeReport() {
-		this.#containerResult.AddClass("d-none");
-	}
-	Close() {
-		this.#containerQuestion.DeleteObject();
-		if (typeof this.#containerResult !== "undefined") this.#containerResult.DeleteObject();
-		if (typeof this.#footerTaskSho !== "undefined") this.#footerTaskSho.DeleteObject();
-		this.#parent.DeleteTask();
-		this.#application.DeleteHash( this.#hash );
-	}
 	Commands ( packet ) {
-		console.log(`Пакет для базы отчета ${this.#base} =>`, packet);
+		console.log(`Пакет для базы отчета ${this.Base} =>`, packet);
 		switch(packet.com) {
 			case "skyline.apps.adapters":
 				switch(packet.subcom) {
