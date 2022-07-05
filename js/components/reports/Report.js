@@ -39,7 +39,7 @@ class Report {
 	#Init() {
 		this.#containerQuestion = new Div({parent: this.#parent.Container}).SetAttributes({class: "dex-dict-action-form dex-report-question d-none"}).AddChilds([
 			new I().SetAttributes({class: "dex-dict-action-form-close fas fa-window-close"}).AddWatch(sho => {
-				sho.DomObject.addEventListener("click", event => this.Close())
+				sho.DomObject.addEventListener("click", event => this.CloseQuestion())
 			}),
 			this.#questionTitleSho = new Span().SetAttributes({class: "dex-dict-action-form-title"}),
 				// .Text(`Укажите данные для формирования отчета по долгам`),
@@ -59,6 +59,10 @@ class Report {
 	}
 	MinimizeReport() {
 		this.#containerResult.AddClass("d-none");
+	}
+	CloseQuestion() {
+		this.#containerQuestion.DeleteObject();
+		this.#application.DeleteHash( this.#hash );
 	}
 	Close() {
 		this.#containerQuestion.DeleteObject();

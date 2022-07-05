@@ -109,7 +109,12 @@ class DexBase extends WindowClass {
 		});
 
 		//controls
-		if (!this.#initControls) this.#InitControls();
+		if (!this.#initControls) {
+			this.#InitControls();
+
+			//добавить в контекстное меню элементы
+			this.#AddElementsInContextMenu();
+		}
 		// добавим ссылку на окно в табы
 		this.AddTab({
 			hash: this.Hash,
@@ -129,8 +134,7 @@ class DexBase extends WindowClass {
 
 		this.SetCntTotalRows = this.#data.length;
 
-		//добавить в контекстное меню элементы
-		this.#AddElementsInContextMenu();
+
 
 	}
 	// get TasksSho() {return this.#tasksSho; }
@@ -248,8 +252,10 @@ class DexBase extends WindowClass {
 			reports = new Div().SetAttributes({class: "dropdown-content"}).AddChilds([
 				new A().SetAttributes({class: "dropdown-item"}).Text("Отчет по долгам")
 					.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#CreateReport("dutyDocs"))),
-				// new A().SetAttributes({class: "dropdown-item"}).Text("Периодичный реестр договоров"),
-				// new A().SetAttributes({class: "dropdown-item"}).Text("Сверка по ТП и документам"),
+				new A().SetAttributes({class: "dropdown-item"}).Text("Сверка по ТП и документам")
+					.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#CreateReport("sverka"))),
+				new A().SetAttributes({class: "dropdown-item"}).Text("Отчет по остаткам")
+					.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#CreateReport("leftovers")))
 				// new A().SetAttributes({class: "dropdown-item"}).Text("Сверка по активации"),
 				// new A().SetAttributes({class: "dropdown-item"}).Text("Дата документа и отгрузки SIM-карты")
 			])
@@ -410,7 +416,9 @@ class DexBase extends WindowClass {
 		// this.Transport.Get({com: "skyline.apps.adapters", subcom: "appApi", data: {action: "createNewRecordInDictV1", dict: this.#dictName, fields: data}, hash: this.Hash});
 	}
 	#CreateReport(reportId) {
-		let report = new ReportDutyDocs(this.Application, this);
+		let report;
+		if (reportId == "dutyDocs") report = new ReportDutyDocs(this.Application, this);
+		else if (reportId == "sverka") report = new Sverka(this.Application, this);
 		// report.ShowQuestion();
 		// let filter = {start: "20220601", end: "20220625"};
 		// let packet = {com: "skyline.apps.adapters", subcom: "appApi", data: { action: 'reports', subaction: 'dutyDocs', base: this.#name, filter: filter}, hash: this.Hash}

@@ -72,6 +72,7 @@ class CustomSelect extends Component {
 				if (typeof this.#selectedSho !== "undefined") this.#selectedSho.ToggleClass("same-as-selected");
 				this.#shoList[i].sho.ToggleClass("same-as-selected");
 				this.#selectedSho = this.#shoList[i].sho;
+				if (typeof this.#funcOnChange !== "undefined") this.#funcOnChange({value: this.#value, text: this.#text});
 			}
 		}
 	}

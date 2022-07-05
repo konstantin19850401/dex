@@ -1,9 +1,8 @@
 'use strict'
 class ReportDutyDocs extends Report {
-	#application;#parent;#hash;#base;#descriptionBase;#transport;
 	#filter = {};
-	#containerQuestion;#containerResult;#tableContainer;#table;
-	#footerTaskSho;#footerTaskSpinSho;
+	#tableContainer;#table;
+	#footerTaskSpinSho;
 	constructor (application, parent) {
 		super(application, parent);
 		this.ShowQuestion();
@@ -46,18 +45,6 @@ class ReportDutyDocs extends Report {
 					console.log("Построение списка окончено");
 				}
 			});
-
-
-			// let customSelect = new CustomSelect(this.Application, blockUnits, o);
-			// for (let i = 0; i < units.list.length; i++) {
-			// 	o.push({value: units.list[i].dex_uid, text: units.list[i].title});
-			// }
-			// new Div({parent: this.QuestionBody}).SetAttributes({class: "form-group row"}).AddChilds([
-			// 	new Label().SetAttributes({class: "col-4 col-form-label"}).Text("Укажите отделение"),
-			// 	blockUnits = new Div().SetAttributes({class: "dex-report-action-item col-8"})
-			// ]);
-			// let customSelect = new CustomSelect(this.Application, blockUnits, o);
-			// customSelect.OnChange((selectedItem)=> this.#filter.unit = selectedItem.value);
 		}
 		this.ContainerQuestion.RemoveClass("d-none");
 	}
