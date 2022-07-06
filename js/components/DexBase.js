@@ -255,9 +255,10 @@ class DexBase extends WindowClass {
 				new A().SetAttributes({class: "dropdown-item"}).Text("Сверка по ТП и документам")
 					.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#CreateReport("sverka"))),
 				new A().SetAttributes({class: "dropdown-item"}).Text("Отчет по остаткам")
-					.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#CreateReport("leftovers")))
-				// new A().SetAttributes({class: "dropdown-item"}).Text("Сверка по активации"),
-				// new A().SetAttributes({class: "dropdown-item"}).Text("Дата документа и отгрузки SIM-карты")
+					.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#CreateReport("leftovers"))),
+				new A().SetAttributes({class: "dropdown-item"}).Text("Отчет по продажам субдилера за период")
+					.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#CreateReport("subdealerSales")))
+
 			])
 		]);
 		this.AddControlAction(reportsBlock);
@@ -419,6 +420,7 @@ class DexBase extends WindowClass {
 		let report;
 		if (reportId == "dutyDocs") report = new ReportDutyDocs(this.Application, this);
 		else if (reportId == "sverka") report = new Sverka(this.Application, this);
+		else if (reportId == "leftovers") report = new Leftovers(this.Application, this);
 		// report.ShowQuestion();
 		// let filter = {start: "20220601", end: "20220625"};
 		// let packet = {com: "skyline.apps.adapters", subcom: "appApi", data: { action: 'reports', subaction: 'dutyDocs', base: this.#name, filter: filter}, hash: this.Hash}
