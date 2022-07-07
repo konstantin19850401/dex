@@ -252,11 +252,11 @@ class DexBase extends WindowClass {
 			reports = new Div().SetAttributes({class: "dropdown-content"}).AddChilds([
 				new A().SetAttributes({class: "dropdown-item"}).Text("Отчет по долгам")
 					.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#CreateReport("dutyDocs"))),
-				new A().SetAttributes({class: "dropdown-item"}).Text("Сверка по ТП и документам")
+				new A().SetAttributes({class: "dropdown-item"}).Text("Отчет сверка по ТП и документам")
 					.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#CreateReport("sverka"))),
 				new A().SetAttributes({class: "dropdown-item"}).Text("Отчет по остаткам")
 					.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#CreateReport("leftovers"))),
-				new A().SetAttributes({class: "dropdown-item"}).Text("Отчет по продажам субдилера за период")
+				new A().SetAttributes({class: "dropdown-item"}).Text("Отчет по продажам за период")
 					.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#CreateReport("subdealerSales")))
 
 			])
@@ -421,6 +421,7 @@ class DexBase extends WindowClass {
 		if (reportId == "dutyDocs") report = new ReportDutyDocs(this.Application, this);
 		else if (reportId == "sverka") report = new Sverka(this.Application, this);
 		else if (reportId == "leftovers") report = new Leftovers(this.Application, this);
+		else if (reportId == "subdealerSales") report = new SubdealerSales(this.Application, this);
 		// report.ShowQuestion();
 		// let filter = {start: "20220601", end: "20220625"};
 		// let packet = {com: "skyline.apps.adapters", subcom: "appApi", data: { action: 'reports', subaction: 'dutyDocs', base: this.#name, filter: filter}, hash: this.Hash}

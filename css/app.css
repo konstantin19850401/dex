@@ -1077,3 +1077,7 @@
         line-height: 16px;
         margin-right: 40px;
     }
+    .report-charts {
+        width: 100% !important;
+        height:  100% !important;
+    }

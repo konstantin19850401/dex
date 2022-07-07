@@ -62,32 +62,18 @@ class Sverka extends Report {
 		journalParamsСustomSelect.SelectItem("journal");
 
 		// разбить помесячно или нет
-		// new Div({parent: this.QuestionBody}).SetAttributes({class: "form-group row"}).AddChilds([
-		// 	new Label().SetAttributes({class: "col-4 col-form-label"}).Text(""),
-		// 	new Div().SetAttributes({class: "col-8 text-start"}).AddChilds([
-		// 		new Div().SetAttributes({class: "checkbox checkbox-inline checkbox-styled"}).AddChilds([
-		// 			new Label().AddChilds([
-		// 				new Input().SetAttributes({type: "checkbox"})
-		// 					.AddWatch(sho=> sho.DomObject.addEventListener("change", event=> this.#filter.splitMonthly = event.target.checked)),
-		// 				new Span().Text("Разбить помесячно")
-		// 			])
-		// 		])
-		// 	])
-		// ]);
-
-		// показывать ли нулевые остатки
-		// new Div({parent: this.QuestionBody}).SetAttributes({class: "form-group row"}).AddChilds([
-		// 	new Label().SetAttributes({class: "col-4 col-form-label"}).Text(""),
-		// 	new Div().SetAttributes({class: "col-8 text-start"}).AddChilds([
-		// 		new Div().SetAttributes({class: "checkbox checkbox-inline checkbox-styled"}).AddChilds([
-		// 			new Label().AddChilds([
-		// 				new Input().SetAttributes({type: "checkbox"})
-		// 					.AddWatch(sho=> sho.DomObject.addEventListener("change", event=> this.#filter.zeroBalances = event.target.checked)),
-		// 				new Span().Text("Показать нулевые остатки")
-		// 			])
-		// 		])
-		// 	])
-		// ]);
+		new Div({parent: this.QuestionBody}).SetAttributes({class: "form-group row"}).AddChilds([
+			new Label().SetAttributes({class: "col-4 col-form-label"}).Text(""),
+			new Div().SetAttributes({class: "col-8 text-start"}).AddChilds([
+				new Div().SetAttributes({class: "checkbox checkbox-inline checkbox-styled"}).AddChilds([
+					new Label().AddChilds([
+						new Input().SetAttributes({type: "checkbox"})
+							.AddWatch(sho=> sho.DomObject.addEventListener("change", event=> this.#filter.splitMonthly = event.target.checked)),
+						new Span().Text("Разбить помесячно")
+					])
+				])
+			])
+		]);
 
 		this.ContainerQuestion.RemoveClass("d-none");
 	}
