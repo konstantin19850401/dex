@@ -357,6 +357,7 @@
             .dex-table-container table thead {
                 position: sticky;
                 top: 0px;
+                white-space: nowrap;
             }
             .dex-table-container table {
                 /*border: 1px solid #ced4da;*/

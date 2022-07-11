@@ -48,10 +48,10 @@ class SubdealerSales extends Report {
 				new I().SetAttributes({class: "dex-dict-action-form-close fas fa-window-minimize", title: "Свернуть"}).AddWatch(sho => {
 					sho.DomObject.addEventListener("click", event => this.MinimizeReport())
 				}),
-				new I().SetAttributes({class: "dex-dict-action-form-close fas fa-file-csv dex-export-to-excel", title: "Экспорт в файл excel"}).AddWatch(sho => {
-					sho.DomObject.addEventListener("click", event => this.ExportFile(data.link))
-				}),
-				new Span().SetAttributes({class: "dex-dict-action-form-title dex-report-total"}).Text(`Всего документов за период в выбранном журнале: ${data.total}`),
+				// new I().SetAttributes({class: "dex-dict-action-form-close fas fa-file-csv dex-export-to-excel", title: "Экспорт в файл excel"}).AddWatch(sho => {
+				// 	sho.DomObject.addEventListener("click", event => this.ExportFile(data.link))
+				// }),
+				new Span().SetAttributes({class: "dex-dict-action-form-title dex-report-total"}).Text(`Всего регистраций за выбранный период: ${data.total}`),
 				// new Span().SetAttributes({class: "dex-dict-action-form-title dex-report-total"}).Text(`Всего строк: ${data.list.cnt}`),
 				new Span().SetAttributes({class: "dex-dict-action-form-title"}).Text(`Отчет по регистрациям для ${this.Description}`),
 				this.#tableContainer = new Div().SetAttributes({class: "dex-report-result-body dex-report-container"}),

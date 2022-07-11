@@ -257,7 +257,9 @@ class DexBase extends WindowClass {
 				new A().SetAttributes({class: "dropdown-item"}).Text("Отчет по остаткам")
 					.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#CreateReport("leftovers"))),
 				new A().SetAttributes({class: "dropdown-item"}).Text("Отчет по продажам за период")
-					.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#CreateReport("subdealerSales")))
+					.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#CreateReport("subdealerSales"))),
+				new A().SetAttributes({class: "dropdown-item"}).Text("Отчет сверка по активации")
+					.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#CreateReport("activation")))
 
 			])
 		]);
@@ -422,6 +424,7 @@ class DexBase extends WindowClass {
 		else if (reportId == "sverka") report = new Sverka(this.Application, this);
 		else if (reportId == "leftovers") report = new Leftovers(this.Application, this);
 		else if (reportId == "subdealerSales") report = new SubdealerSales(this.Application, this);
+		else if (reportId == "activation") report = new Activation(this.Application, this);
 		// report.ShowQuestion();
 		// let filter = {start: "20220601", end: "20220625"};
 		// let packet = {com: "skyline.apps.adapters", subcom: "appApi", data: { action: 'reports', subaction: 'dutyDocs', base: this.#name, filter: filter}, hash: this.Hash}
