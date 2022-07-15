@@ -14,7 +14,7 @@ class Activation extends Report {
 		this.ReportName = "Сверка по активации";
 
 		let containerForsverka, tableSverka;
-		let headers = ["MSISDN", "ICC"];
+		let headers = ["MSISDN"];
 
 		// данные из буфера и их обработка
 		new Div({parent: this.QuestionBody}).SetAttributes({class: "form-group row"}).AddChilds([
@@ -22,9 +22,27 @@ class Activation extends Report {
 			new Div().SetAttributes({class: "dex-report-action-item col-8"}).AddChilds([
 				new Textarea().SetAttributes({class: 'col-sm-12'}).AddWatch(sho=> {
 					sho.DomObject.addEventListener('input', event=> {
+						tableSverka.ClearHead();
+						tableSverka.ClearBody();
+						headers = ["MSISDN"];
 						let rows = event.target.value.split(/\n/g);
 						if (rows != '') {
-							tableSverka.ClearBody();
+							// сначала узнаем, сколько колонок
+							let colLength = 0;
+							for (let i = 0; i < rows.length; i++) {
+								if (rows[i] != '') {
+									let temp = rows[i].split('\t');
+									if (colLength < temp.length) colLength = temp.length;
+								}
+							}
+							for (let i = 1; i < colLength; i++) headers.push(`s${i-1}`);
+							for (let i = 0; i < headers.length; i++) {
+								let newHeader = new Th().SetAttributes( ).Text( headers[i] );
+								tableSverka.AddHead( newHeader );
+							}
+
+
+
 							this.#filter.sims = [];
 							let d = [];
 							for (let i = 0; i < rows.length; i++) {
@@ -60,10 +78,10 @@ class Activation extends Report {
 			containerForsverka = new Div().SetAttributes({class: "dex-report-action-item col-8 h-25"})
 		]);
 		tableSverka = new ComplexTable( this.Application, containerForsverka);
-		for (let i = 0; i < headers.length; i++) {
-			let newHeader = new Th().SetAttributes( ).Text( headers[i] );
-			tableSverka.AddHead( newHeader );
-		}
+		// for (let i = 0; i < headers.length; i++) {
+		// 	let newHeader = new Th().SetAttributes( ).Text( headers[i] );
+		// 	tableSverka.AddHead( newHeader );
+		// }
 		tableSverka.Container.DomObject.style.height = "150px";
 
 		// параметры журнала

@@ -379,6 +379,7 @@
                 border-left: 1px solid #ced4da;
                 border-bottom: 1px solid #ced4da;
                 padding: 0px 5px 0px 5px;
+                white-space: nowrap;
             }
             .dex-table-container table tr {
                 /*background-color: #fff;*/
