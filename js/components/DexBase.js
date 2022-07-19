@@ -78,7 +78,7 @@ class DexBase extends WindowClass {
 						// console.log("this.#schema[i].foreignKey=> ", this.#schema[i].foreignKey);
 						let arr = this.#schema[i].foreignKey.split(".");
 						let dict = this.Parent.GetDictByName(arr[0]);
-						// console.log("dict=> ", dict);
+						console.log("dict=> ", dict.name);
 						if (typeof dict !== "undefined") {
 							if (typeof this.#schema[i].multy !== "undefined" && this.#schema[i].multy == true) {
 								let t = text.split(",");
@@ -89,8 +89,13 @@ class DexBase extends WindowClass {
 								}
 								text = s.join(", ");
 							} else {
-								let itm = dict.list.find(itm => itm[arr[1]] == text);
-								if (typeof itm !== "undefined") text = itm.title;
+								if (dict.name == "abonent_categories") {
+									let itm = dict.list.find(itm => itm.uid == text);
+									if (typeof itm !== "undefined") text = itm.title;
+								} else {
+									let itm = dict.list.find(itm => itm[arr[1]] == text);
+									if (typeof itm !== "undefined") text = itm.title;
+								}
 							}
 						}
 					}
