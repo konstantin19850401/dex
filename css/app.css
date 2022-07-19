@@ -295,6 +295,14 @@
             .dexol-window-footer-table-info-tasks {
 
             }
+            .dexol-footer-windows {
+                display: flex;
+                flex-wrap: wrap;
+            }
+            .dexol-footer-windows-up {
+                left: 0px;
+                width: max-content;
+            }
             .dexol-window-footer-data-type-width {
                 width:  200px;
                 margin-left: 5px;

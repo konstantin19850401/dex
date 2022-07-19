@@ -7,7 +7,7 @@ class WindowClass {
 	#actions = [];
 	#tableSelectedRows;
 	#tableTotalRows;
-	#footerDataType;#footerTasks;
+	#footer;#footerDataType;#footerTasks;#ftrWindows;
 	constructor (application, parent) {
 		this.#application = application;
 		this.#hash = application.Toolbox.GenerateHash;
@@ -25,6 +25,9 @@ class WindowClass {
 	set Title(title) { this.#parent.Title = `[ ${title} ]`; }
 	get FooterDataType() {return this.#footerDataType; }
 	get FooterTasks() {return this.#footerTasks; }
+	get Footer() {return this.#footer; }
+	get FtrWindows() {return this.#ftrWindows; }
+	get WindowFooter() {return this.#windowFooter; }
 
 	#InitWindow() {
 		if (typeof this.#parent !== "undefined") this.#container = new Div({parent: this.#parent.Container});
@@ -39,8 +42,10 @@ class WindowClass {
 				// 	// this.#footerDataType = new Div()
 				// 	this.#footerTasks = new Div().SetAttributes({class: "dexol-window-footer-data-type-width"})
 				// ]),
-				new Div().SetAttributes({class: "dexol-window-footer-table-info dexol-window-footer-table-info-journal"}).AddChilds([
+				this.#ftrWindows = new Div().SetAttributes({class: "dexol-window-footer-data-type-width dexol-footer-windows"}),
+				this.#footer = new Div().SetAttributes({class: "dexol-window-footer-table-info dexol-window-footer-table-info-journal"}).AddChilds([
 						// this.#footerDataType = new Div()
+
 						this.#footerTasks = new Div().SetAttributes({class: "dexol-window-footer-data-type-width dex-tasks-width dex-tasks-mr"}),
 						// new Div().SetAttributes({class: "dexol-window-footer-data-type-width dex-tasks-width dex-tasks-mr"}).AddChilds([
 						// 	new Div().SetAttributes({class: "dex-tasks-label"}).Text("Текущие задачи: ").AddChilds([

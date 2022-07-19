@@ -78,7 +78,7 @@ class DexBase extends WindowClass {
 						// console.log("this.#schema[i].foreignKey=> ", this.#schema[i].foreignKey);
 						let arr = this.#schema[i].foreignKey.split(".");
 						let dict = this.Parent.GetDictByName(arr[0]);
-						console.log("dict=> ", dict.name);
+						// console.log("dict=> ", dict.name);
 						if (typeof dict !== "undefined") {
 							if (typeof this.#schema[i].multy !== "undefined" && this.#schema[i].multy == true) {
 								let t = text.split(",");
@@ -299,6 +299,35 @@ class DexBase extends WindowClass {
 			]),
 			new Div().SetAttributes({class: "dex-tasks-label"}).Text("Всего: ").AddChilds([
 				this.#tasksCntSho = new Span().Text(this.#tasksCnt),
+			])
+		]);
+
+		// добавим ссылку на окна
+		let ftrWondows;
+		this.FtrWindows.AddChilds([
+			new Div().SetAttributes({class: "btn-group dropdown"}).AddChilds([
+				new Button().SetAttributes({class: "dropbtn", type: "button"}).AddChilds([
+					new I().SetAttributes({class: "fas fa-user"})
+				]).Text("Окна").AddWatch(sho=> {
+					sho.DomObject.addEventListener("click", event=> {
+						ftrWondows.ToggleClass("show");
+						ftrWondows.DomObject.style.marginTop = `-${(ftrWondows.Childs.length + 1 )* 33}px`;
+					});
+
+				}),
+				ftrWondows = new Div().SetAttributes({class: "dropdown-content dexol-footer-windows-up"}).AddChilds([
+					// new A().SetAttributes({class: "dropdown-item"}).Text("Отчет по долгам")
+					// 	.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#CreateReport("dutyDocs"))),
+					// new A().SetAttributes({class: "dropdown-item"}).Text("Отчет сверка по ТП и документам")
+					// 	.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#CreateReport("sverka"))),
+					// new A().SetAttributes({class: "dropdown-item"}).Text("Отчет по остаткам")
+					// 	.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#CreateReport("leftovers"))),
+					// new A().SetAttributes({class: "dropdown-item"}).Text("Отчет по продажам за период")
+					// 	.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#CreateReport("subdealerSales"))),
+					// new A().SetAttributes({class: "dropdown-item"}).Text("Отчет сверка по активации")
+					// 	.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#CreateReport("activation")))
+
+				])
 			])
 		]);
 
