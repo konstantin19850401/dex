@@ -1,7 +1,7 @@
-'use strict'
-class Component {
+"use strict"
+class DexBaseWindow {
 	#parent;#container;#application;#hash;
-	constructor ( application, parent ) {
+	constructor (application, parent, data) {
 		this.#application = application;
 		this.#parent = parent;
 		this.#hash = this.#application.Toolbox.GenerateHash;
@@ -29,19 +29,9 @@ class Component {
 	// Приватные методы
 
 	// публичные методы
-	Container ( shoObject ) {
+	set Container ( shoObject ) {
 		this.#container = shoObject;
 	}
-	InitParent ( parent ) {
-		// console.log( 'init parent ComplexTable ',  this.Parent );
-		if (typeof this.#parent === 'undefined' ) {
-			this.#parent = parent;
-			this.#parent.AddChild( this );
-			let dom = this.#parent.DomObject;
-			// console.log( 'this.parent===> ', this.Container.DomObject, " dom=> ", dom );
-			dom.append( this.Container.DomObject );
-		}
-	};
 	DeleteObject() {
 		let childs = this.#parent.Childs;
 		for (let i = 0; i < childs.length; i++) {
@@ -51,6 +41,12 @@ class Component {
 			}
 		}
 		this.#container.DeleteObject();
+	};
+	Hide() {
+		this.#container.AddClass('d-none');
+	};
+	Show() {
+		this.#container.RemoveClass('d-none');
 	};
 }
 

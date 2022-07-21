@@ -1,6 +1,9 @@
 'use strict'
 class MessagesWindow extends Component {
-	#title;#body;#window;#onClose;#ifClose;#hideBtn;#btn;
+	#title;#body;#window;#hideBtn;#btn;
+	#data = {};
+	#onAccept;#onCancel;#onClose;
+	#errs;
 	constructor ( application, parent, title, data, hideBtn ) {
 		super( application, parent );
 		this.#title = title;
@@ -11,52 +14,74 @@ class MessagesWindow extends Component {
 	// ГЕТТЕРЫ
 	get Title() {return this.#title;}
 	get Body() {return this.#body;}
+	set Errors(errs) {
+		let text = "";
+		if (Array.isArray(errs)) text = errs.join(", ");
+		else text = errs;
+		this.#errs.Text(text);
+	}
+
 	// СЕТТЕРЫ
 
 	#Draw( ) {
-		this.Container = new Div( {parent: this.Parent} ).SetAttributes( {class: 'common-window'} ).AddChilds([
-			new I().SetAttributes( {class: 'dex-app-window-close fas fa-window-close'} ).AddWatch( shoObject => {
-				shoObject.DomObject.addEventListener( 'click', event => {
-					this.Close();
-				})
-			}),
-			new Span().SetAttributes( {class: 'dex-app-window-title'} ).Text( `${ this.#title }` ),
-			this.#body = new Div().SetAttributes( {class: 'dex-app-window-body'} ),
-			this.#btn = new Button().SetAttributes( {class: 'bases-list-btn'} ).Text( 'Применить' ).AddWatch((el)=> {
-				el.DomObject.addEventListener( 'click', event => {this.#Accept(); this.Close()})
-			}),
+		this.Container = new Div( {parent: this.Parent} ).SetAttributes( {class: "dex-dialog-wrapper"} ).AddChilds([
+			new Div().SetAttributes({class: "dex-dialog-message-box"}).AddChilds([
+				new Div().SetAttributes({class: "dex-dialog-message-header form-group row"}).AddChilds([
+					this.#title = new Div().SetAttributes({class: "dex-dialog-message-header-title col-sm-10"}).Text(this.#title),
+					new Div().SetAttributes({class: "col-sm-2"}).AddChilds([
+						new I().SetAttributes({class: "dex-dialog-message-header-close fas fa-window-close"})
+							.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#Cancel()))
+					])
+				]),
+				this.#errs = new Div().SetAttributes({class: "dex-dialog-message-errs"}),
+				this.#body = new Div().SetAttributes({class: "dex-dialog-message-body"}),
+				new Div().SetAttributes({class: "dex-dialog-message-footer"}).AddChilds([
+					new Div().SetAttributes({class: "dex-dialog-message-accept"}).AddChilds([
+						new Button().SetAttributes({class: "dex-dialog-message-accept-btn btns btn-primary", type: "submit"})
+							.Text("Проверить")
+							.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#Accept()))
+					])
+				])
+			])
 		])
+
 		if (this.#hideBtn == true) this.#btn.Hide();
 	};
 	#initData(data) {
-		for (let key in data) {
-			if (key == 'height' || key == 'width') {
-				let s = {height: 'margin-top', width: 'margin-left'};
-				// if (key != 'height') this.Container.DomObject.style[key] = `${data[key]}px`;
-				if (key != 'height') this.Container.DomObject.style[key] = `${data[key]}px`;
-				this.Container.DomObject.style[s[key]] = `-${data[key]/2}px`;
-			}
+		for (let i = 0; i < data.length; i++) {
+			this.#data[data[i].name] = "";
+			this.#body.AddChilds([
+				new Div().SetAttributes({class: "dex-dialog-message-body-item form-group row"}).AddChilds([
+					new Div().SetAttributes({class: "col-sm-6"}).Text(data[i].labelText),
+					new Div().SetAttributes({class: "col-sm-6"}).AddChilds([
+						new Input()
+							.AddWatch(sho=> sho.DomObject.addEventListener("input", event=> this.#data[data[i].name] = event.target.value))
+							.AddWatch(sho=> sho.DomObject.addEventListener("keypress", event=> {
+								if (event.key == "Enter" && typeof data[i+1] !== "undefined") this.#body.Childs[i+1].DomObject.focus();
+								else if (event.key == "Enter" && typeof data[i+1] === "undefined") this.#Accept();
+							}))
+					]),
+				])
+			])
 		}
-		if (typeof data.height !== "undefined") this.#body.DomObject.style.height = `${data.height}px`;
 	}
 	#Accept() {
-		if (typeof this.#onClose !== 'undefined') this.#onClose();
+		if (typeof this.#onAccept !== "undefined") this.#onAccept(this.#data);
+		// this.Close();
 	}
-	OnClose(func) {
-		this.#onClose = func;
-	}
-	AddBody(mwbody) {
-		this.#body.AddChilds([mwbody]);
+	#Cancel() {
+		if (typeof this.#onCancel !== "undefined") this.#onCancel();
+		this.Close();
 	}
 	Show() { this.Container.DomObject.hidden = false;}
 	Hide() {this.Container.DomObject.hidden = true;}
 	Close () {
 		this.Container.DeleteObject();
 		this.Application.DeleteHash( this.Hash );
-		if (typeof this.#ifClose !== 'undefined') this.#ifClose();
+		if (typeof this.#onClose !== "undefined") this.#onClose();
 	};
-	IfCloseForm(func) {
-		this.#ifClose = func;
-	}
+	OnAccept(func) { this.#onAccept = func; }
+	OnCancel(func) { this.#onCancel = func; }
+	OnClose(func) { this.#onClose = func; }
 }
 

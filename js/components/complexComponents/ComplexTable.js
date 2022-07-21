@@ -241,4 +241,10 @@ class ComplexTable extends Component {
 			this.#tbody.Childs[i].Childs[0].Text(i + 1);
 		}
 	};
+	Hide() {
+		this.Container.AddClass('d-none');
+	};
+	Show() {
+		this.Container.RemoveClass('d-none');
+	};
 }

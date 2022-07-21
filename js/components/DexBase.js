@@ -7,6 +7,8 @@ class DexBase extends WindowClass {
 	#initControls = false;#show = false;
 	#operator;#preloader;
 	#tasksSho;#tasksCnt = 0;#tasksCntInProcess = 0;#tasksCntSho;#tasksCntInProcessSho;#tasksListSho;
+	#ftrWindows;
+	#windowItems = [];#checks = [];
 	constructor (application, parent, data) {
 		super(application, parent);
 		this.#name = data.id;
@@ -47,6 +49,7 @@ class DexBase extends WindowClass {
 				let type = typeof this.#schema[i].foreignKey !== "undefined" ? "string" : this.#schema[i].type
 				this.#table.AddHead(th, type);
 			}
+			this.#windowItems.push({name: "listBase", element: this.#table});
 		} else this.#table.ClearBody();
 		let colors = this.Parent.GetDictByName("colors");
 		let dexColorStatuses = this.Parent.GetDictByName("dex_document_statuses");
@@ -303,19 +306,25 @@ class DexBase extends WindowClass {
 		]);
 
 		// добавим ссылку на окна
-		let ftrWondows;
+		let link;
 		this.FtrWindows.AddChilds([
 			new Div().SetAttributes({class: "btn-group dropdown"}).AddChilds([
 				new Button().SetAttributes({class: "dropbtn", type: "button"}).AddChilds([
 					new I().SetAttributes({class: "fas fa-user"})
 				]).Text("Окна").AddWatch(sho=> {
 					sho.DomObject.addEventListener("click", event=> {
-						ftrWondows.ToggleClass("show");
-						ftrWondows.DomObject.style.marginTop = `-${(ftrWondows.Childs.length + 1 )* 33}px`;
+						this.#ftrWindows.ToggleClass("show");
+						this.#ftrWindows.DomObject.style.marginTop = `-${(this.#ftrWindows.Childs.length + 1 )* 33}px`;
 					});
-
 				}),
-				ftrWondows = new Div().SetAttributes({class: "dropdown-content dexol-footer-windows-up"}).AddChilds([
+				this.#ftrWindows = new Div().SetAttributes({class: "dropdown-content dexol-footer-windows-up"}).AddChilds([
+					link = new A().SetAttributes({class: "dropdown-item"}).Text("Список договоров")
+						.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> {
+							this.#windowItems.map(item=> {
+								if (item.name == "listBase") item.element.Show();
+								else item.element.Hide()
+							});
+						})),
 					// new A().SetAttributes({class: "dropdown-item"}).Text("Отчет по долгам")
 					// 	.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> this.#CreateReport("dutyDocs"))),
 					// new A().SetAttributes({class: "dropdown-item"}).Text("Отчет сверка по ТП и документам")
@@ -330,6 +339,8 @@ class DexBase extends WindowClass {
 				])
 			])
 		]);
+		let item = this.#windowItems.find(item=> item.name == "listBase");
+		if (typeof item !== "undefined") item.link = link;
 
 		this.AddControlAction(funcBlock);
 	}
@@ -340,8 +351,65 @@ class DexBase extends WindowClass {
 		this.Transport.Get(packet);
 	}
 	#ShowAddForm(element) {
-		// let dr = new DictionaryRecord(this, element);
-		// dr.OnClose = ()=> { this.#GetDictData() };
+		if (typeof this.#checks.find(item=> item.type == "checkStartFieldsV1") === "undefined") {
+			this.#windowItems.map(item=> item.element.Hide());
+			// добавим окно с запросом ввести данные сим для проверки доступности сим
+			let dialog = new MessagesWindow(this.Application, this.WindowBody, "Введите данные для проверки", [{name: "msisdn", labelText: "Номер сим-карты"}]);
+			let link = new A({parent: this.#ftrWindows}).SetAttributes({class: "dropdown-item"})
+			.Text("Ввод данных для нового договора")
+			.AddWatch(sho=> sho.DomObject.addEventListener("click", event=> {
+				this.#windowItems.map(item=> {
+					if (item.name == dialog.Hash) item.element.Show();
+					else item.element.Hide()
+				});
+			}));
+			this.#windowItems.push({name: dialog.Hash, element: dialog, link: link});
+
+			dialog.OnAccept((data)=> {
+				console.log("результат => ", data);
+				if (data.msisdn.length != 10) dialog.Errors = "Номер сим-карты должен состоять из 10 цифр";
+				else {
+					if (typeof parseInt(data.msisdn) === 'number' && !isNaN(data.msisdn)) {
+						this.Transport.Get({com: 'skyline.apps.adapters', subcom: 'appApi', data: {action: 'checkStartFieldsV1', base: this.#name, check: {msisdn: data.msisdn}}, hash: this.Hash});
+					} else dialog.Errors = "Номер сим-карты должен содержать только цифры";
+				}
+				// link.DeleteObject();
+				// let index = this.#windowItems.findIndex(item=> item.name == dialog.Hash);
+				// this.#windowItems.splice(index, 1);
+				// this.#windowItems[this.#windowItems.length - 1].link.DomObject.click();
+				// а теперь создадим форму для нового документа
+			});
+			// dialog.OnCancel(()=> {
+
+			// });
+			dialog.OnClose(()=> {
+				link.DeleteObject();
+				let index = this.#windowItems.findIndex(item=> item.name == dialog.Hash);
+				this.#windowItems.splice(index, 1);
+				this.#windowItems[this.#windowItems.length - 1].link.DomObject.click();
+
+				index = this.#checks.findIndex(item=> item.type == "checkStartFieldsV1");
+				this.#checks.splice(index, 1);
+			});
+			this.#checks.push({type: "checkStartFieldsV1", element: dialog});
+		}
+
+
+
+
+
+
+		// let dexDocument = new DexDocument(this.Application, this.WindowBody);
+		// let link = new A({parent: this.#ftrWindows}).SetAttributes({class: "dropdown-item"})
+		// .Text("Новый договор. MSISDN - , ICC - ")
+		// .AddWatch(sho=> sho.DomObject.addEventListener("click", event=> {
+		// 	this.#windowItems.map(item=> {
+		// 		if (item.name == dexDocument.Hash) item.element.Show();
+		// 		else item.element.Hide()
+		// 	});
+		// }));
+		// this.#windowItems.map(item=> item.element.Hide());
+		// this.#windowItems.push({name: dexDocument.Hash, element: dexDocument, link: link});
 	}
 	#ShowPreloader() {
 		if (typeof this.#preloader !== "undefined") this.#preloader.RemoveClass("preloader-hide");
@@ -385,6 +453,7 @@ class DexBase extends WindowClass {
 
 	}
 	GetDictByName(name) {
+
 		return this.Parent.GetDictByName(name);
 	}
 	RemoveFromTabs(hash) {
@@ -494,6 +563,14 @@ class DexBase extends WindowClass {
 							break;
 							case "reports":
 
+							break;
+							case "checkStartFieldsV1":
+								let check = this.#checks.find(item=> item.type == "checkStartFieldsV1");
+								if (packet.data.status == 200) {
+
+								} else {
+									if (packet.data.errs.length > 0) check.element.Errors = packet.data.errs;
+								}
 							break;
 						}
 					break;

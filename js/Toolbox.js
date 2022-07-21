@@ -66,5 +66,9 @@ class Toolbox {
 		}
 		loop();
 	}
+	// проверка на число
+	isNumber(num) {
+        return typeof num === 'number' && !isNaN(num);
+    }
 }
 
